@@ -1,0 +1,191 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    /* dvh tracks iOS Safari's collapsing toolbar; 100% resolves against the
+       large viewport, so the layout is sized for chrome that is not there. */
+    height: 100vh;
+    height: 100dvh;
+}
+
+body {
+    margin: 0;
+    overscroll-behavior: none;
+    -webkit-font-smoothing: antialiased;
+    font-family:
+        "Plus Jakarta Sans",
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Helvetica,
+        Arial,
+        sans-serif;
+}
+
+/* The scroller drives its own motion, so the page itself never scrolls. */
+#root {
+    overflow: hidden;
+}
+
+a:focus-visible {
+    outline: 2px solid #111111;
+    outline-offset: 3px;
+}
+
+/* The CTA shrinks under the press, then eases back to size. */
+@keyframes cta-press {
+    0% {
+        transform: scale(1);
+    }
+    40% {
+        transform: scale(0.88);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Each spoke of the click burst starts tight to the cursor and flies outward
+   along its own rotated axis at full strength. Only at the end does it go —
+   the line retracts from its inner end and drops away in the same beat. */
+@keyframes burst-line {
+    0% {
+        transform: translateY(-3px) scaleY(0.55);
+        opacity: 1;
+    }
+    62% {
+        transform: translateY(-14px) scaleY(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-18px) scaleY(0.05);
+        opacity: 0;
+    }
+}
+
+.burst {
+    position: fixed;
+    z-index: 60;
+    pointer-events: none;
+}
+
+.burst span {
+    position: absolute;
+    display: block;
+    inset: 0;
+}
+
+.burst i {
+    display: block;
+    width: 3px;
+    height: 8px;
+    margin-left: -1.5px;
+    border-radius: 999px;
+    background: currentColor;
+    /* A white ring so the spokes read against the CTA fill and the artwork
+       they fly over. Spread follows the pill radius, and it costs no layout. */
+    box-shadow: 0 0 0 1px #ffffff;
+    /* The outer tip is the top edge, so the line shortens outward. */
+    transform-origin: 50% 0%;
+    animation: burst-line 480ms cubic-bezier(0.15, 0.75, 0.3, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .burst {
+        display: none;
+    }
+    .burst i {
+        animation: none;
+    }
+}
+
+/*
+ * Press physics for the CTA. Two things do most of the work here:
+ *
+ * 1. Asymmetric timing. Pressing in is fast and linear-ish (a real key bottoms
+ *    out immediately); releasing is slower and overshoots. Symmetric easing is
+ *    what makes most web buttons feel dead.
+ * 2. Transitions rather than keyframes, so a press can interrupt a release
+ *    mid-flight. A keyframe animation has to finish, which is what makes rapid
+ *    clicking feel like it is queueing rather than responding.
+ */
+.cta {
+    transition:
+        transform 340ms cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 340ms cubic-bezier(0.34, 1.56, 0.64, 1),
+        background-color 180ms ease;
+}
+
+/* The return from "Thanks!" is the press played backwards, but slower — a
+   press is a reaction and wants to be instant; this is a wind-down. */
+.cta[data-settling="true"] {
+    transition:
+        transform 240ms cubic-bezier(0.33, 1, 0.68, 1),
+        box-shadow 240ms cubic-bezier(0.33, 1, 0.68, 1),
+        background-color 260ms ease;
+}
+
+.cta[data-settling="true"] .cta-label > span {
+    transition-duration: 260ms;
+}
+
+.cta[data-pressed="true"] {
+    transition:
+        transform 90ms cubic-bezier(0.4, 0, 1, 1),
+        box-shadow 90ms cubic-bezier(0.4, 0, 1, 1),
+        background-color 90ms ease;
+}
+
+.cta:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cta,
+    /* The return from "Thanks!" is the press played backwards, but slower — a
+   press is a reaction and wants to be instant; this is a wind-down. */
+.cta[data-settling="true"] {
+    transition:
+        transform 240ms cubic-bezier(0.33, 1, 0.68, 1),
+        box-shadow 240ms cubic-bezier(0.33, 1, 0.68, 1),
+        background-color 260ms ease;
+}
+
+.cta[data-settling="true"] .cta-label > span {
+    transition-duration: 260ms;
+}
+
+.cta[data-pressed="true"] {
+        transition-duration: 1ms;
+    }
+}
+
+/*
+ * The three labels are stacked in one grid cell, so the key is sized to the
+ * longest of them and never resizes as it swaps between states.
+ */
+.cta-label {
+    display: grid;
+    align-items: center;
+    justify-items: center;
+}
+
+.cta-label > span {
+    grid-area: 1 / 1;
+    display: block;
+    transition:
+        opacity 160ms ease,
+        transform 160ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cta-label > span {
+        transition: none;
+    }
+}
