@@ -44,8 +44,10 @@ export interface Palette {
 
 export const PALETTES: Record<ThemeName, Palette> = {
     light: {
-        background: "#FCFCFC",
-        panel: "#FCFCFC",
+        // Gray 50 — a cool white, to sit under ink that is already a
+        // blue-black. A neutral ground under #1F2129 reads faintly mismatched.
+        background: "#F9FAFB",
+        panel: "#F9FAFB",
         text: "#1F2129",
         textMuted: "#4B4F5C",
         pill: "#EFEFEF",
