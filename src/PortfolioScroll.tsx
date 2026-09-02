@@ -799,10 +799,7 @@ export default function PortfolioScroll({
                             lineHeight: `${taglineLineHeight}px`,
                         }}
                     >
-                        {/* The full stop rides with the word. Placed after
-                            the window it would sit at the width of the longest
-                            verb, stranding short ones. */}
-                        {word}.
+                        {word}
                     </span>
                 ))}
             </span>
@@ -818,7 +815,7 @@ export default function PortfolioScroll({
                     whiteSpace: "nowrap",
                 }}
             >
-                {introVerbs.join(", ")}.
+                {introVerbs.join(", ")}
             </span>
         </span>
     )
