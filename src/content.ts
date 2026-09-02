@@ -12,11 +12,13 @@ export const intro = {
     // What the inline CTA cycles through on hover — the words a real placement
     // puts on its buttons.
     ctaWords: ["claim", "yes", "no", "decline"],
-    // {verb} is the rotating word, {rokt} the Rokt wordmark as a link, and
-    // {clicks} the pressable key. A newline becomes a line break, and the verb
-    // ends its line so a wider word cannot reflow the text after it.
+    // The job title, set apart from the sentence around it.
+    role: "product designer",
+    // {role} the title, {verb} the rotating word, {rokt} the employer link and
+    // {clicks} the pressable key. A newline becomes a line break; within a
+    // line the browser balances the wrap, so no line is left a stub.
     tagline:
-        "A product designer who loves to {verb}\nCurrently, I'm optimizing for {clicks} at {rokt}.",
+        "A {role} who loves to {verb}\nCurrently, I'm {rokt} optimizing advertisements for {clicks}",
     // One word each, all verbs that finish "loves to ___".
     verbs: [
         "design",

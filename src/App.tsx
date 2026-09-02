@@ -14,6 +14,7 @@ export default function App() {
         () => readStoredTheme() ?? preferredTheme()
     )
     const [toggleHovered, setToggleHovered] = useState(false)
+    const [togglePressed, setTogglePressed] = useState(false)
     const palette = PALETTES[theme]
 
     useEffect(() => {
@@ -31,6 +32,7 @@ export default function App() {
                 introHeadline={intro.headline}
                 ctaWords={intro.ctaWords}
                 introVerbs={intro.verbs}
+                introRole={intro.role}
                 introTagline={intro.tagline}
                 introLinks={intro.links}
                 palette={palette}
@@ -43,13 +45,20 @@ export default function App() {
                     )
                 }
                 onMouseEnter={() => setToggleHovered(true)}
-                onMouseLeave={() => setToggleHovered(false)}
+                onMouseLeave={() => {
+                    setToggleHovered(false)
+                    setTogglePressed(false)
+                }}
+                onPointerDown={() => setTogglePressed(true)}
+                onPointerUp={() => setTogglePressed(false)}
+                onPointerCancel={() => setTogglePressed(false)}
                 aria-label={
                     theme === "dark"
                         ? "Switch to light mode"
                         : "Switch to dark mode"
                 }
                 aria-pressed={theme === "dark"}
+                className="glass"
                 style={{
                     position: "fixed",
                     // Clears the status bar and Dynamic Island; the page opts
@@ -61,25 +70,27 @@ export default function App() {
                     right: `max(calc(16px + env(safe-area-inset-right)), calc((100vw - ${CONTENT_MAX_WIDTH}px) / 2 + 16px))`,
                     zIndex: 50,
                     width: 44,
-                    height: 36,
+                    // 44x44: it was 44x36, eight points short of the hit
+                    // region HIG asks for, and it is the one control that
+                    // floats over the hero where a miss costs the most.
+                    height: 44,
                     display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
                     padding: 0,
                     borderRadius: 999,
-                    // The toggle floats over the hero on mobile, so it needs a
-                    // surface of its own rather than the panel colour.
-                    backgroundColor: palette.floatingSurface,
-                    backdropFilter: "blur(10px)",
-                    WebkitBackdropFilter: "blur(10px)",
-                    border: `1px solid ${palette.floatingBorder}`,
+                    // Surface, blur and rim all come from .glass — inline
+                    // styles would beat the class and the material has to
+                    // respond to the reduced-transparency media query.
                     color: palette.text,
                     cursor: "pointer",
                     transition:
                         "transform 160ms ease, background-color 160ms ease",
-                    transform: toggleHovered
-                        ? "translateY(-1px)"
-                        : "translateY(0px)",
+                    transform: togglePressed
+                        ? "scale(0.92)"
+                        : toggleHovered
+                          ? "translateY(-1px)"
+                          : "translateY(0px)",
                 }}
             >
                 {theme === "dark" ? <SunIcon /> : <MoonIcon />}

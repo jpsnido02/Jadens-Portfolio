@@ -7,12 +7,7 @@ import {
     type CSSProperties,
     type ReactNode,
 } from "react"
-import {
-    IntroIcon,
-    RoktWordmark,
-    resolveIntroIcon,
-    type IntroIconName,
-} from "./icons"
+import { IntroIcon, resolveIntroIcon, type IntroIconName } from "./icons"
 import { PALETTES, type Palette } from "./theme"
 
 export interface ProjectData {
@@ -39,6 +34,7 @@ export interface PortfolioScrollProps {
     /** First line of the intro, e.g. "i'm jaden ✌️". */
     introHeadline?: string
     /** The line under it, set in the same heavy face. */
+    introRole?: string
     introTagline?: string
     /** Words the inline CTA cycles through on hover. */
     ctaWords?: string[]
@@ -102,17 +98,8 @@ const CTA_HOVER_KEY = -1
  */
 export const CONTENT_MAX_WIDTH = 1440
 
-/** Depth of the edge the key presses down into. */
-const CTA_DEPTH = 3
-
-/**
- * Lifts the key onto the text's optical centre. It carries a base edge below
- * the face, so centring the box alone leaves the visual mass sitting low.
- */
+/** Lifts the key onto the text's optical centre. */
 const CTA_BASELINE_NUDGE = 0.4
-
-/** Clear space under the Rokt glyphs, as a fraction of the mark's height. */
-const ROKT_INK_OFFSET = (30 - 28.837) / 30
 
 /** The burst is parked for now; flip this to bring it back. */
 const CLICK_BURST_ENABLED = false
@@ -127,11 +114,12 @@ const lerp = (start: number, end: number, factor: number) =>
     start + (end - start) * factor
 
 /**
- * Renders `{rokt}` as the wordmark and `{clicks}` as the pressable key, so
- * each reads inline as part of the sentence.
+ * Renders `{role}` and `{rokt}` as emphasised inline text and `{clicks}` as the
+ * pressable key, so each reads as part of the sentence rather than as chrome.
  */
 const renderTagline = (
     text: string,
+    role: ReactNode,
     rokt: ReactNode,
     clicks: ReactNode,
     verb: ReactNode,
@@ -143,19 +131,30 @@ const renderTagline = (
             key={li}
             style={{
                 display: "block",
+                // Evens out the wrap rather than filling line one and leaving
+                // a stub. Safe here because the key's label sits in a grid
+                // stack sized to its widest word, so it never changes width
+                // and cannot re-trigger the balance mid-hover.
+                ...({ textWrap: "balance" } as object),
                 // Only the line carrying the key pays for its height.
                 lineHeight: `${
                     line.includes("{clicks}") ? keyLineHeight : textLineHeight
                 }px`,
             }}
         >
-            {line.split(/(\{rokt\}|\{clicks\}|\{verb\})/).map((part, i) => {
-                if (part === "{rokt}") return <Fragment key={i}>{rokt}</Fragment>
-                if (part === "{clicks}")
-                    return <Fragment key={i}>{clicks}</Fragment>
-                if (part === "{verb}") return <Fragment key={i}>{verb}</Fragment>
-                return part
-            })}
+            {line
+                .split(/(\{role\}|\{rokt\}|\{clicks\}|\{verb\})/)
+                .map((part, i) => {
+                    if (part === "{role}")
+                        return <Fragment key={i}>{role}</Fragment>
+                    if (part === "{rokt}")
+                        return <Fragment key={i}>{rokt}</Fragment>
+                    if (part === "{clicks}")
+                        return <Fragment key={i}>{clicks}</Fragment>
+                    if (part === "{verb}")
+                        return <Fragment key={i}>{verb}</Fragment>
+                    return part
+                })}
         </span>
     ))
 
@@ -173,6 +172,7 @@ export default function PortfolioScroll({
     ctaWords = ["claim", "yes", "no", "decline"],
     introVerbs = ["design"],
     introHeadline = "",
+    introRole = "",
     introTagline = "",
     introLinks = [],
     scrollSpeed = 0.75,
@@ -196,6 +196,16 @@ export default function PortfolioScroll({
         null
     )
     const [activeCardIndex, setActiveCardIndex] = useState(0)
+    // HIG: "Always include a press state for a custom button." These are
+    // custom buttons carrying inline transforms, so the pressed flag has to
+    // compose into that transform — a CSS :active rule would lose to it.
+    const [pressedKey, setPressedKey] = useState<string | null>(null)
+    const pressProps = (key: string) => ({
+        onPointerDown: () => setPressedKey(key),
+        onPointerUp: () => setPressedKey(null),
+        onPointerLeave: () => setPressedKey(null),
+        onPointerCancel: () => setPressedKey(null),
+    })
     const [cardWidth, setCardWidth] = useState(0)
     const [ctaPressed, setCtaPressed] = useState(false)
     const [verbIndex, setVerbIndex] = useState(0)
@@ -234,14 +244,13 @@ export default function PortfolioScroll({
     const heroRef = useRef<HTMLDivElement>(null)
 
     const cardHeight = isMobile ? 190 : 230
-    const taglineSize = isMobile ? 16 : 22
+    const taglineSize = isMobile ? 16 : 18
     // Sized against the tagline, so it keeps its ratio if the type changes.
     // Sized to the cap height of the sentence it sits in.
-    const roktHeight = taglineSize * 0.727
     const ctaSize = Math.round(taglineSize * 0.75)
     // The key is taller than the type it sits in, so the paragraph's leading
     // has to clear its full height or it collides with the line above.
-    const ctaHeight = ctaSize * 0.42 * 2 + ctaSize * 1.1 + CTA_DEPTH
+    const ctaHeight = ctaSize * 0.42 * 2 + ctaSize * 1.1
     // Two leadings, not one. Sizing the whole paragraph to clear the key made
     // every line 39% looser than the type wanted, which is what left the key
     // floating in a band of space of its own making.
@@ -586,28 +595,25 @@ export default function PortfolioScroll({
         cardHeight,
     ])
 
-    // Sits inline in the tagline; the baseline of an inline-block lands on its
-    // bottom margin edge, so it is nudged by the wordmark's own ink offset.
+    // The three words the sentence is actually about — title, verb, employer —
+    // share one treatment so they read as a set, not three separate accents.
+    // Medium, not semibold: full-contrast ink already separates them from the
+    // grey around them, so the weight only has to confirm that, not carry it.
+    const emphasis = { color: palette.text, fontWeight: 500 }
+
+    const roleToken = <span style={emphasis}>{introRole}</span>
+
+    // Plain text now, so it needs none of the baseline correction an inline
+    // SVG did — it simply sits on the line like the words around it.
     const roktWordmark = (
         // Full contrast, so the employer reads out of the grey sentence.
         <a
             href="https://www.rokt.com"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Rokt"
-            style={{
-                display: "inline-block",
-                verticalAlign: "baseline",
-                marginLeft: 2,
-                color: palette.text,
-                textDecoration: "none",
-                // An inline-block baselines on its bottom margin edge, so the
-                // mark is nudged by its own clear space to sit on the text
-                // baseline rather than floating above it.
-                transform: `translateY(${roktHeight * ROKT_INK_OFFSET}px)`,
-            }}
+            style={{ ...emphasis, textDecoration: "none" }}
         >
-            <RoktWordmark height={roktHeight} />
+            @Rokt
         </a>
     )
 
@@ -655,21 +661,21 @@ export default function PortfolioScroll({
     }
 
     const ctaHovered = hoveredIntroIcon === CTA_HOVER_KEY
-    // rest -> hover -> pressed -> confirmed, each with its own fill.
-    const ctaFace = ctaConfirmed
+    // rest -> hover -> pressed -> confirmed. Flat: a fill, a darker fill for
+    // hover, and ink. No rim, no lit edge, no ambient shadow — depth here is
+    // carried by colour and hierarchy rather than by shading.
+    const face = ctaConfirmed
         ? {
               fill: palette.accentSuccess,
-              base: palette.accentSuccessBase,
-              // White on the mint green is 1.9:1 — unreadable. Dark ink is 8.4.
-              ink: "#1F2129",
+              hoverFill: palette.accentSuccess,
+              ink: palette.onAccentSuccess,
           }
         : {
-              // Hover only lifts the key; the fill stays put until the press
-              // is confirmed, so colour means "done" rather than "hovered".
               fill: palette.accent,
-              base: palette.accentBase,
+              hoverFill: palette.accentBase,
               ink: palette.onAccent,
           }
+
     // Dragging off the key cancels rather than confirms, so only a release on
     // the button counts.
     const confirm = () => {
@@ -695,7 +701,7 @@ export default function PortfolioScroll({
     const clicksCta = (
         <button
             type="button"
-            className="cta"
+            className="cta hit44"
             // The label swaps between states; the name stays put for anyone
             // not looking at it.
             aria-label="clicks"
@@ -748,29 +754,21 @@ export default function PortfolioScroll({
                 margin: "0 2px",
                 border: "none",
                 cursor: "pointer",
-                borderRadius: 8,
+                borderRadius: 10,
                 ...({ cornerShape: CONFIG.CORNER_SHAPE } as object),
-                backgroundColor: ctaFace.fill,
-                color: ctaFace.ink,
+                backgroundColor:
+                    ctaHovered || ctaPressed ? face.hoverFill : face.fill,
+                color: face.ink,
                 verticalAlign: "baseline",
-                // The base edge and the travel are one gesture: pressed, the
-                // face drops by exactly the depth it loses, so the key bottoms
-                // out rather than merely shrinking.
-                boxShadow: ctaPressed
-                    ? `0 0 0 ${ctaFace.base}`
-                    : ctaSettling
-                      ? `0 1px 0 ${ctaFace.base}`
-                      : `0 ${ctaHovered || ctaConfirmed ? CTA_DEPTH + 1 : CTA_DEPTH}px 0 ${ctaFace.base}`,
-                // Two corrections stacked: half the base edge, which hangs
-                // below the face and drags the visual mass down, plus the
-                // usual gap between a line box's centre and its ink.
+                // A flat control shows its press by dimming, not by casting
+                // or losing a shadow. The small compression keeps the press
+                // physical without reintroducing depth.
+                opacity: ctaPressed ? 0.72 : 1,
                 transform: ctaPressed
-                    ? `translateY(${CTA_DEPTH - CTA_BASELINE_NUDGE}px)`
+                    ? `translateY(${-CTA_BASELINE_NUDGE}px) scale(0.97)`
                     : ctaSettling
-                      ? `translateY(${1 - CTA_BASELINE_NUDGE}px) scale(0.985)`
-                      : ctaHovered || ctaConfirmed
-                        ? `translateY(${-1 - CTA_BASELINE_NUDGE}px)`
-                        : `translateY(${-CTA_BASELINE_NUDGE}px)`,
+                      ? `translateY(${-CTA_BASELINE_NUDGE}px) scale(0.99)`
+                      : `translateY(${-CTA_BASELINE_NUDGE}px)`,
             }}
         >
             <span className="cta-label">
@@ -802,7 +800,7 @@ export default function PortfolioScroll({
                 verticalAlign: "top",
                 height: textLineHeight,
                 overflow: "hidden",
-                color: palette.text,
+                ...emphasis,
             }}
         >
             <span
@@ -861,164 +859,168 @@ export default function PortfolioScroll({
     // On a phone the intro leads the page, above the hero; on desktop it
     // heads the right-hand panel. Same markup, two positions.
     const introBlock = (
-                <header
+        <header
+            style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: isMobile ? 6 : 8,
+                flexShrink: 0,
+                // Outside the panel on mobile, so it carries its own
+                // horizontal padding to stay aligned with the hero.
+                paddingLeft: isMobile ? 16 : undefined,
+                paddingRight: isMobile ? 16 : undefined,
+                marginBottom: 0,
+                paddingTop: isMobile ? 40 : 48,
+                paddingBottom: isMobile ? 10 : 24,
+            }}
+        >
+            {introAvatar && (
+                <img
+                    src={introAvatar.src}
+                    alt={introAvatar.alt}
+                    width={isMobile ? 40 : 56}
+                    height={isMobile ? 40 : 56}
+                    style={{
+                        display: "block",
+                        objectFit: "cover",
+                        borderRadius: isMobile ? 12 : 16,
+                        ...({
+                            cornerShape: CONFIG.CORNER_SHAPE,
+                        } as object),
+                        marginBottom: isMobile ? 2 : 4,
+                    }}
+                />
+            )}
+            <h1
+                style={{
+                    ...titleFont,
+                    fontSize: isMobile ? 24 : 36,
+                    color: palette.text,
+                    margin: 0,
+                    lineHeight: 1.08,
+                    letterSpacing: "-0.03em",
+                    fontWeight: 600,
+                    fontFamily: FONT_FAMILY,
+                }}
+            >
+                {introHeadline}
+            </h1>
+            <p
+                style={{
+                    ...bodyFont,
+                    fontSize: taglineSize,
+                    // Grey rather than black-at-85%: the muted token
+                    // holds its weight in both themes, where an opacity
+                    // knock-down just thins the ink.
+                    color: palette.textMuted,
+                    margin: 0,
+                    lineHeight: `${textLineHeight}px`,
+                    letterSpacing: "-0.015em",
+                    fontWeight: 400,
+                    fontFamily: FONT_FAMILY,
+                }}
+            >
+                {renderTagline(
+                    introTagline,
+                    roleToken,
+                    roktWordmark,
+                    clicksCta,
+                    verbShifter,
+                    textLineHeight,
+                    keyLineHeight
+                )}
+            </p>
+            {introLinks.length > 0 && (
+                <div
                     style={{
                         display: "flex",
-                        flexDirection: "column",
-                        gap: isMobile ? 6 : 8,
-                        flexShrink: 0,
-                        // Outside the panel on mobile, so it carries its own
-                        // horizontal padding to stay aligned with the hero.
-                        paddingLeft: isMobile ? 16 : undefined,
-                        paddingRight: isMobile ? 16 : undefined,
-                        marginBottom: 0,
-                        paddingTop: isMobile ? 40 : 48,
-                        paddingBottom: isMobile ? 10 : 24,
+                        alignItems: "center",
+                        flexWrap: "wrap",
+                        gap: 10,
+                        marginTop: 12,
+                        marginLeft: -6,
                     }}
                 >
-                    {introAvatar && (
-                        <img
-                            src={introAvatar.src}
-                            alt={introAvatar.alt}
-                            width={isMobile ? 40 : 56}
-                            height={isMobile ? 40 : 56}
-                            style={{
-                                display: "block",
-                                objectFit: "cover",
-                                borderRadius: isMobile ? 12 : 16,
-                                ...({
-                                    cornerShape: CONFIG.CORNER_SHAPE,
-                                } as object),
-                                marginBottom: isMobile ? 2 : 4,
-                            }}
-                        />
-                    )}
-                    <h1
-                        style={{
-                            ...titleFont,
-                            fontSize: isMobile ? 24 : 36,
-                            color: palette.text,
-                            margin: 0,
-                            lineHeight: 1.08,
-                            letterSpacing: "-0.03em",
-                            fontWeight: 600,
-                            fontFamily: FONT_FAMILY,
-                        }}
-                    >
-                        {introHeadline}
-                    </h1>
-                    <p
-                        style={{
-                            ...bodyFont,
-                            fontSize: taglineSize,
-                            // Grey rather than black-at-85%: the muted token
-                            // holds its weight in both themes, where an opacity
-                            // knock-down just thins the ink.
-                            color: palette.textMuted,
-                            margin: 0,
-                            lineHeight: `${textLineHeight}px`,
-                            letterSpacing: "-0.015em",
-                            fontWeight: 400,
-                            fontFamily: FONT_FAMILY,
-                        }}
-                    >
-                        {renderTagline(
-                            introTagline,
-                            roktWordmark,
-                            clicksCta,
-                            verbShifter,
-                            textLineHeight,
-                            keyLineHeight
-                        )}
-                    </p>
-                    {introLinks.length > 0 && (
-                        <div
-                            style={{
-                                display: "flex",
-                                alignItems: "center",
-                                flexWrap: "wrap",
-                                gap: 10,
-                                marginTop: 12,
-                                marginLeft: -6,
-                            }}
-                        >
-                            {introLinks.map((item, idx) => {
-                                const isMailto = item.url.startsWith("mailto:")
-                                const isHovered = hoveredIntroIcon === idx
-                                return (
-                                    <Fragment key={`${item.label}-${idx}`}>
-                                        {idx > 0 && (
-                                            <span
-                                                aria-hidden="true"
-                                                style={{
-                                                    ...bodyFont,
-                                                    fontFamily: FONT_FAMILY,
-                                                    fontSize: 15,
-                                                    color: palette.textMuted,
-                                                    opacity: 0.5,
-                                                    userSelect: "none",
-                                                }}
-                                            >
-                                                /
-                                            </span>
-                                        )}
-                                        <a
-                                            href={item.url}
-                                            target={
-                                                isMailto ? undefined : "_blank"
-                                            }
-                                            rel={
-                                                isMailto
-                                                    ? undefined
-                                                    : "noopener noreferrer"
-                                            }
-                                            aria-label={item.label}
-                                            onMouseEnter={() =>
-                                                startTransition(() =>
-                                                    setHoveredIntroIcon(idx)
-                                                )
-                                            }
-                                            onMouseLeave={() =>
-                                                startTransition(() =>
-                                                    setHoveredIntroIcon(null)
-                                                )
-                                            }
-                                            style={{
-                                                textDecoration: "none",
-                                                display: "inline-flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                                // No fill any more, so padding
-                                                // is the only thing keeping a
-                                                // tap target around the glyph.
-                                                padding: isMobile ? 9 : 6,
-                                                color: isHovered
-                                                    ? palette.text
-                                                    : palette.textMuted,
-                                                transition:
-                                                    "transform 160ms ease, color 160ms ease",
-                                                transform: isHovered
-                                                    ? "translateY(-1px)"
-                                                    : "translateY(0px)",
-                                            }}
-                                        >
-                                            <IntroIcon
-                                                name={
-                                                    item.icon ??
-                                                    resolveIntroIcon(
-                                                        item.label,
-                                                        item.url
-                                                    )
-                                                }
-                                                size={18}
-                                            />
-                                        </a>
-                                    </Fragment>
-                                )
-                            })}
-                        </div>
-                    )}
-                </header>
+                    {introLinks.map((item, idx) => {
+                        const isMailto = item.url.startsWith("mailto:")
+                        const isHovered = hoveredIntroIcon === idx
+                        return (
+                            <Fragment key={`${item.label}-${idx}`}>
+                                {idx > 0 && (
+                                    <span
+                                        aria-hidden="true"
+                                        style={{
+                                            ...bodyFont,
+                                            fontFamily: FONT_FAMILY,
+                                            fontSize: 15,
+                                            color: palette.textMuted,
+                                            opacity: 0.5,
+                                            userSelect: "none",
+                                        }}
+                                    >
+                                        /
+                                    </span>
+                                )}
+                                <a
+                                    href={item.url}
+                                    target={isMailto ? undefined : "_blank"}
+                                    rel={
+                                        isMailto
+                                            ? undefined
+                                            : "noopener noreferrer"
+                                    }
+                                    aria-label={item.label}
+                                    className="hit44"
+                                    {...pressProps(`link-${idx}`)}
+                                    onMouseEnter={() =>
+                                        startTransition(() =>
+                                            setHoveredIntroIcon(idx)
+                                        )
+                                    }
+                                    onMouseLeave={() =>
+                                        startTransition(() =>
+                                            setHoveredIntroIcon(null)
+                                        )
+                                    }
+                                    style={{
+                                        textDecoration: "none",
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        // No fill any more, so padding
+                                        // is the only thing keeping a
+                                        // tap target around the glyph.
+                                        padding: isMobile ? 9 : 6,
+                                        color: isHovered
+                                            ? palette.text
+                                            : palette.textMuted,
+                                        transition:
+                                            "transform 160ms ease, color 160ms ease",
+                                        transform:
+                                            pressedKey === `link-${idx}`
+                                                ? "scale(0.88)"
+                                                : isHovered
+                                                  ? "translateY(-1px)"
+                                                  : "translateY(0px)",
+                                    }}
+                                >
+                                    <IntroIcon
+                                        name={
+                                            item.icon ??
+                                            resolveIntroIcon(
+                                                item.label,
+                                                item.url
+                                            )
+                                        }
+                                        size={18}
+                                    />
+                                </a>
+                            </Fragment>
+                        )
+                    })}
+                </div>
+            )}
+        </header>
     )
 
     return (
@@ -1199,7 +1201,9 @@ export default function PortfolioScroll({
                         // On a phone the track claims its space first: a card
                         // plus CARD_PEEK, so the neighbours show as a
                         // deliberate peek and can never clip the focused card.
-                        height: isMobile ? cardHeight + CONFIG.CARD_PEEK : undefined,
+                        height: isMobile
+                            ? cardHeight + CONFIG.CARD_PEEK
+                            : undefined,
                         flex: isMobile ? "0 0 auto" : 1,
                         minHeight: 0,
                         overflow: isMobile ? "hidden" : "visible",
@@ -1252,7 +1256,9 @@ export default function PortfolioScroll({
                             >
                                 <a
                                     href={isInteractive ? data.link : undefined}
-                                    target={isInteractive ? "_blank" : undefined}
+                                    target={
+                                        isInteractive ? "_blank" : undefined
+                                    }
                                     rel={
                                         isInteractive
                                             ? "noopener noreferrer"
@@ -1261,6 +1267,7 @@ export default function PortfolioScroll({
                                     aria-label={`Open project: ${data.title}`}
                                     aria-hidden={!isInteractive}
                                     tabIndex={isInteractive ? 0 : -1}
+                                    {...pressProps(`card-${i}`)}
                                     onMouseEnter={() => {
                                         if (!isInteractive) return
                                         startTransition(() => setHoveredCard(i))
@@ -1296,9 +1303,12 @@ export default function PortfolioScroll({
                                             ? "auto"
                                             : "none",
                                         transform:
-                                            isInteractive && isHovered
-                                                ? "translateY(-4px)"
-                                                : "translateY(0px)",
+                                            isInteractive &&
+                                            pressedKey === `card-${i}`
+                                                ? "translateY(-1px) scale(0.99)"
+                                                : isInteractive && isHovered
+                                                  ? "translateY(-4px)"
+                                                  : "translateY(0px)",
                                         transition: "transform 180ms ease",
                                     }}
                                 >
@@ -1351,9 +1361,11 @@ export default function PortfolioScroll({
                                             <span
                                                 style={{
                                                     ...bodyFont,
-                                                    fontSize: isMobile
-                                                        ? 10
-                                                        : 11,
+                                                    // HIG's floor is 11pt on
+                                                    // iOS, and it asks for
+                                                    // more than the minimum
+                                                    // with a custom face.
+                                                    fontSize: 12,
                                                     color: cardInk,
                                                     opacity: 0.65,
                                                     textAlign: "right",
