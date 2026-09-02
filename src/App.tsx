@@ -30,6 +30,7 @@ export default function App() {
                 projects={projects}
                 introHeadline={intro.headline}
                 ctaWords={intro.ctaWords}
+                introVerbs={intro.verbs}
                 introTagline={intro.tagline}
                 introLinks={intro.links}
                 palette={palette}

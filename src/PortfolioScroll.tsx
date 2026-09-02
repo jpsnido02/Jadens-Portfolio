@@ -42,6 +42,8 @@ export interface PortfolioScrollProps {
     introTagline?: string
     /** Words the inline CTA cycles through on hover. */
     ctaWords?: string[]
+    /** Verbs the intro rotates through, one at a time. */
+    introVerbs?: string[]
     /** Shown above the headline. Swap the src for a memoji or a photo. */
     introAvatar?: { src: string; alt: string }
     introLinks?: IntroLink[]
@@ -73,6 +75,10 @@ const CONFIG = {
     HOVER_HEADROOM: 8,
     /** Room around the focused card on mobile, shown as a neighbour peek. */
     CARD_PEEK: 40,
+    /** How long each intro verb holds before the next slides up. */
+    VERB_INTERVAL: 2200,
+    /** How long one verb takes to travel. */
+    VERB_TRAVEL: 520,
     /** A swipe past this many pixels advances one project. */
     SWIPE_DISTANCE: 44,
     /** …or past this speed, in pixels per millisecond. */
@@ -121,10 +127,17 @@ const lerp = (start: number, end: number, factor: number) =>
  * Renders `{rokt}` as the wordmark and `{clicks}` as the pressable key, so
  * each reads inline as part of the sentence.
  */
-const renderTagline = (text: string, rokt: ReactNode, clicks: ReactNode) =>
-    text.split(/(\{rokt\}|\{clicks\})/).map((part, i) => {
+const renderTagline = (
+    text: string,
+    rokt: ReactNode,
+    clicks: ReactNode,
+    verb: ReactNode
+) =>
+    text.split(/(\{rokt\}|\{clicks\}|\{verb\}|\n)/).map((part, i) => {
         if (part === "{rokt}") return <Fragment key={i}>{rokt}</Fragment>
         if (part === "{clicks}") return <Fragment key={i}>{clicks}</Fragment>
+        if (part === "{verb}") return <Fragment key={i}>{verb}</Fragment>
+        if (part === "\n") return <br key={i} />
         return part
     })
 
@@ -140,6 +153,7 @@ export default function PortfolioScroll({
     projects,
     introAvatar,
     ctaWords = ["claim", "yes", "no", "decline"],
+    introVerbs = ["design"],
     introHeadline = "",
     introTagline = "",
     introLinks = [],
@@ -166,6 +180,8 @@ export default function PortfolioScroll({
     const [activeCardIndex, setActiveCardIndex] = useState(0)
     const [cardWidth, setCardWidth] = useState(0)
     const [ctaPressed, setCtaPressed] = useState(false)
+    const [verbIndex, setVerbIndex] = useState(0)
+    const [verbAnimated, setVerbAnimated] = useState(true)
     const [ctaConfirmed, setCtaConfirmed] = useState(false)
     // A brief phase between "Thanks!" and rest, so the key condenses back down
     // instead of dissolving in place.
@@ -581,6 +597,30 @@ export default function PortfolioScroll({
         []
     )
 
+    // The stack ends with a copy of the first word, so the last step still
+    // travels upward; on landing there the transition is cut and the index
+    // reset to 0, which is the same frame visually.
+    useEffect(() => {
+        if (introVerbs.length < 2) return
+        if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+            return
+        }
+        const id = window.setInterval(() => {
+            setVerbAnimated(true)
+            setVerbIndex((i) => i + 1)
+        }, CONFIG.VERB_INTERVAL)
+        return () => window.clearInterval(id)
+    }, [introVerbs.length])
+
+    useEffect(() => {
+        if (verbIndex !== introVerbs.length) return
+        const id = window.setTimeout(() => {
+            setVerbAnimated(false)
+            setVerbIndex(0)
+        }, CONFIG.VERB_TRAVEL)
+        return () => window.clearTimeout(id)
+    }, [verbIndex, introVerbs.length])
+
     const spawnBurst = (x: number, y: number) => {
         if (!CLICK_BURST_ENABLED) return
         const id = burstId.current++
@@ -727,6 +767,62 @@ export default function PortfolioScroll({
         </button>
     )
 
+    // A window one line tall with the words stacked inside it; the stack
+    // slides up by exactly one line each time. Sits at the end of its line so
+    // a change of word width cannot reflow the text after it.
+    const verbShifter = (
+        <span
+            style={{
+                display: "inline-block",
+                verticalAlign: "top",
+                height: taglineLineHeight,
+                overflow: "hidden",
+                color: palette.text,
+            }}
+        >
+            <span
+                aria-hidden="true"
+                style={{
+                    display: "block",
+                    transform: `translateY(${-verbIndex * taglineLineHeight}px)`,
+                    transition: verbAnimated
+                        ? `transform ${CONFIG.VERB_TRAVEL}ms cubic-bezier(0.65, 0, 0.35, 1)`
+                        : "none",
+                }}
+            >
+                {[...introVerbs, introVerbs[0]].map((word, i) => (
+                    <span
+                        key={`${word}-${i}`}
+                        style={{
+                            display: "block",
+                            height: taglineLineHeight,
+                            lineHeight: `${taglineLineHeight}px`,
+                        }}
+                    >
+                        {/* The full stop rides with the word. Placed after
+                            the window it would sit at the width of the longest
+                            verb, stranding short ones. */}
+                        {word}.
+                    </span>
+                ))}
+            </span>
+            {/* The animation is decorative; the sentence still reads as one
+                thing to a screen reader. */}
+            <span
+                style={{
+                    position: "absolute",
+                    width: 1,
+                    height: 1,
+                    overflow: "hidden",
+                    clip: "rect(0 0 0 0)",
+                    whiteSpace: "nowrap",
+                }}
+            >
+                {introVerbs.join(", ")}.
+            </span>
+        </span>
+    )
+
     const indices: number[] = []
     for (let i = visibleRange.min; i <= visibleRange.max; i++) indices.push(i)
 
@@ -804,7 +900,12 @@ export default function PortfolioScroll({
                             fontFamily: FONT_FAMILY,
                         }}
                     >
-                        {renderTagline(introTagline, roktWordmark, clicksCta)}
+                        {renderTagline(
+                            introTagline,
+                            roktWordmark,
+                            clicksCta,
+                            verbShifter
+                        )}
                     </p>
                     {introLinks.length > 0 && (
                         <div

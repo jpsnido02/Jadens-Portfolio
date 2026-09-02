@@ -12,10 +12,22 @@ export const intro = {
     // What the inline CTA cycles through on hover — the words a real placement
     // puts on its buttons.
     ctaWords: ["claim", "yes", "no", "decline"],
-    // {rokt} renders the Rokt wordmark as a link and {clicks} the pressable
-    // key. See renderTagline.
+    // {verb} is the rotating word, {rokt} the Rokt wordmark as a link, and
+    // {clicks} the pressable key. A newline becomes a line break, and the verb
+    // ends its line so a wider word cannot reflow the text after it.
     tagline:
-        "A product designer who loves to do all three: research, prototype, and code. Currently, I'm optimizing for {clicks} at {rokt}.",
+        "A product designer who loves to {verb}\nCurrently, I'm optimizing for {clicks} at {rokt}.",
+    // One word each, all verbs that finish "loves to ___".
+    verbs: [
+        "design",
+        "prototype",
+        "research",
+        "code",
+        "test",
+        "ship",
+        "automate",
+        "iterate",
+    ],
     // The icon is inferred from the label/URL — mail, linkedin, twitter, x,
     // instagram, github, dribbble, behance, or a globe for anything else.
     // Add `icon: "github"` to a link to force a specific one.
