@@ -73,6 +73,12 @@ const CONFIG = {
     HOVER_HEADROOM: 8,
     /** Room around the focused card on mobile, shown as a neighbour peek. */
     CARD_PEEK: 40,
+    /** A swipe past this many pixels advances one project. */
+    SWIPE_DISTANCE: 44,
+    /** …or past this speed, in pixels per millisecond. */
+    SWIPE_VELOCITY: 0.28,
+    /** Extra travel per mouse-wheel notch, on top of scrollSpeed. */
+    WHEEL_NOTCH_GAIN: 2.6,
     /** Softens the mobile track's edges so neighbours fade out of view. */
     TRACK_FADE:
         "linear-gradient(to bottom, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%)",
@@ -140,7 +146,7 @@ export default function PortfolioScroll({
     scrollSpeed = 0.75,
     lerpFactor = 0.05,
     bufferSize = 5,
-    maxVelocity = 150,
+    maxVelocity = 240,
     snapDuration = 500,
     palette = PALETTES.light,
     titleFont,
@@ -178,8 +184,9 @@ export default function PortfolioScroll({
         isSnapping: false,
         snapStart: { time: 0, y: 0, target: 0 },
         lastScrollTime: Date.now(),
-        dragStart: { y: 0, scrollY: 0 },
+        dragStart: { y: 0, scrollY: 0, time: 0, index: 0 },
         projectHeight: 0,
+        heroHeight: 0,
         minimapHeight: CONFIG.MINIMAP_HEIGHT,
     })
 
@@ -189,8 +196,8 @@ export default function PortfolioScroll({
     const renderedRange = useRef({ min: -bufferSize, max: bufferSize })
     const activeIndexRef = useRef(0)
     const containerRef = useRef<HTMLDivElement>(null)
-    const rightPanelRef = useRef<HTMLDivElement>(null)
     const cardsViewportRef = useRef<HTMLDivElement>(null)
+    const heroRef = useRef<HTMLDivElement>(null)
 
     const cardHeight = isMobile ? 190 : 230
     const taglineSize = isMobile ? 16 : 22
@@ -205,9 +212,7 @@ export default function PortfolioScroll({
 
     const updateParallax = (
         element: HTMLImageElement | HTMLVideoElement | null,
-        scroll: number,
-        index: number,
-        height: number,
+        offset: number,
         scale: number
     ) => {
         if (!element) return
@@ -217,7 +222,7 @@ export default function PortfolioScroll({
         }
 
         let current = parseFloat(element.dataset.parallaxCurrent)
-        const target = (-scroll - index * height) * 0.2
+        const target = -offset * 0.2
         current = lerp(current, target, 0.1)
 
         if (Math.abs(current - target) > 0.01) {
@@ -233,6 +238,7 @@ export default function PortfolioScroll({
         const s = state.current
         s.minimapHeight = cardHeight
         s.projectHeight = containerEl.clientHeight
+        s.heroHeight = heroRef.current?.clientHeight || containerEl.clientHeight
 
         const checkMobile = () => {
             const width = containerEl.clientWidth
@@ -243,23 +249,24 @@ export default function PortfolioScroll({
         const updatePositions = () => {
             if (s.projectHeight <= 0) return
 
+            const currentFloat = -s.currentY / s.projectHeight
             const pitch = s.minimapHeight + CONFIG.CARD_GAP
             const cardsViewportHeight =
                 cardsViewportRef.current?.clientHeight || s.minimapHeight
             const centeredOffsetY = isMobile
                 ? (cardsViewportHeight - s.minimapHeight) / 2
                 : 0
-            const currentFloat = -s.currentY / s.projectHeight
 
             projectsRef.current.forEach((el, index) => {
-                const y = index * s.projectHeight + s.currentY
+                // The scroll unit is the container, but the hero is its own
+                // box — on mobile a fraction of it. Spacing the slides by the
+                // container's height leaves the photo adrift in its frame.
+                const y = (index - currentFloat) * s.heroHeight
                 el.style.transform = `translateY(${y}px)`
                 const media = el.querySelector("img, video")
                 updateParallax(
                     media as HTMLImageElement | HTMLVideoElement,
-                    s.currentY,
-                    index,
-                    s.projectHeight,
+                    y,
                     // A 1.5x zoom on top of an already tight phone crop throws
                     // most of the photo away.
                     isMobile ? 1.15 : imageScale
@@ -377,8 +384,17 @@ export default function PortfolioScroll({
             e.preventDefault()
             s.isSnapping = false
             s.lastScrollTime = Date.now()
+            // Firefox reports lines, and some mice report pages.
+            const unit =
+                e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? s.projectHeight : 1
+            const raw = e.deltaY * unit
+            // A trackpad streams many small deltas; a mouse wheel fires a few
+            // big notches. Treated the same, a wheel needs about eleven clicks
+            // to cross one project, so notches get their own gain.
+            const isNotch = e.deltaMode !== 0 || Math.abs(raw) >= 50
+            const gain = scrollSpeed * (isNotch ? CONFIG.WHEEL_NOTCH_GAIN : 1)
             const delta = Math.max(
-                Math.min(e.deltaY * scrollSpeed, maxVelocity),
+                Math.min(raw * gain, maxVelocity),
                 -maxVelocity
             )
             s.targetY -= delta
@@ -387,36 +403,78 @@ export default function PortfolioScroll({
         const onTouchStart = (e: TouchEvent) => {
             s.isDragging = true
             s.isSnapping = false
-            s.dragStart = { y: e.touches[0].clientY, scrollY: s.targetY }
+            s.dragStart = {
+                y: e.touches[0].clientY,
+                scrollY: s.targetY,
+                time: Date.now(),
+                index:
+                    s.projectHeight > 0
+                        ? Math.round(-s.targetY / s.projectHeight)
+                        : 0,
+            }
             s.lastScrollTime = Date.now()
         }
 
         const onTouchMove = (e: TouchEvent) => {
             if (!s.isDragging) return
             e.preventDefault()
-            s.targetY =
+            const dragged =
                 s.dragStart.scrollY +
                 (e.touches[0].clientY - s.dragStart.y) * 1.5
+            // The finger can only ever reach the neighbouring project, so a
+            // long drag cannot fling past several at once.
+            if (s.projectHeight > 0) {
+                const start = -s.dragStart.index * s.projectHeight
+                s.targetY = Math.max(
+                    Math.min(dragged, start + s.projectHeight),
+                    start - s.projectHeight
+                )
+            } else {
+                s.targetY = dragged
+            }
             s.lastScrollTime = Date.now()
         }
 
-        const onTouchEnd = () => {
+        const onTouchEnd = (e: TouchEvent) => {
             s.isDragging = false
             s.lastScrollTime = Date.now()
+            if (s.projectHeight <= 0) return
+
+            const endY = e.changedTouches[0]?.clientY ?? s.dragStart.y
+            const dy = endY - s.dragStart.y
+            const dt = Math.max(1, Date.now() - s.dragStart.time)
+            // One swipe moves one project. Distance OR speed can carry it, so
+            // a short flick counts as much as a slow deliberate drag — waiting
+            // for the halfway point makes a natural flick feel ignored.
+            const committed =
+                Math.abs(dy) > CONFIG.SWIPE_DISTANCE ||
+                Math.abs(dy / dt) > CONFIG.SWIPE_VELOCITY
+            const direction = committed ? (dy < 0 ? 1 : -1) : 0
+            snapTo(s.dragStart.index + direction)
         }
 
-        // Scroll-jacked pages are unusable by keyboard otherwise.
-        const step = (direction: number) => {
+        const snapTo = (index: number) => {
             if (s.projectHeight <= 0) return
-            const current = Math.round(-s.targetY / s.projectHeight)
             s.isSnapping = true
             s.lastScrollTime = Date.now()
             s.snapStart = {
                 time: Date.now(),
                 y: s.targetY,
-                target: -(current + direction) * s.projectHeight,
+                target: -index * s.projectHeight,
             }
         }
+
+        // An interrupted gesture returns to where it started rather than
+        // leaving the scroller mid-drag.
+        const onTouchCancel = () => {
+            s.isDragging = false
+            s.lastScrollTime = Date.now()
+            snapTo(s.dragStart.index)
+        }
+
+        // Scroll-jacked pages are unusable by keyboard otherwise.
+        const step = (direction: number) =>
+            snapTo(Math.round(-s.targetY / s.projectHeight) + direction)
 
         const onKeyDown = (e: KeyboardEvent) => {
             const target = e.target as HTMLElement | null
@@ -440,6 +498,8 @@ export default function PortfolioScroll({
         const resizeObserver = new ResizeObserver(() => {
             checkMobile()
             s.projectHeight = containerEl.clientHeight
+            s.heroHeight =
+                heroRef.current?.clientHeight || containerEl.clientHeight
             const track = cardsViewportRef.current
             if (track) {
                 const width = track.clientWidth * (isMobile ? 0.96 : 1)
@@ -449,6 +509,7 @@ export default function PortfolioScroll({
         resizeObserver.observe(containerEl)
         if (cardsViewportRef.current)
             resizeObserver.observe(cardsViewportRef.current)
+        if (heroRef.current) resizeObserver.observe(heroRef.current)
 
         containerEl.addEventListener("wheel", onWheel, { passive: false })
         containerEl.addEventListener("touchstart", onTouchStart, {
@@ -458,6 +519,9 @@ export default function PortfolioScroll({
             passive: false,
         })
         containerEl.addEventListener("touchend", onTouchEnd, { passive: true })
+        containerEl.addEventListener("touchcancel", onTouchCancel, {
+            passive: true,
+        })
         window.addEventListener("keydown", onKeyDown)
 
         requestRef.current = requestAnimationFrame(animationLoop)
@@ -469,6 +533,7 @@ export default function PortfolioScroll({
             containerEl.removeEventListener("touchstart", onTouchStart)
             containerEl.removeEventListener("touchmove", onTouchMove)
             containerEl.removeEventListener("touchend", onTouchEnd)
+            containerEl.removeEventListener("touchcancel", onTouchCancel)
             window.removeEventListener("keydown", onKeyDown)
             if (requestRef.current) cancelAnimationFrame(requestRef.current)
         }
@@ -675,181 +740,21 @@ export default function PortfolioScroll({
     // Concentric nesting: inner radius = outer radius - the gap between them.
     const thumbRadius = Math.max(4, cardRadius - cardPadding)
 
-    return (
-        <div
-            ref={containerRef}
-            role="region"
-            aria-label="Project scroller — use the arrow keys to move between projects"
-            style={{
-                position: "relative",
-                width: "100%",
-                maxWidth: CONTENT_MAX_WIDTH,
-                marginInline: "auto",
-                height: "100%",
-                backgroundColor: palette.background,
-                overflow: "hidden",
-                display: "flex",
-                flexDirection: isMobile ? "column" : "row",
-            }}
-        >
-            {bursts.map((burst) => (
-                <span
-                    key={burst.id}
-                    aria-hidden="true"
-                    className="burst"
-                    style={{
-                        left: burst.x,
-                        top: burst.y,
-                        color: palette.burst,
-                    }}
-                >
-                    {BURST_SPOKES.map((angle) => (
-                        <span
-                            key={angle}
-                            style={{ transform: `rotate(${angle}deg)` }}
-                        >
-                            <i />
-                        </span>
-                    ))}
-                </span>
-            ))}
-
-            {/* Main Image Display - Left Side / Top on Mobile */}
-            <div
-                style={{
-                    position: "relative",
-                    width: isMobile ? "100%" : "60%",
-                    // The hero absorbs whatever the panel leaves rather than
-                    // claiming a fixed share, so a taller intro shortens the
-                    // photo instead of clipping the card below it.
-                    height: isMobile ? undefined : "100%",
-                    flex: isMobile ? "1 1 auto" : undefined,
-                    minHeight: isMobile ? 160 : undefined,
-                    padding: isMobile
-                        ? "16px max(16px, env(safe-area-inset-right)) 16px max(16px, env(safe-area-inset-left))"
-                        : "16px",
-                    boxSizing: "border-box",
-                    backgroundColor: palette.background,
-                }}
-            >
-                <div
-                    style={{
-                        position: "relative",
-                        width: "100%",
-                        height: "100%",
-                        overflow: "hidden",
-                        borderRadius: heroRadius,
-                        ...({ cornerShape: CONFIG.CORNER_SHAPE } as object),
-                    }}
-                >
-                    {indices.map((i) => {
-                        const data = getProjectData(i, projects)
-                        const isVideo =
-                            data.mediaType === "video" && data.videoUrl
-                        const hasMediaLink = Boolean(data.link)
-
-                        const media = isVideo ? (
-                            <video
-                                src={data.videoUrl}
-                                autoPlay
-                                loop
-                                muted
-                                playsInline
-                                style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    objectFit: "cover",
-                                    willChange: "transform",
-                                }}
-                            />
-                        ) : (
-                            <img
-                                src={data.image.src}
-                                alt={data.image.alt}
-                                style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    objectFit: "cover",
-                                    willChange: "transform",
-                                }}
-                            />
-                        )
-
-                        return (
-                            <div
-                                key={i}
-                                ref={(el) => {
-                                    if (el) projectsRef.current.set(i, el)
-                                    else projectsRef.current.delete(i)
-                                }}
-                                style={{
-                                    position: "absolute",
-                                    top: 0,
-                                    left: 0,
-                                    width: "100%",
-                                    height: "100%",
-                                    overflow: "hidden",
-                                    willChange: "transform",
-                                }}
-                            >
-                                {hasMediaLink ? (
-                                    <a
-                                        href={data.link}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        aria-label={`Open project: ${data.title}`}
-                                        tabIndex={-1}
-                                        style={{
-                                            display: "block",
-                                            width: "100%",
-                                            height: "100%",
-                                            cursor: "pointer",
-                                        }}
-                                        onClick={(event) => {
-                                            if (state.current.isDragging) {
-                                                event.preventDefault()
-                                            }
-                                        }}
-                                    >
-                                        {media}
-                                    </a>
-                                ) : (
-                                    media
-                                )}
-                            </div>
-                        )
-                    })}
-                </div>
-            </div>
-
-            {/* Right Panel - Project Cards / Bottom on Mobile */}
-            <div
-                ref={rightPanelRef}
-                style={{
-                    position: "relative",
-                    width: isMobile ? "100%" : "40%",
-                    height: isMobile ? undefined : "100%",
-                    flexShrink: 0,
-                    backgroundColor: palette.panel,
-                    padding: isMobile
-                        ? "16px 16px calc(12px + env(safe-area-inset-bottom)) 16px"
-                        : "20px 20px 16px 20px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: isMobile ? 10 : 14,
-                    overflow: isMobile ? "hidden" : "visible",
-                    zIndex: isMobile ? "auto" : 2,
-                }}
-            >
-                {/* Intro */}
+    // On a phone the intro leads the page, above the hero; on desktop it
+    // heads the right-hand panel. Same markup, two positions.
+    const introBlock = (
                 <header
                     style={{
                         display: "flex",
                         flexDirection: "column",
                         gap: isMobile ? 6 : 8,
                         flexShrink: 0,
+                        // Outside the panel on mobile, so it carries its own
+                        // horizontal padding to stay aligned with the hero.
+                        paddingLeft: isMobile ? 16 : undefined,
+                        paddingRight: isMobile ? 16 : undefined,
                         marginBottom: 0,
-                        paddingTop: isMobile ? 26 : 48,
+                        paddingTop: isMobile ? 40 : 48,
                         paddingBottom: isMobile ? 10 : 32,
                     }}
                 >
@@ -984,6 +889,177 @@ export default function PortfolioScroll({
                         />
                     )}
                 </header>
+    )
+
+    return (
+        <div
+            ref={containerRef}
+            role="region"
+            aria-label="Project scroller — use the arrow keys to move between projects"
+            style={{
+                position: "relative",
+                width: "100%",
+                maxWidth: CONTENT_MAX_WIDTH,
+                marginInline: "auto",
+                height: "100%",
+                backgroundColor: palette.background,
+                overflow: "hidden",
+                display: "flex",
+                flexDirection: isMobile ? "column" : "row",
+            }}
+        >
+            {bursts.map((burst) => (
+                <span
+                    key={burst.id}
+                    aria-hidden="true"
+                    className="burst"
+                    style={{
+                        left: burst.x,
+                        top: burst.y,
+                        color: palette.burst,
+                    }}
+                >
+                    {BURST_SPOKES.map((angle) => (
+                        <span
+                            key={angle}
+                            style={{ transform: `rotate(${angle}deg)` }}
+                        >
+                            <i />
+                        </span>
+                    ))}
+                </span>
+            ))}
+
+            {isMobile && introBlock}
+
+            {/* Main Image Display - Left Side / Top on Mobile */}
+            <div
+                ref={heroRef}
+                style={{
+                    position: "relative",
+                    width: isMobile ? "100%" : "60%",
+                    // The hero absorbs whatever the panel leaves rather than
+                    // claiming a fixed share, so a taller intro shortens the
+                    // photo instead of clipping the card below it.
+                    height: isMobile ? undefined : "100%",
+                    flex: isMobile ? "1 1 auto" : undefined,
+                    minHeight: isMobile ? 160 : undefined,
+                    padding: isMobile
+                        ? "8px max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left))"
+                        : "16px",
+                    boxSizing: "border-box",
+                    backgroundColor: palette.background,
+                }}
+            >
+                <div
+                    style={{
+                        position: "relative",
+                        width: "100%",
+                        height: "100%",
+                        overflow: "hidden",
+                        borderRadius: heroRadius,
+                        ...({ cornerShape: CONFIG.CORNER_SHAPE } as object),
+                    }}
+                >
+                    {indices.map((i) => {
+                        const data = getProjectData(i, projects)
+                        const isVideo =
+                            data.mediaType === "video" && data.videoUrl
+                        const hasMediaLink = Boolean(data.link)
+
+                        const media = isVideo ? (
+                            <video
+                                src={data.videoUrl}
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                                style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                    willChange: "transform",
+                                }}
+                            />
+                        ) : (
+                            <img
+                                src={data.image.src}
+                                alt={data.image.alt}
+                                style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                    willChange: "transform",
+                                }}
+                            />
+                        )
+
+                        return (
+                            <div
+                                key={i}
+                                ref={(el) => {
+                                    if (el) projectsRef.current.set(i, el)
+                                    else projectsRef.current.delete(i)
+                                }}
+                                style={{
+                                    position: "absolute",
+                                    top: 0,
+                                    left: 0,
+                                    width: "100%",
+                                    height: "100%",
+                                    overflow: "hidden",
+                                    willChange: "transform",
+                                }}
+                            >
+                                {hasMediaLink ? (
+                                    <a
+                                        href={data.link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        aria-label={`Open project: ${data.title}`}
+                                        tabIndex={-1}
+                                        style={{
+                                            display: "block",
+                                            width: "100%",
+                                            height: "100%",
+                                            cursor: "pointer",
+                                        }}
+                                        onClick={(event) => {
+                                            if (state.current.isDragging) {
+                                                event.preventDefault()
+                                            }
+                                        }}
+                                    >
+                                        {media}
+                                    </a>
+                                ) : (
+                                    media
+                                )}
+                            </div>
+                        )
+                    })}
+                </div>
+            </div>
+
+            {/* Right Panel - Project Cards / Bottom on Mobile */}
+            <div
+                style={{
+                    position: "relative",
+                    width: isMobile ? "100%" : "40%",
+                    height: isMobile ? undefined : "100%",
+                    flexShrink: 0,
+                    backgroundColor: palette.panel,
+                    padding: isMobile
+                        ? "12px 16px calc(12px + env(safe-area-inset-bottom)) 16px"
+                        : "20px 20px 16px 20px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: isMobile ? 10 : 14,
+                    overflow: isMobile ? "hidden" : "visible",
+                    zIndex: isMobile ? "auto" : 2,
+                }}
+            >
+                {!isMobile && introBlock}
 
                 {/* Project Cards */}
                 <div
