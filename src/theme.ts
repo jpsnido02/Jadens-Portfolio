@@ -8,10 +8,6 @@ export interface Palette {
     text: string
     /** Muted text — the status line. */
     textMuted: string
-    /** Intro link pills and the theme toggle. */
-    pill: string
-    pillHover: string
-    pillGlyph: string
     /**
  * Untitled UI palette steps. The key's fills and their base edges are one step
  * apart on the same ramp, so the edge always reads as a shadow of its face.
@@ -50,9 +46,6 @@ export const PALETTES: Record<ThemeName, Palette> = {
         panel: "#F9FAFB",
         text: "#1F2129",
         textMuted: "#4B4F5C",
-        pill: "#EFEFEF",
-        pillHover: "#E4E4E4",
-        pillGlyph: "#1F2129",
         accent: "#1F2129",
         // Gray 900 — the key's face is Gray 800-ish, so its edge is one step
         // down the same ramp rather than a flat black.
@@ -98,9 +91,6 @@ export const PALETTES: Record<ThemeName, Palette> = {
         panel: "#0D0E11",
         text: "#F2F3F5",
         textMuted: "#9BA1AC",
-        pill: "#1C1E23",
-        pillHover: "#262930",
-        pillGlyph: "#F2F3F5",
         accent: "#F2F3F5",
         accentBase: "#D0D5DD",
         accentSuccess: "#D0F8AB",

@@ -220,7 +220,7 @@ export default function PortfolioScroll({
     // Sized against the tagline, so it keeps its ratio if the type changes.
     // Sized to the cap height of the sentence it sits in.
     const roktHeight = taglineSize * 0.727
-    const ctaSize = Math.round(taglineSize * 0.66)
+    const ctaSize = Math.round(taglineSize * 0.75)
     // The key is taller than the type it sits in, so the paragraph's leading
     // has to clear its full height or it collides with the line above.
     const ctaHeight = ctaSize * 0.42 * 2 + ctaSize * 1.1 + CTA_DEPTH
@@ -713,13 +713,16 @@ export default function PortfolioScroll({
                 // element makes React warn and the cascade order unreliable.
                 fontFamily: FONT_FAMILY,
                 fontSize: ctaSize,
-                fontWeight: 500,
+                fontWeight: 600,
                 lineHeight: 1.1,
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
                 gap: ctaSize * 0.28,
-                padding: `${ctaSize * 0.42}px ${ctaSize * 0.6 - 2}px`,
+                // Roughly 2.2:1 horizontal to vertical. Near-square padding
+                // is what makes a filled box read as a highlighted word
+                // rather than a control.
+                padding: `${ctaSize * 0.42}px ${ctaSize * 0.95}px`,
                 margin: "0 2px",
                 border: "none",
                 cursor: "pointer",
@@ -848,7 +851,7 @@ export default function PortfolioScroll({
                         paddingRight: isMobile ? 16 : undefined,
                         marginBottom: 0,
                         paddingTop: isMobile ? 40 : 48,
-                        paddingBottom: isMobile ? 10 : 32,
+                        paddingBottom: isMobile ? 10 : 24,
                     }}
                 >
                     {introAvatar && (
@@ -910,66 +913,83 @@ export default function PortfolioScroll({
                                 display: "flex",
                                 alignItems: "center",
                                 flexWrap: "wrap",
-                                gap: 8,
+                                gap: 10,
                                 marginTop: 12,
+                                marginLeft: -6,
                             }}
                         >
                             {introLinks.map((item, idx) => {
                                 const isMailto = item.url.startsWith("mailto:")
                                 const isHovered = hoveredIntroIcon === idx
                                 return (
-                                    <a
-                                        key={`${item.label}-${idx}`}
-                                        href={item.url}
-                                        target={isMailto ? undefined : "_blank"}
-                                        rel={
-                                            isMailto
-                                                ? undefined
-                                                : "noopener noreferrer"
-                                        }
-                                        aria-label={item.label}
-                                        onMouseEnter={() =>
-                                            startTransition(() =>
-                                                setHoveredIntroIcon(idx)
-                                            )
-                                        }
-                                        onMouseLeave={() =>
-                                            startTransition(() =>
-                                                setHoveredIntroIcon(null)
-                                            )
-                                        }
-                                        style={{
-                                            textDecoration: "none",
-                                            display: "inline-flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            width: isMobile ? 34 : 32,
-                                            height: isMobile ? 34 : 32,
-                                            borderRadius: 4,
-                                            backgroundColor: isHovered
-                                                ? palette.pillHover
-                                                : palette.pill,
-                                            color: isHovered
-                                                ? palette.text
-                                                : palette.textMuted,
-                                            transition:
-                                                "transform 160ms ease, color 160ms ease, background-color 160ms ease",
-                                            transform: isHovered
-                                                ? "translateY(-1px)"
-                                                : "translateY(0px)",
-                                        }}
-                                    >
-                                        <IntroIcon
-                                            name={
-                                                item.icon ??
-                                                resolveIntroIcon(
-                                                    item.label,
-                                                    item.url
+                                    <Fragment key={`${item.label}-${idx}`}>
+                                        {idx > 0 && (
+                                            <span
+                                                aria-hidden="true"
+                                                style={{
+                                                    ...bodyFont,
+                                                    fontFamily: FONT_FAMILY,
+                                                    fontSize: 15,
+                                                    color: palette.textMuted,
+                                                    opacity: 0.5,
+                                                    userSelect: "none",
+                                                }}
+                                            >
+                                                /
+                                            </span>
+                                        )}
+                                        <a
+                                            href={item.url}
+                                            target={
+                                                isMailto ? undefined : "_blank"
+                                            }
+                                            rel={
+                                                isMailto
+                                                    ? undefined
+                                                    : "noopener noreferrer"
+                                            }
+                                            aria-label={item.label}
+                                            onMouseEnter={() =>
+                                                startTransition(() =>
+                                                    setHoveredIntroIcon(idx)
                                                 )
                                             }
-                                            size={16}
-                                        />
-                                    </a>
+                                            onMouseLeave={() =>
+                                                startTransition(() =>
+                                                    setHoveredIntroIcon(null)
+                                                )
+                                            }
+                                            style={{
+                                                textDecoration: "none",
+                                                display: "inline-flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                // No fill any more, so padding
+                                                // is the only thing keeping a
+                                                // tap target around the glyph.
+                                                padding: isMobile ? 9 : 6,
+                                                color: isHovered
+                                                    ? palette.text
+                                                    : palette.textMuted,
+                                                transition:
+                                                    "transform 160ms ease, color 160ms ease",
+                                                transform: isHovered
+                                                    ? "translateY(-1px)"
+                                                    : "translateY(0px)",
+                                            }}
+                                        >
+                                            <IntroIcon
+                                                name={
+                                                    item.icon ??
+                                                    resolveIntroIcon(
+                                                        item.label,
+                                                        item.url
+                                                    )
+                                                }
+                                                size={18}
+                                            />
+                                        </a>
+                                    </Fragment>
                                 )
                             })}
                         </div>
