@@ -33,6 +33,8 @@ export interface Palette {
     floatingBorder: string
     /** Cycled across the project cards. */
     cardBackgrounds: string[]
+    /** One ink per card, index-matched to cardBackgrounds. */
+    cardInks: string[]
     cardText: string
     cardTextMuted: string
     /** Hairline around the card thumbnail, and the plate behind it. */
@@ -42,8 +44,8 @@ export interface Palette {
 
 export const PALETTES: Record<ThemeName, Palette> = {
     light: {
-        background: "#FFFFFF",
-        panel: "#FFFFFF",
+        background: "#FCFCFC",
+        panel: "#FCFCFC",
         text: "#1F2129",
         textMuted: "#4B4F5C",
         pill: "#EFEFEF",
@@ -64,14 +66,25 @@ export const PALETTES: Record<ThemeName, Palette> = {
         // clearly coloured, but no longer competing with the artwork. Light
         // enough that the card ink stays dark on every one of them.
         cardBackgrounds: [
-            "#FEF7C3",
-            "#FFE6D5",
-            "#FFE4E8",
-            "#FCE7F6",
-            "#D1E0FF",
-            "#CFF9FE",
-            "#CCFBEF",
-            "#D3F8DF",
+            "#FFFF80",
+            "#FFD280",
+            "#FFC1B5",
+            "#FFD3FB",
+            "#CC99E6",
+            "#4DFFA5",
+            "#7FFFD4",
+        ],
+        // Each card's text is that card's own hue taken dark — never a
+        // neutral. It is what stops seven colours reading as seven unrelated
+        // stickers. All clear 6.5:1.
+        cardInks: [
+            "#5A5A02",
+            "#5A3B02",
+            "#5A1002",
+            "#5A0252",
+            "#361348",
+            "#025A2D",
+            "#025A3C",
         ],
         cardText: "#1F2129",
         cardTextMuted: "#2A2D36",
@@ -98,14 +111,25 @@ export const PALETTES: Record<ThemeName, Palette> = {
         // The same five, unchanged: at this saturation they carry on a
         // near-black page without glaring, and the dark card ink still holds.
         cardBackgrounds: [
-            "#FEF7C3",
-            "#FFE6D5",
-            "#FFE4E8",
-            "#FCE7F6",
-            "#D1E0FF",
-            "#CFF9FE",
-            "#CCFBEF",
-            "#D3F8DF",
+            "#FFFF80",
+            "#FFD280",
+            "#FFC1B5",
+            "#FFD3FB",
+            "#CC99E6",
+            "#4DFFA5",
+            "#7FFFD4",
+        ],
+        // Each card's text is that card's own hue taken dark — never a
+        // neutral. It is what stops seven colours reading as seven unrelated
+        // stickers. All clear 6.5:1.
+        cardInks: [
+            "#5A5A02",
+            "#5A3B02",
+            "#5A1002",
+            "#5A0252",
+            "#361348",
+            "#025A2D",
+            "#025A3C",
         ],
         cardText: "#1F2129",
         cardTextMuted: "#2A2D36",

@@ -713,7 +713,7 @@ export default function PortfolioScroll({
                 // element makes React warn and the cascade order unreliable.
                 fontFamily: FONT_FAMILY,
                 fontSize: ctaSize,
-                fontWeight: 700,
+                fontWeight: 500,
                 lineHeight: 1.1,
                 display: "inline-flex",
                 alignItems: "center",
@@ -876,7 +876,7 @@ export default function PortfolioScroll({
                             margin: 0,
                             lineHeight: 1.08,
                             letterSpacing: "-0.03em",
-                            fontWeight: 800,
+                            fontWeight: 600,
                             fontFamily: FONT_FAMILY,
                         }}
                     >
@@ -893,7 +893,7 @@ export default function PortfolioScroll({
                             margin: 0,
                             lineHeight: `${taglineLineHeight}px`,
                             letterSpacing: "-0.015em",
-                            fontWeight: 600,
+                            fontWeight: 400,
                             fontFamily: FONT_FAMILY,
                         }}
                     >
@@ -1188,12 +1188,13 @@ export default function PortfolioScroll({
                     {indices.map((i) => {
                         const data = getProjectData(i, projects)
                         const backgrounds = palette.cardBackgrounds
-                        const cardBackground =
-                            backgrounds[
-                                ((Math.abs(i) % backgrounds.length) +
-                                    backgrounds.length) %
-                                    backgrounds.length
-                            ]
+                        const paletteIndex =
+                            ((Math.abs(i) % backgrounds.length) +
+                                backgrounds.length) %
+                            backgrounds.length
+                        const cardBackground = backgrounds[paletteIndex]
+                        const cardInk =
+                            palette.cardInks[paletteIndex] ?? palette.cardText
                         const isHovered = hoveredCard === i
                         const isActive = i === activeCardIndex
                         const isInteractive = isActive && Boolean(data.link)
@@ -1321,11 +1322,11 @@ export default function PortfolioScroll({
                                                     fontSize: isMobile
                                                         ? 10
                                                         : 11,
-                                                    color: palette.cardTextMuted,
+                                                    color: cardInk,
                                                     opacity: 0.65,
                                                     textAlign: "right",
                                                     marginTop: 2,
-                                                    fontWeight: 700,
+                                                    fontWeight: 500,
                                                     fontFamily: FONT_FAMILY,
                                                 }}
                                             >
@@ -1336,12 +1337,12 @@ export default function PortfolioScroll({
                                             style={{
                                                 ...titleFont,
                                                 fontSize: isMobile ? 17 : 20,
-                                                color: palette.cardText,
+                                                color: cardInk,
                                                 marginTop: 0,
                                                 marginRight: 0,
                                                 marginLeft: 0,
                                                 marginBottom: 4,
-                                                fontWeight: 700,
+                                                fontWeight: 500,
                                                 lineHeight: 1.2,
                                                 fontFamily: FONT_FAMILY,
                                             }}
@@ -1352,7 +1353,7 @@ export default function PortfolioScroll({
                                             style={{
                                                 ...bodyFont,
                                                 fontSize: isMobile ? 12 : 16,
-                                                color: palette.cardTextMuted,
+                                                color: cardInk,
                                                 opacity: 0.78,
                                                 margin: 0,
                                                 lineHeight: 1.45,
@@ -1378,8 +1379,8 @@ export default function PortfolioScroll({
                                             alignItems: "center",
                                             gap: 6,
                                             fontSize: isMobile ? 12 : 14,
-                                            fontWeight: 700,
-                                            color: palette.cardText,
+                                            fontWeight: 500,
+                                            color: cardInk,
                                             fontFamily: FONT_FAMILY,
                                         }}
                                     >
