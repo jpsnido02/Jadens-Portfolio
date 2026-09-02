@@ -994,18 +994,6 @@ export default function PortfolioScroll({
                             })}
                         </div>
                     )}
-                    {introLinks.length > 0 && (
-                        <div
-                            aria-hidden="true"
-                            style={{
-                                height: 1,
-                                backgroundColor: palette.divider,
-                                // The header's own flex gap is 8, so this tops
-                                // the space above the rule up to 16px.
-                                marginTop: 8,
-                            }}
-                        />
-                    )}
                 </header>
     )
 

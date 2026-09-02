@@ -22,8 +22,6 @@ export interface Palette {
     onAccent: string
     /** Click burst — deliberately opposite the CTA fill on the wheel. */
     burst: string
-    /** Hairline rule under the intro links. */
-    divider: string
     /** Translucent surface for the toggle, which floats over the hero. */
     floatingSurface: string
     floatingBorder: string
@@ -54,7 +52,6 @@ export const PALETTES: Record<ThemeName, Palette> = {
         accentSuccessBase: "#A6EF67",
         onAccent: "#FFFFFF",
         burst: "#F5811F",
-        divider: "#F2F4F7",
         floatingSurface: "rgba(255,255,255,0.72)",
         floatingBorder: "rgba(0,0,0,0.08)",
         // Roughly halfway between the original pastels and the vivid set:
@@ -97,7 +94,6 @@ export const PALETTES: Record<ThemeName, Palette> = {
         accentSuccessBase: "#A6EF67",
         onAccent: "#0D0E11",
         burst: "#FF9433",
-        divider: "#22252C",
         floatingSurface: "rgba(22,24,28,0.72)",
         floatingBorder: "rgba(255,255,255,0.12)",
         // The same five, unchanged: at this saturation they carry on a
