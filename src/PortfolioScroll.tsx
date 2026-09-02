@@ -83,6 +83,13 @@ const CONFIG = {
 /** Hover key sharing the link indices' state. */
 const CTA_HOVER_KEY = -1
 
+/**
+ * The layout stops growing here and centres; past it the page background runs
+ * to the edges. Beyond this the hero simply becomes the page, and the panel's
+ * measure drifts past a comfortable line length.
+ */
+export const CONTENT_MAX_WIDTH = 1440
+
 /** Depth of the edge the key presses down into. */
 const CTA_DEPTH = 3
 
@@ -676,6 +683,8 @@ export default function PortfolioScroll({
             style={{
                 position: "relative",
                 width: "100%",
+                maxWidth: CONTENT_MAX_WIDTH,
+                marginInline: "auto",
                 height: "100%",
                 backgroundColor: palette.background,
                 overflow: "hidden",

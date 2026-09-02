@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import PortfolioScroll from "./PortfolioScroll"
+import PortfolioScroll, { CONTENT_MAX_WIDTH } from "./PortfolioScroll"
 import { intro, projects } from "./content"
 import {
     PALETTES,
@@ -54,7 +54,10 @@ export default function App() {
                     // Clears the status bar and Dynamic Island; the page opts
                     // into the full screen with viewport-fit=cover.
                     top: "calc(16px + env(safe-area-inset-top))",
-                    right: "calc(16px + env(safe-area-inset-right))",
+                    // Tracks the centred content's right edge rather than the
+                    // viewport's, so the toggle does not drift off on a wide
+                    // display. Falls back to 16px once the layout is capped.
+                    right: `max(calc(16px + env(safe-area-inset-right)), calc((100vw - ${CONTENT_MAX_WIDTH}px) / 2 + 16px))`,
                     zIndex: 50,
                     width: 44,
                     height: 36,
