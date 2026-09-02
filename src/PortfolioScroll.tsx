@@ -105,8 +105,11 @@ export const CONTENT_MAX_WIDTH = 1440
 /** Depth of the edge the key presses down into. */
 const CTA_DEPTH = 3
 
-/** Line-box-to-ink gap for the label, measured against the sentence. */
-const CTA_OPTICAL_LIFT = 1.3
+/**
+ * Lifts the key onto the text's optical centre. It carries a base edge below
+ * the face, so centring the box alone leaves the visual mass sitting low.
+ */
+const CTA_BASELINE_NUDGE = 0.4
 
 /** Clear space under the Rokt glyphs, as a fraction of the mark's height. */
 const ROKT_INK_OFFSET = (30 - 28.837) / 30
@@ -131,15 +134,30 @@ const renderTagline = (
     text: string,
     rokt: ReactNode,
     clicks: ReactNode,
-    verb: ReactNode
+    verb: ReactNode,
+    textLineHeight: number,
+    keyLineHeight: number
 ) =>
-    text.split(/(\{rokt\}|\{clicks\}|\{verb\}|\n)/).map((part, i) => {
-        if (part === "{rokt}") return <Fragment key={i}>{rokt}</Fragment>
-        if (part === "{clicks}") return <Fragment key={i}>{clicks}</Fragment>
-        if (part === "{verb}") return <Fragment key={i}>{verb}</Fragment>
-        if (part === "\n") return <br key={i} />
-        return part
-    })
+    text.split("\n").map((line, li) => (
+        <span
+            key={li}
+            style={{
+                display: "block",
+                // Only the line carrying the key pays for its height.
+                lineHeight: `${
+                    line.includes("{clicks}") ? keyLineHeight : textLineHeight
+                }px`,
+            }}
+        >
+            {line.split(/(\{rokt\}|\{clicks\}|\{verb\})/).map((part, i) => {
+                if (part === "{rokt}") return <Fragment key={i}>{rokt}</Fragment>
+                if (part === "{clicks}")
+                    return <Fragment key={i}>{clicks}</Fragment>
+                if (part === "{verb}") return <Fragment key={i}>{verb}</Fragment>
+                return part
+            })}
+        </span>
+    ))
 
 /** Wraps any index — positive or negative — into the projects array. */
 const getProjectData = (index: number, projects: ProjectData[]) => {
@@ -224,7 +242,11 @@ export default function PortfolioScroll({
     // The key is taller than the type it sits in, so the paragraph's leading
     // has to clear its full height or it collides with the line above.
     const ctaHeight = ctaSize * 0.42 * 2 + ctaSize * 1.1 + CTA_DEPTH
-    const taglineLineHeight = Math.max(taglineSize * 1.25 + 2, ctaHeight + 5)
+    // Two leadings, not one. Sizing the whole paragraph to clear the key made
+    // every line 39% looser than the type wanted, which is what left the key
+    // floating in a band of space of its own making.
+    const textLineHeight = taglineSize * 1.25 + 2
+    const keyLineHeight = Math.max(textLineHeight, ctaHeight + 5)
 
     const updateParallax = (
         element: HTMLImageElement | HTMLVideoElement | null,
@@ -743,12 +765,12 @@ export default function PortfolioScroll({
                 // below the face and drags the visual mass down, plus the
                 // usual gap between a line box's centre and its ink.
                 transform: ctaPressed
-                    ? `translateY(${CTA_DEPTH / 2 - CTA_OPTICAL_LIFT}px)`
+                    ? `translateY(${CTA_DEPTH - CTA_BASELINE_NUDGE}px)`
                     : ctaSettling
-                      ? `translateY(${1 - CTA_DEPTH / 2 - CTA_OPTICAL_LIFT}px) scale(0.985)`
+                      ? `translateY(${1 - CTA_BASELINE_NUDGE}px) scale(0.985)`
                       : ctaHovered || ctaConfirmed
-                        ? `translateY(${-1 - CTA_DEPTH / 2 - CTA_OPTICAL_LIFT}px)`
-                        : `translateY(${-CTA_DEPTH / 2 - CTA_OPTICAL_LIFT}px)`,
+                        ? `translateY(${-1 - CTA_BASELINE_NUDGE}px)`
+                        : `translateY(${-CTA_BASELINE_NUDGE}px)`,
             }}
         >
             <span className="cta-label">
@@ -778,7 +800,7 @@ export default function PortfolioScroll({
             style={{
                 display: "inline-block",
                 verticalAlign: "top",
-                height: taglineLineHeight,
+                height: textLineHeight,
                 overflow: "hidden",
                 color: palette.text,
             }}
@@ -787,7 +809,7 @@ export default function PortfolioScroll({
                 aria-hidden="true"
                 style={{
                     display: "block",
-                    transform: `translateY(${-verbIndex * taglineLineHeight}px)`,
+                    transform: `translateY(${-verbIndex * textLineHeight}px)`,
                     transition: verbAnimated
                         ? `transform ${CONFIG.VERB_TRAVEL}ms cubic-bezier(0.65, 0, 0.35, 1)`
                         : "none",
@@ -798,8 +820,8 @@ export default function PortfolioScroll({
                         key={`${word}-${i}`}
                         style={{
                             display: "block",
-                            height: taglineLineHeight,
-                            lineHeight: `${taglineLineHeight}px`,
+                            height: textLineHeight,
+                            lineHeight: `${textLineHeight}px`,
                         }}
                     >
                         {word}
@@ -894,7 +916,7 @@ export default function PortfolioScroll({
                             // knock-down just thins the ink.
                             color: palette.textMuted,
                             margin: 0,
-                            lineHeight: `${taglineLineHeight}px`,
+                            lineHeight: `${textLineHeight}px`,
                             letterSpacing: "-0.015em",
                             fontWeight: 400,
                             fontFamily: FONT_FAMILY,
@@ -904,7 +926,9 @@ export default function PortfolioScroll({
                             introTagline,
                             roktWordmark,
                             clicksCta,
-                            verbShifter
+                            verbShifter,
+                            textLineHeight,
+                            keyLineHeight
                         )}
                     </p>
                     {introLinks.length > 0 && (
