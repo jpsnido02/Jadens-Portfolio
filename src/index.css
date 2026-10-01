@@ -4,9 +4,15 @@
     box-sizing: border-box;
 }
 
-html,
-body,
-#root {
+/*
+ * Only the home page pins itself to the viewport. It hijacks the wheel and
+ * drives its own motion, so the document must not scroll. Case study pages are
+ * ordinary documents and have to scroll normally — these rules used to be
+ * unscoped, which clipped every one of them at a single viewport.
+ */
+html[data-page="home"],
+html[data-page="home"] body,
+html[data-page="home"] #root {
     /* dvh tracks iOS Safari's collapsing toolbar; 100% resolves against the
        large viewport, so the layout is sized for chrome that is not there. */
     height: 100vh;
@@ -28,7 +34,7 @@ body {
 }
 
 /* The scroller drives its own motion, so the page itself never scrolls. */
-#root {
+html[data-page="home"] #root {
     overflow: hidden;
 }
 
@@ -140,7 +146,8 @@ button:focus-visible {
 .cta {
     transition:
         transform 340ms cubic-bezier(0.34, 1.56, 0.64, 1),
-        opacity 180ms ease,
+        box-shadow 250ms ease,
+        border-color 250ms ease,
         background-color 180ms ease;
 }
 
@@ -149,7 +156,8 @@ button:focus-visible {
 .cta[data-settling="true"] {
     transition:
         transform 240ms cubic-bezier(0.33, 1, 0.68, 1),
-        opacity 200ms ease,
+        box-shadow 240ms cubic-bezier(0.33, 1, 0.68, 1),
+        border-color 240ms ease,
         background-color 260ms ease;
 }
 
@@ -160,7 +168,8 @@ button:focus-visible {
 .cta[data-pressed="true"] {
     transition:
         transform 90ms cubic-bezier(0.4, 0, 1, 1),
-        opacity 90ms ease,
+        box-shadow 90ms cubic-bezier(0.4, 0, 1, 1),
+        border-color 90ms ease,
         background-color 90ms ease;
 }
 
@@ -176,7 +185,8 @@ button:focus-visible {
 .cta[data-settling="true"] {
     transition:
         transform 240ms cubic-bezier(0.33, 1, 0.68, 1),
-        opacity 200ms ease,
+        box-shadow 240ms cubic-bezier(0.33, 1, 0.68, 1),
+        border-color 240ms ease,
         background-color 260ms ease;
 }
 
@@ -260,5 +270,71 @@ button:focus-visible {
         background: #1c1e24;
         border-color: rgba(255, 255, 255, 0.32);
         box-shadow: none;
+    }
+}
+
+/*
+ * Browser default stylesheets give figure, blockquote and dl a 40px horizontal
+ * margin. On the case study pages that pushed every figure caption and pull
+ * quote 40px in from the left edge the rest of the page shares — visible only
+ * once the margin shorthands that had been zeroing it were split into
+ * longhands. Reset it once here rather than per element.
+ */
+figure,
+blockquote,
+dl {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/*
+ * Tap indicator for the Uber Ads hero. The buttons are baked into the Figma
+ * exports, so the press cannot be shown by restyling them — this is a ripple
+ * centred on the real button rect instead.
+ */
+.uber-tap {
+    /* Box and offsets come from the component, which scales them with the
+       phone; only the motion lives here. */
+    position: absolute;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.26);
+    pointer-events: none;
+    animation: uber-tap 420ms cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+@keyframes uber-tap {
+    from {
+        transform: scale(0.35);
+        opacity: 0.55;
+    }
+    to {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .uber-tap {
+        animation: none;
+        opacity: 0;
+    }
+}
+
+/* Typing caret for the Shoppable hero. */
+.code-caret {
+    animation: code-caret 1s steps(1, end) infinite;
+}
+@keyframes code-caret {
+    0%,
+    55% {
+        opacity: 1;
+    }
+    56%,
+    100% {
+        opacity: 0.15;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .code-caret {
+        animation: none;
+        opacity: 0;
     }
 }

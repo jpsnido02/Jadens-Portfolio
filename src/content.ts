@@ -42,74 +42,102 @@ export const intro = {
 }
 
 export const projects: ProjectData[] = [
+    // Order matters twice over: it indexes the card palette, and it is the
+    // reading order of the case studies. See docs/case-studies/README.md for
+    // why these six sit in this sequence — no story shape repeats adjacently.
     {
-        title: "Project 01",
-        image: { src: "/projects/project-01.jpg", alt: "Project 01 artwork" },
-        category: "Category",
+        title: "Macy's Bag page",
+        image: { src: "/projects/project-01.jpg", alt: "Macy's Bag page" },
+        category: "Conversion",
+        year: "2025",
+        description: "Three variants, two of which lost.",
+        tags: [],
+        link: "work/macys-bag-page/",
+    },
+    {
+        title: "Uber Eats Contextual Advertising",
+        image: { src: "/projects/project-02.jpg", alt: "Uber Eats" },
+        thumb: {
+            src: "/projects/ubereats-logo.png",
+            alt: "Uber Eats",
+        },
+        // The hero pane runs the live placement loop instead of artwork.
+        mediaType: "component",
+        component: "uber-loop",
+        category: "Ad formats",
+        year: "2025",
+        description:
+            "Design that understands your order, and what to do while you wait.",
+        tags: [],
+        link: "work/uber-ads/",
+    },
+    {
+        title: "Branded Layouts",
+        image: { src: "/projects/project-03.jpg", alt: "Branded Layouts" },
+        // The hero pane shuffles one placement through six partners' brands.
+        mediaType: "component",
+        component: "branded-shuffle",
+        category: "Design systems",
         year: "2026",
         description:
-            "One or two lines about the work — what it was and what you did on it.",
-        tags: ["Product Design", "Prototyping"],
-        link: "https://example.com/project-01",
+            "A placement that inherits a partner's brand automatically.",
+        tags: [],
+        link: "work/branded-layouts/",
     },
     {
-        title: "Project 02",
-        image: { src: "/projects/project-02.jpg", alt: "Project 02 artwork" },
-        category: "Category",
-        year: "2026",
-        description:
-            "One or two lines about the work — what it was and what you did on it.",
-        tags: ["Design Systems", "Figma"],
-        link: "https://example.com/project-02",
+        title: "Rapid prototyping tool",
+        image: {
+            src: "/projects/project-04.jpg",
+            alt: "Rapid prototyping tool",
+        },
+        // The hero pane types the placement out and builds it in step.
+        mediaType: "component",
+        component: "shoppable-build",
+        category: "Internal tools",
+        year: "2025",
+        description: "Hand-built demos took a week. This one took minutes.",
+        tags: [],
+        link: "work/shoppable-pitching-platform/",
+    },
+    // DUPLICATE, for comparing hero treatments. Same project, same copy; the
+    // only difference is that this one's hero is the configuration panel
+    // rather than the code editor. Delete whichever you do not keep — and the
+    // seventh card colour in theme.ts with it.
+    {
+        title: "Rapid prototyping tool (config hero)",
+        image: {
+            src: "/projects/project-04.jpg",
+            alt: "Rapid prototyping tool",
+        },
+        mediaType: "component",
+        component: "shoppable-config",
+        category: "Internal tools",
+        year: "2025",
+        description: "Hand-built demos took a week. This one took minutes.",
+        tags: [],
+        link: "work/shoppable-config/",
     },
     {
-        title: "Project 03",
-        image: { src: "/projects/project-03.jpg", alt: "Project 03 artwork" },
-        category: "Category",
+        title: "McDonald's kiosk",
+        image: { src: "/projects/project-05.jpg", alt: "McDonald's kiosk" },
+        category: "In-person",
         year: "2025",
         description:
-            "One or two lines about the work — what it was and what you did on it.",
-        tags: ["UI UX", "Frontend"],
-        link: "https://example.com/project-03",
+            "A placement on a screen you don't own, in a room full of people.",
+        tags: [],
+        link: "work/mcdonalds-kiosk/",
     },
     {
-        title: "Project 04",
-        image: { src: "/projects/project-04.jpg", alt: "Project 04 artwork" },
-        category: "Category",
-        year: "2025",
-        description:
-            "One or two lines about the work — what it was and what you did on it.",
-        tags: ["Interaction", "Motion"],
-        link: "https://example.com/project-04",
-    },
-    {
-        title: "Project 05",
-        image: { src: "/projects/project-05.jpg", alt: "Project 05 artwork" },
-        category: "Category",
-        year: "2025",
-        description:
-            "One or two lines about the work — what it was and what you did on it.",
-        tags: ["Research", "Concept"],
-        link: "https://example.com/project-05",
-    },
-    {
-        title: "Project 06",
-        image: { src: "/projects/project-06.jpg", alt: "Project 06 artwork" },
-        category: "Category",
+        title: "Expedia 1P / 3P",
+        image: {
+            src: "/projects/project-06.jpg",
+            alt: "Expedia 1P / 3P offers",
+        },
+        category: "Marketplace",
         year: "2024",
         description:
-            "One or two lines about the work — what it was and what you did on it.",
-        tags: ["Web", "React"],
-        link: "https://example.com/project-06",
-    },
-    {
-        title: "Project 07",
-        image: { src: "/projects/project-07.jpg", alt: "Project 07 artwork" },
-        category: "Category",
-        year: "2024",
-        description:
-            "One or two lines about the work — what it was and what you did on it.",
-        tags: ["Brand", "Art Direction"],
-        link: "https://example.com/project-07",
+            "Whether a traveller should be able to tell whose offer it is.",
+        tags: [],
+        link: "work/expedia-1p-3p/",
     },
 ]

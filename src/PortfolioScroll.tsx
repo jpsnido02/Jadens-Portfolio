@@ -9,6 +9,11 @@ import {
 } from "react"
 import { IntroIcon, resolveIntroIcon, type IntroIconName } from "./icons"
 import { PALETTES, type Palette } from "./theme"
+import { CONTENT_MAX_WIDTH, FONT_FAMILY } from "./tokens"
+import ShoppableBuildLoop from "./ShoppableBuildLoop"
+import ShoppableConfigLoop from "./ShoppableConfigLoop"
+import BrandedLayoutsLoop from "./BrandedLayoutsLoop"
+import UberAdsLoop from "./UberAdsLoop"
 
 export interface ProjectData {
     title: string
@@ -18,8 +23,16 @@ export interface ProjectData {
     description: string
     tags?: string[]
     link?: string
-    mediaType?: "image" | "video"
+    mediaType?: "image" | "video" | "component"
     videoUrl?: string
+    /** Renders a live component in the hero pane instead of artwork. */
+    component?:
+        | "uber-loop"
+        | "shoppable-build"
+        | "shoppable-config"
+        | "branded-shuffle"
+    /** Fills the card's thumbnail square. Left empty it stays a plain plate. */
+    thumb?: { src: string; alt: string }
 }
 
 export interface IntroLink {
@@ -91,12 +104,9 @@ const CONFIG = {
 /** Hover key sharing the link indices' state. */
 const CTA_HOVER_KEY = -1
 
-/**
- * The layout stops growing here and centres; past it the page background runs
- * to the edges. Beyond this the hero simply becomes the page, and the panel's
- * measure drifts past a comfortable line length.
- */
-export const CONTENT_MAX_WIDTH = 1440
+/** Hairline around the key's surface. Counted into its height, since it
+ * grows the box and the line above has to clear it. */
+const CTA_BORDER = 1
 
 /** Lifts the key onto the text's optical centre. */
 const CTA_BASELINE_NUDGE = 0.4
@@ -107,8 +117,8 @@ const CLICK_BURST_ENABLED = false
 /** Spokes of the click burst, evenly spaced like the reference. */
 const BURST_SPOKES = [0, 45, 90, 135, 180, 225, 270, 315]
 
-const FONT_FAMILY =
-    '"Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif'
+/** Case studies are pages on this site; only real off-site links get a tab. */
+const isExternal = (href?: string) => Boolean(href && /^[a-z]+:/i.test(href))
 
 const lerp = (start: number, end: number, factor: number) =>
     start + (end - start) * factor
@@ -250,7 +260,7 @@ export default function PortfolioScroll({
     const ctaSize = Math.round(taglineSize * 0.75)
     // The key is taller than the type it sits in, so the paragraph's leading
     // has to clear its full height or it collides with the line above.
-    const ctaHeight = ctaSize * 0.42 * 2 + ctaSize * 1.1
+    const ctaHeight = ctaSize * 0.42 * 2 + ctaSize * 1.1 + CTA_BORDER * 2
     // Two leadings, not one. Sizing the whole paragraph to clear the key made
     // every line 39% looser than the type wanted, which is what left the key
     // floating in a band of space of its own making.
@@ -310,7 +320,10 @@ export default function PortfolioScroll({
                 // container's height leaves the photo adrift in its frame.
                 const y = (index - currentFloat) * s.heroHeight
                 el.style.transform = `translateY(${y}px)`
-                const media = el.querySelector("img, video")
+                // Explicit target: a component hero contains images of
+                // its own, and transforming one of them in isolation would
+                // pull the composition apart.
+                const media = el.querySelector('[data-parallax="true"]')
                 updateParallax(
                     media as HTMLImageElement | HTMLVideoElement,
                     y,
@@ -664,16 +677,28 @@ export default function PortfolioScroll({
     // rest -> hover -> pressed -> confirmed. Flat: a fill, a darker fill for
     // hover, and ink. No rim, no lit edge, no ambient shadow — depth here is
     // carried by colour and hierarchy rather than by shading.
+    // A surface, not a coloured slab. Hover deepens the border and floats the
+    // shadow without touching the fill; the fill only moves on the press, so
+    // pressing reads as the surface settling back onto the page.
+    const k = palette.key
     const face = ctaConfirmed
         ? {
               fill: palette.accentSuccess,
-              hoverFill: palette.accentSuccess,
+              // Transparent rather than absent, so the box never changes size
+              // between states.
+              border: "transparent",
               ink: palette.onAccentSuccess,
+              shadow: k.shadow,
           }
         : {
-              fill: palette.accent,
-              hoverFill: palette.accentBase,
-              ink: palette.onAccent,
+              fill: ctaPressed ? k.fillPressed : k.fill,
+              border: ctaHovered || ctaPressed ? k.borderHover : k.border,
+              ink: ctaHovered || ctaPressed ? k.inkHover : k.ink,
+              shadow: ctaPressed
+                  ? k.shadowPressed
+                  : ctaHovered
+                    ? k.shadowHover
+                    : k.shadow,
           }
 
     // Dragging off the key cancels rather than confirms, so only a release on
@@ -752,23 +777,21 @@ export default function PortfolioScroll({
                 // rather than a control.
                 padding: `${ctaSize * 0.42}px ${ctaSize * 0.95}px`,
                 margin: "0 2px",
-                border: "none",
+                border: `${CTA_BORDER}px solid ${face.border}`,
                 cursor: "pointer",
                 borderRadius: 10,
                 ...({ cornerShape: CONFIG.CORNER_SHAPE } as object),
-                backgroundColor:
-                    ctaHovered || ctaPressed ? face.hoverFill : face.fill,
+                backgroundColor: face.fill,
                 color: face.ink,
                 verticalAlign: "baseline",
-                // A flat control shows its press by dimming, not by casting
-                // or losing a shadow. The small compression keeps the press
-                // physical without reintroducing depth.
-                opacity: ctaPressed ? 0.72 : 1,
-                transform: ctaPressed
-                    ? `translateY(${-CTA_BASELINE_NUDGE}px) scale(0.97)`
-                    : ctaSettling
-                      ? `translateY(${-CTA_BASELINE_NUDGE}px) scale(0.99)`
-                      : `translateY(${-CTA_BASELINE_NUDGE}px)`,
+                boxShadow: face.shadow,
+                // Hover floats it a pixel; the press puts it back down. The
+                // lift and the shadow are one gesture, so pressing lands the
+                // surface rather than shrinking it.
+                transform:
+                    !ctaConfirmed && ctaHovered && !ctaPressed
+                        ? `translateY(${-1 - CTA_BASELINE_NUDGE}px)`
+                        : `translateY(${-CTA_BASELINE_NUDGE}px)`,
             }}
         >
             <span className="cta-label">
@@ -1099,32 +1122,57 @@ export default function PortfolioScroll({
                             data.mediaType === "video" && data.videoUrl
                         const hasMediaLink = Boolean(data.link)
 
-                        const media = isVideo ? (
-                            <video
-                                src={data.videoUrl}
-                                autoPlay
-                                loop
-                                muted
-                                playsInline
-                                style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    objectFit: "cover",
-                                    willChange: "transform",
-                                }}
-                            />
-                        ) : (
-                            <img
-                                src={data.image.src}
-                                alt={data.image.alt}
-                                style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    objectFit: "cover",
-                                    willChange: "transform",
-                                }}
-                            />
-                        )
+                        const media =
+                            data.mediaType === "component" ? (
+                                <div
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        backgroundColor: "#FFFFFF",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        padding: isMobile ? 16 : 32,
+                                    }}
+                                >
+                                    {data.component === "branded-shuffle" ? (
+                                        <BrandedLayoutsLoop />
+                                    ) : data.component === "shoppable-config" ? (
+                                        <ShoppableConfigLoop />
+                                    ) : data.component === "shoppable-build" ? (
+                                        <ShoppableBuildLoop />
+                                    ) : (
+                                        <UberAdsLoop fit="contain" />
+                                    )}
+                                </div>
+                            ) : isVideo ? (
+                                <video
+                                    data-parallax="true"
+                                    src={data.videoUrl}
+                                    autoPlay
+                                    loop
+                                    muted
+                                    playsInline
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                        willChange: "transform",
+                                    }}
+                                />
+                            ) : (
+                                <img
+                                    data-parallax="true"
+                                    src={data.image.src}
+                                    alt={data.image.alt}
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                        willChange: "transform",
+                                    }}
+                                />
+                            )
 
                         return (
                             <div
@@ -1146,8 +1194,16 @@ export default function PortfolioScroll({
                                 {hasMediaLink ? (
                                     <a
                                         href={data.link}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                        target={
+                                            isExternal(data.link)
+                                                ? "_blank"
+                                                : undefined
+                                        }
+                                        rel={
+                                            isExternal(data.link)
+                                                ? "noopener noreferrer"
+                                                : undefined
+                                        }
                                         aria-label={`Open project: ${data.title}`}
                                         tabIndex={-1}
                                         style={{
@@ -1155,6 +1211,14 @@ export default function PortfolioScroll({
                                             width: "100%",
                                             height: "100%",
                                             cursor: "pointer",
+                                            // An anchor's underline propagates
+                                            // to its descendants and cannot be
+                                            // cancelled from inside, so it has
+                                            // to be cleared here. It never
+                                            // showed while every hero was an
+                                            // image; the code hero is the
+                                            // first one made of type.
+                                            textDecoration: "none",
                                         }}
                                         onClick={(event) => {
                                             if (state.current.isDragging) {
@@ -1257,10 +1321,12 @@ export default function PortfolioScroll({
                                 <a
                                     href={isInteractive ? data.link : undefined}
                                     target={
-                                        isInteractive ? "_blank" : undefined
+                                        isInteractive && isExternal(data.link)
+                                            ? "_blank"
+                                            : undefined
                                     }
                                     rel={
-                                        isInteractive
+                                        isInteractive && isExternal(data.link)
                                             ? "noopener noreferrer"
                                             : undefined
                                     }
@@ -1357,7 +1423,20 @@ export default function PortfolioScroll({
                                                         palette.cardThumbBackground,
                                                     flexShrink: 0,
                                                 }}
-                                            />
+                                            >
+                                                {data.thumb && (
+                                                    <img
+                                                        src={data.thumb.src}
+                                                        alt={data.thumb.alt}
+                                                        style={{
+                                                            width: "100%",
+                                                            height: "100%",
+                                                            objectFit: "cover",
+                                                            display: "block",
+                                                        }}
+                                                    />
+                                                )}
+                                            </div>
                                             <span
                                                 style={{
                                                     ...bodyFont,
@@ -1367,7 +1446,11 @@ export default function PortfolioScroll({
                                                     // with a custom face.
                                                     fontSize: 12,
                                                     color: cardInk,
-                                                    opacity: 0.65,
+                                                    // 0.85, not 0.65: below
+                                                    // this the 12px year label
+                                                    // drops under 4.5:1 on
+                                                    // every card in the set.
+                                                    opacity: 0.85,
                                                     textAlign: "right",
                                                     marginTop: 2,
                                                     fontWeight: 500,
@@ -1398,7 +1481,7 @@ export default function PortfolioScroll({
                                                 ...bodyFont,
                                                 fontSize: isMobile ? 12 : 16,
                                                 color: cardInk,
-                                                opacity: 0.78,
+                                                opacity: 0.85,
                                                 margin: 0,
                                                 lineHeight: 1.45,
                                                 fontWeight: 500,

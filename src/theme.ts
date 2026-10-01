@@ -9,9 +9,23 @@ export interface Palette {
     /** Muted text — the status line. */
     textMuted: string
     /**
- * Untitled UI palette steps. The key's fills and their base edges are one step
- * apart on the same ramp, so the edge always reads as a shadow of its face.
- */
+     * The key is a surface, not a coloured slab: a near-page fill, a hairline
+     * border and a small ambient shadow, so it reads as a raised card of the
+     * page rather than a primary action competing with the project cards.
+     * Colour is held back entirely for the confirmed state.
+     */
+    key: {
+        fill: string
+        fillHover: string
+        fillPressed: string
+        border: string
+        borderHover: string
+        ink: string
+        inkHover: string
+        shadow: string
+        shadowHover: string
+        shadowPressed: string
+    }
     accent: string
     /** Hover fill — one step along the same ramp, toward more contrast. */
     accentBase: string
@@ -42,26 +56,40 @@ export const PALETTES: Record<ThemeName, Palette> = {
         panel: "#F9FAFB",
         text: "#1F2129",
         textMuted: "#4B4F5C",
-        // The key inverts against its own page: dark fill here, light fill in
-        // the dark theme. That is what buys the contrast — dark ink on a
-        // near-white page confines every fill to a luminance band 0.043 wide,
-        // too narrow for three states to look different from one another.
-        // White ink opens the band to 0.05-0.183 and roughly doubles both
-        // measures. Blue 700 rest, Blue 800 hover: a visible step, not a nudge.
+        key: {
+            // The page's own colour, so the key reads as a raised piece of the
+            // page rather than a whiter card sitting on it. The hairline and
+            // the shadow are the whole of its definition; the fill only moves
+            // on press, and then only by one cool step.
+            fill: "#F9FAFB",
+            fillHover: "#F9FAFB",
+            fillPressed: "#EFF1F5",
+            border: "rgba(0,0,0,0.1)",
+            borderHover: "rgba(0,0,0,0.15)",
+            ink: "rgba(0,0,0,0.85)",
+            inkHover: "rgba(0,0,0,0.65)",
+            shadow: "rgba(0,0,0,0.02) 0 1px 3px 0",
+            shadowHover: "rgba(0,0,0,0.1) 0 4px 12px",
+            shadowPressed: "rgba(0,0,0,0.06) 0 2px 4px",
+        },
         accent: "#175CD3",
         accentBase: "#1849A9",
-        // 0.135 against the rest fill's 0.125 — confirming changes hue and
-        // essentially nothing else.
-        accentSuccess: "#067647",
+        // Teal 700 — the blue-green the success state was asked for, and the
+        // only colour the key ever shows. 5.6:1 under white, 5.4:1 against the
+        // page, so the reward is the one state that carries any hue at all.
+        accentSuccess: "#107569",
         onAccent: "#FFFFFF",
         onAccentSuccess: "#FFFFFF",
         burst: "#F5811F",
+        // Seven, one per project: the card colour is indexed by the same
+        // modulus as the project data, so the two array lengths have to match
+        // or a project's colour drifts on each loop of the scroll.
         // Roughly halfway between the original pastels and the vivid set:
         // clearly coloured, but no longer competing with the artwork. Light
         // enough that the card ink stays dark on every one of them.
         cardBackgrounds: [
             "#FFFF80",
-            "#FFD280",
+            "#B4ECD2",
             "#FFC1B5",
             "#FFD3FB",
             "#CC99E6",
@@ -69,11 +97,12 @@ export const PALETTES: Record<ThemeName, Palette> = {
             "#7FFFD4",
         ],
         // Each card's text is that card's own hue taken dark — never a
-        // neutral. It is what stops seven colours reading as seven unrelated
-        // stickers. All clear 6.5:1.
+        // neutral. It is what stops six colours reading as six unrelated
+        // stickers. The Uber Eats pair is #B4ECD2 / #022518: 12.4:1 at full
+        // ink and 8.3:1 through the 0.85 knock-down the card text uses.
         cardInks: [
             "#5A5A02",
-            "#5A3B02",
+            "#022518",
             "#5A1002",
             "#5A0252",
             "#361348",
@@ -90,26 +119,36 @@ export const PALETTES: Record<ThemeName, Palette> = {
         panel: "#0D0E11",
         text: "#F2F3F5",
         textMuted: "#9BA1AC",
-        // Light fill, dark ink — the inversion of the light theme, for the
-        // same reason. A white-labelled fill on a near-black page is capped at
-        // 0.183 luminance and tops out around 4.2:1 against the page; going
-        // the other way reaches 8.3:1 on both the label and the chip. Hover
-        // brightens to Blue 300, a full 0.14 of luminance — unmissable.
+        key: {
+            // The same idea inverted: the page's own colour, defined by its
+            // hairline. A shadow does almost nothing on a near-black ground,
+            // so here the border carries the edge on its own.
+            fill: "#0D0E11",
+            fillHover: "#0D0E11",
+            fillPressed: "#171A1F",
+            border: "rgba(255,255,255,0.22)",
+            borderHover: "rgba(255,255,255,0.34)",
+            ink: "rgba(255,255,255,0.92)",
+            inkHover: "rgba(255,255,255,0.7)",
+            shadow: "rgba(0,0,0,0.4) 0 1px 3px 0",
+            shadowHover: "rgba(0,0,0,0.55) 0 4px 12px",
+            shadowPressed: "rgba(0,0,0,0.5) 0 2px 4px",
+        },
         accent: "#53B1FD",
         accentBase: "#84CAFF",
         // Unchanged: on a near-black page the lime is 16.3:1 and already
         // matches the light-blue resting fill's weight. Only light mode broke.
-        // 0.421 against the rest fill's 0.404, matching the light theme's
-        // near-zero delta, so the press reads the same way in both.
-        accentSuccess: "#32C48D",
+        // Teal 400, the same blue-green taken light so it carries dark ink on
+        // this page the way the rest of the dark palette does. 10.2:1.
+        accentSuccess: "#2ED3B7",
         onAccent: "#0D0E11",
         onAccentSuccess: "#0D0E11",
         burst: "#FF9433",
-        // The same five, unchanged: at this saturation they carry on a
+        // The same seven, unchanged: at this saturation they carry on a
         // near-black page without glaring, and the dark card ink still holds.
         cardBackgrounds: [
             "#FFFF80",
-            "#FFD280",
+            "#B4ECD2",
             "#FFC1B5",
             "#FFD3FB",
             "#CC99E6",
@@ -121,7 +160,7 @@ export const PALETTES: Record<ThemeName, Palette> = {
         // stickers. All clear 6.5:1.
         cardInks: [
             "#5A5A02",
-            "#5A3B02",
+            "#022518",
             "#5A1002",
             "#5A0252",
             "#361348",
