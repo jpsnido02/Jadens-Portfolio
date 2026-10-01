@@ -32,6 +32,8 @@ export interface ProjectData {
      * of being readable, which is what "cover" does to it.
      */
     imageFit?: "cover" | "contain"
+    /** Marks the project as still in progress, badged on the card. */
+    comingSoon?: boolean
     /** Renders a live component in the hero pane instead of artwork. */
     component?:
         | "uber-loop"
@@ -1511,9 +1513,41 @@ export default function PortfolioScroll({
                                                     marginTop: 2,
                                                     fontWeight: 500,
                                                     fontFamily: FONT_FAMILY,
+                                                    display: "flex",
+                                                    flexDirection: "column",
+                                                    alignItems: "flex-end",
+                                                    gap: 6,
                                                 }}
                                             >
-                                                {data.year}
+                                                <span>{data.year}</span>
+                                                {data.comingSoon && (
+                                                    // Neutral rather than the
+                                                    // card's accent: this is a
+                                                    // status, and the accent
+                                                    // is the click
+                                                    // affordance's job.
+                                                    <span
+                                                        style={{
+                                                            fontSize: 9.5,
+                                                            fontWeight: 600,
+                                                            letterSpacing:
+                                                                "0.08em",
+                                                            textTransform:
+                                                                "uppercase",
+                                                            color: "#71717A",
+                                                            background:
+                                                                "#F1F1F3",
+                                                            border: "1px solid #E4E7EC",
+                                                            borderRadius: 999,
+                                                            padding: "3px 8px",
+                                                            whiteSpace:
+                                                                "nowrap",
+                                                            opacity: 1,
+                                                        }}
+                                                    >
+                                                        In progress
+                                                    </span>
+                                                )}
                                             </span>
                                         </div>
                                         <h2

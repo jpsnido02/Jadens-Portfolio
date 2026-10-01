@@ -46,23 +46,6 @@ export const projects: ProjectData[] = [
     // reading order of the case studies. See docs/case-studies/README.md for
     // why these six sit in this sequence — no story shape repeats adjacently.
     {
-        title: "Macy's Bag page",
-        image: {
-            src: "/projects/macys-bag-laptop.jpg",
-            alt: "The Macy's bag page on a laptop",
-        },
-        imageFit: "contain",
-        thumb: {
-            src: "/projects/icon-macys.svg",
-            alt: "Macy's",
-        },
-        category: "Conversion",
-        year: "2026",
-        description: "Three variants, two of which lost.",
-        tags: [],
-        link: "work/macys-bag-page/",
-    },
-    {
         title: "Uber Eats Contextual Advertising",
         image: { src: "/projects/project-02.jpg", alt: "Uber Eats" },
         thumb: {
@@ -78,6 +61,39 @@ export const projects: ProjectData[] = [
             "Design that understands your order, and what to do while you wait.",
         tags: [],
         link: "work/uber-ads/",
+    },
+    {
+        title: "McDonald's kiosk",
+        image: { src: "/projects/project-05.jpg", alt: "McDonald's kiosk" },
+        thumb: {
+            src: "/projects/icon-mcdonalds.svg",
+            alt: "McDonald's",
+        },
+        category: "In-person",
+        // Still in progress, so the card says so.
+        comingSoon: true,
+        year: "2026",
+        description:
+            "A placement on a screen you don't own, in a room full of people.",
+        tags: [],
+        link: "work/mcdonalds-kiosk/",
+    },
+    {
+        title: "Macy's Bag page",
+        image: {
+            src: "/projects/macys-bag-laptop.jpg",
+            alt: "The Macy's bag page on a laptop",
+        },
+        imageFit: "contain",
+        thumb: {
+            src: "/projects/icon-macys.svg",
+            alt: "Macy's",
+        },
+        category: "Conversion",
+        year: "2026",
+        description: "Three variants, two of which lost.",
+        tags: [],
+        link: "work/macys-bag-page/",
     },
     {
         title: "Agents that build partner mockups",
@@ -131,20 +147,6 @@ export const projects: ProjectData[] = [
         description: "Hand-built demos took a week. This one took minutes.",
         tags: [],
         link: "work/shoppable-config/",
-    },
-    {
-        title: "McDonald's kiosk",
-        image: { src: "/projects/project-05.jpg", alt: "McDonald's kiosk" },
-        thumb: {
-            src: "/projects/icon-mcdonalds.svg",
-            alt: "McDonald's",
-        },
-        category: "In-person",
-        year: "2026",
-        description:
-            "A placement on a screen you don't own, in a room full of people.",
-        tags: [],
-        link: "work/mcdonalds-kiosk/",
     },
     {
         title: "Expedia 1P / 3P",

@@ -104,7 +104,12 @@ export const PALETTES: Record<ThemeName, Palette> = {
             "#FFFFFF",
             "#FFFFFF",
         ],
-        // Index 2 is the agent tool. Its accent is purple rather than the Home
+        // Accents are index-matched to position, so they are re-ordered with
+        // the projects — otherwise reordering hands Uber Eats the Macy's red.
+        // In order: Uber Eats, McDonald's, Macy's, the agent tool, Branded
+        // Layouts, the Rokt prototype tool, Expedia.
+        //
+        // The agent tool's accent is purple rather than the Home
         // Depot orange its hero demos on — the project is the agent, not the
         // partner, and purple carries the generated-rather-than-drawn idea.
         // Index 3 moved to teal to leave it unique.
@@ -135,12 +140,12 @@ export const PALETTES: Record<ThemeName, Palette> = {
             "#E4E7EC",
         ],
         cardAccents: [
-            "#E21A2C",
             "#048849",
+            "#976F00",
+            "#E21A2C",
             "#7C3AED",
             "#0F766E",
             "#B22473",
-            "#976F00",
             "#1668E3",
         ],
         cardText: "#1F2129",
@@ -189,7 +194,12 @@ export const PALETTES: Record<ThemeName, Palette> = {
             "#FFFFFF",
             "#FFFFFF",
         ],
-        // Index 2 is the agent tool. Its accent is purple rather than the Home
+        // Accents are index-matched to position, so they are re-ordered with
+        // the projects — otherwise reordering hands Uber Eats the Macy's red.
+        // In order: Uber Eats, McDonald's, Macy's, the agent tool, Branded
+        // Layouts, the Rokt prototype tool, Expedia.
+        //
+        // The agent tool's accent is purple rather than the Home
         // Depot orange its hero demos on — the project is the agent, not the
         // partner, and purple carries the generated-rather-than-drawn idea.
         // Index 3 moved to teal to leave it unique.
@@ -220,12 +230,12 @@ export const PALETTES: Record<ThemeName, Palette> = {
             "#E4E7EC",
         ],
         cardAccents: [
-            "#E21A2C",
             "#048849",
+            "#976F00",
+            "#E21A2C",
             "#7C3AED",
             "#0F766E",
             "#B22473",
-            "#976F00",
             "#1668E3",
         ],
         cardText: "#1F2129",
