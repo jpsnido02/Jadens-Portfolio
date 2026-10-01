@@ -1557,8 +1557,16 @@ export default function PortfolioScroll({
                                                     gap: 6,
                                                 }}
                                             >
-                                                <span>{data.year}</span>
-                                                {data.comingSoon && (
+                                                {data.comingSoon ? (
+                                                    // The pill replaces the
+                                                    // year rather than
+                                                    // stacking under it: a
+                                                    // project still in
+                                                    // progress has no year to
+                                                    // give, and two labels in
+                                                    // the corner read as
+                                                    // clutter.
+                                                    //
                                                     // Neutral rather than the
                                                     // card's accent: this is a
                                                     // status, and the accent
@@ -1585,6 +1593,8 @@ export default function PortfolioScroll({
                                                     >
                                                         In progress
                                                     </span>
+                                                ) : (
+                                                    <span>{data.year}</span>
                                                 )}
                                             </span>
                                         </div>
