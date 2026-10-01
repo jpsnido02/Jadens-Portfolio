@@ -183,18 +183,18 @@ button:focus-visible {
     /* The return from "Thanks!" is the press played backwards, but slower — a
    press is a reaction and wants to be instant; this is a wind-down. */
 .cta[data-settling="true"] {
-    transition:
-        transform 240ms cubic-bezier(0.33, 1, 0.68, 1),
-        box-shadow 240ms cubic-bezier(0.33, 1, 0.68, 1),
-        border-color 240ms ease,
-        background-color 260ms ease;
-}
+        transition:
+            transform 240ms cubic-bezier(0.33, 1, 0.68, 1),
+            box-shadow 240ms cubic-bezier(0.33, 1, 0.68, 1),
+            border-color 240ms ease,
+            background-color 260ms ease;
+    }
 
-.cta[data-settling="true"] .cta-label > span {
-    transition-duration: 260ms;
-}
+    .cta[data-settling="true"] .cta-label > span {
+        transition-duration: 260ms;
+    }
 
-.cta[data-pressed="true"] {
+    .cta[data-pressed="true"] {
         transition-duration: 1ms;
     }
 }
@@ -336,5 +336,20 @@ dl {
     .code-caret {
         animation: none;
         opacity: 0;
+    }
+}
+
+/* The agent's working indicator, while it runs the build. */
+.agent-spin {
+    animation: agent-spin 0.9s linear infinite;
+}
+@keyframes agent-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .agent-spin {
+        animation: none;
     }
 }

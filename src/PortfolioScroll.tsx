@@ -13,6 +13,7 @@ import { CONTENT_MAX_WIDTH, FONT_FAMILY } from "./tokens"
 import ShoppableBuildLoop from "./ShoppableBuildLoop"
 import ShoppableConfigLoop from "./ShoppableConfigLoop"
 import BrandedLayoutsLoop from "./BrandedLayoutsLoop"
+import PartnerAgentLoop from "./PartnerAgentLoop"
 import UberAdsLoop from "./UberAdsLoop"
 
 export interface ProjectData {
@@ -31,6 +32,7 @@ export interface ProjectData {
         | "shoppable-build"
         | "shoppable-config"
         | "branded-shuffle"
+        | "partner-agent"
     /** Fills the card's thumbnail square. Left empty it stays a plain plate. */
     thumb?: { src: string; alt: string }
 }
@@ -893,7 +895,12 @@ export default function PortfolioScroll({
                 paddingLeft: isMobile ? 16 : undefined,
                 paddingRight: isMobile ? 16 : undefined,
                 marginBottom: 0,
-                paddingTop: isMobile ? 40 : 48,
+                // Viewport-relative on desktop rather than a fixed 48: on a
+                // laptop the headline sat too close to the top edge, and a
+                // constant offset that looks right at 1080 looks cramped at
+                // 768. The track below takes flex: 1, so it absorbs whatever
+                // this gives away instead of overflowing.
+                paddingTop: isMobile ? 40 : "clamp(64px, 11vh, 140px)",
                 paddingBottom: isMobile ? 10 : 24,
             }}
         >
@@ -1135,9 +1142,12 @@ export default function PortfolioScroll({
                                         padding: isMobile ? 16 : 32,
                                     }}
                                 >
-                                    {data.component === "branded-shuffle" ? (
+                                    {data.component === "partner-agent" ? (
+                                        <PartnerAgentLoop />
+                                    ) : data.component === "branded-shuffle" ? (
                                         <BrandedLayoutsLoop />
-                                    ) : data.component === "shoppable-config" ? (
+                                    ) : data.component ===
+                                      "shoppable-config" ? (
                                         <ShoppableConfigLoop />
                                     ) : data.component === "shoppable-build" ? (
                                         <ShoppableBuildLoop />
@@ -1295,6 +1305,11 @@ export default function PortfolioScroll({
                         const cardBackground = backgrounds[paletteIndex]
                         const cardInk =
                             palette.cardInks[paletteIndex] ?? palette.cardText
+                        const cardEdge =
+                            palette.cardCardBorders[paletteIndex] ??
+                            palette.cardBorder
+                        const cardAccent =
+                            palette.cardAccents[paletteIndex] ?? cardInk
                         const isHovered = hoveredCard === i
                         const isActive = i === activeCardIndex
                         const isInteractive = isActive && Boolean(data.link)
@@ -1356,6 +1371,14 @@ export default function PortfolioScroll({
                                         ...({
                                             cornerShape: CONFIG.CORNER_SHAPE,
                                         } as object),
+                                        // The edge belongs to the card, which
+                                        // already owns the radius and the
+                                        // corner shape. On the inset plate
+                                        // inside it, a border sat 1px outside
+                                        // its own box and the card's rounded
+                                        // clip cut it off.
+                                        border: `1px solid ${cardEdge}`,
+                                        boxSizing: "border-box",
                                         padding: cardPadding,
                                         display: "flex",
                                         flexDirection: "column",
@@ -1418,7 +1441,6 @@ export default function PortfolioScroll({
                                                             CONFIG.CORNER_SHAPE,
                                                     } as object),
                                                     overflow: "hidden",
-                                                    border: `1px solid ${palette.cardBorder}`,
                                                     backgroundColor:
                                                         palette.cardThumbBackground,
                                                     flexShrink: 0,
@@ -1506,8 +1528,11 @@ export default function PortfolioScroll({
                                             alignItems: "center",
                                             gap: 6,
                                             fontSize: isMobile ? 12 : 14,
-                                            fontWeight: 500,
-                                            color: cardInk,
+                                            fontWeight: 600,
+                                            // The partner's own brand colour,
+                                            // and the only place one appears
+                                            // on an otherwise white card.
+                                            color: cardAccent,
                                             fontFamily: FONT_FAMILY,
                                         }}
                                     >

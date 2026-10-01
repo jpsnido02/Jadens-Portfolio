@@ -41,6 +41,14 @@ export interface Palette {
     cardBackgrounds: string[]
     /** One ink per card, index-matched to cardBackgrounds. */
     cardInks: string[]
+    /** One border per card, index-matched. */
+    cardCardBorders: string[]
+    /**
+     * One accent per card: the partner's primary brand colour, used on the
+     * card's click affordance. Darkened where the raw brand colour cannot
+     * carry text on white.
+     */
+    cardAccents: string[]
     cardText: string
     cardTextMuted: string
     /** Hairline around the card thumbnail, and the plate behind it. */
@@ -88,26 +96,52 @@ export const PALETTES: Record<ThemeName, Palette> = {
         // clearly coloured, but no longer competing with the artwork. Light
         // enough that the card ink stays dark on every one of them.
         cardBackgrounds: [
-            "#FFFF80",
-            "#B4ECD2",
-            "#FFC1B5",
-            "#FFD3FB",
-            "#CC99E6",
-            "#4DFFA5",
-            "#7FFFD4",
+            "#FFFFFF",
+            "#FFFFFF",
+            "#FFFFFF",
+            "#FFFFFF",
+            "#FFFFFF",
+            "#FFFFFF",
+            "#FFFFFF",
         ],
-        // Each card's text is that card's own hue taken dark — never a
-        // neutral. It is what stops six colours reading as six unrelated
-        // stickers. The Uber Eats pair is #B4ECD2 / #022518: 12.4:1 at full
-        // ink and 8.3:1 through the 0.85 knock-down the card text uses.
+        // Index 2 is the agent tool. Its accent is purple rather than the Home
+        // Depot orange its hero demos on — the project is the agent, not the
+        // partner, and purple carries the generated-rather-than-drawn idea.
+        // Index 3 moved to teal to leave it unique.
+        //
+        // The cards are white with a hairline a step darker than the page, and
+        // carry no brand colour themselves. Every attempt at tinting them —
+        // pastel, muted, deep, brand-lightened — put a coloured ground behind
+        // a coloured logo, which is the thing that kept reading badly. The
+        // brand now arrives twice instead: in the app icon, and in the accent
+        // on "View Project".
+
         cardInks: [
-            "#5A5A02",
-            "#022518",
-            "#5A1002",
-            "#5A0252",
-            "#361348",
-            "#025A2D",
-            "#025A3C",
+            "#1F2129",
+            "#1F2129",
+            "#1F2129",
+            "#1F2129",
+            "#1F2129",
+            "#1F2129",
+            "#1F2129",
+        ],
+        cardCardBorders: [
+            "#E4E7EC",
+            "#E4E7EC",
+            "#E4E7EC",
+            "#E4E7EC",
+            "#E4E7EC",
+            "#E4E7EC",
+            "#E4E7EC",
+        ],
+        cardAccents: [
+            "#E21A2C",
+            "#048849",
+            "#7C3AED",
+            "#0F766E",
+            "#B22473",
+            "#976F00",
+            "#1668E3",
         ],
         cardText: "#1F2129",
         cardTextMuted: "#2A2D36",
@@ -147,25 +181,52 @@ export const PALETTES: Record<ThemeName, Palette> = {
         // The same seven, unchanged: at this saturation they carry on a
         // near-black page without glaring, and the dark card ink still holds.
         cardBackgrounds: [
-            "#FFFF80",
-            "#B4ECD2",
-            "#FFC1B5",
-            "#FFD3FB",
-            "#CC99E6",
-            "#4DFFA5",
-            "#7FFFD4",
+            "#FFFFFF",
+            "#FFFFFF",
+            "#FFFFFF",
+            "#FFFFFF",
+            "#FFFFFF",
+            "#FFFFFF",
+            "#FFFFFF",
         ],
-        // Each card's text is that card's own hue taken dark — never a
-        // neutral. It is what stops seven colours reading as seven unrelated
-        // stickers. All clear 6.5:1.
+        // Index 2 is the agent tool. Its accent is purple rather than the Home
+        // Depot orange its hero demos on — the project is the agent, not the
+        // partner, and purple carries the generated-rather-than-drawn idea.
+        // Index 3 moved to teal to leave it unique.
+        //
+        // The cards are white with a hairline a step darker than the page, and
+        // carry no brand colour themselves. Every attempt at tinting them —
+        // pastel, muted, deep, brand-lightened — put a coloured ground behind
+        // a coloured logo, which is the thing that kept reading badly. The
+        // brand now arrives twice instead: in the app icon, and in the accent
+        // on "View Project".
+
         cardInks: [
-            "#5A5A02",
-            "#022518",
-            "#5A1002",
-            "#5A0252",
-            "#361348",
-            "#025A2D",
-            "#025A3C",
+            "#1F2129",
+            "#1F2129",
+            "#1F2129",
+            "#1F2129",
+            "#1F2129",
+            "#1F2129",
+            "#1F2129",
+        ],
+        cardCardBorders: [
+            "#E4E7EC",
+            "#E4E7EC",
+            "#E4E7EC",
+            "#E4E7EC",
+            "#E4E7EC",
+            "#E4E7EC",
+            "#E4E7EC",
+        ],
+        cardAccents: [
+            "#E21A2C",
+            "#048849",
+            "#7C3AED",
+            "#0F766E",
+            "#B22473",
+            "#976F00",
+            "#1668E3",
         ],
         cardText: "#1F2129",
         cardTextMuted: "#2A2D36",

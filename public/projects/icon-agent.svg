@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 68" width="68" height="68" role="img" aria-label="Generated mockups">
+    <!--
+        The agent tile: a sparkle on purple. Not the Home Depot orange its hero
+        runs on — that is the partner it happens to demo, not the project — and
+        purple reads as generated rather than drawn. White on #7C3AED is
+        5.7:1.
+    -->
+    <rect width="68" height="68" fill="#7C3AED"/>
+    <path d="M32 15 C33.2 24.2 38.8 29.8 48 31 C38.8 32.2 33.2 37.8 32 47 C30.8 37.8 25.2 32.2 16 31 C25.2 29.8 30.8 24.2 32 15 Z" fill="#FFFFFF"/>
+    <path d="M48 40 C48.5 44.1 50.9 46.5 55 47 C50.9 47.5 48.5 49.9 48 54 C47.5 49.9 45.1 47.5 41 47 C45.1 46.5 47.5 44.1 48 40 Z" fill="#FFFFFF" opacity="0.72"/>
+</svg>

@@ -47,9 +47,16 @@ export const projects: ProjectData[] = [
     // why these six sit in this sequence — no story shape repeats adjacently.
     {
         title: "Macy's Bag page",
-        image: { src: "/projects/project-01.jpg", alt: "Macy's Bag page" },
+        image: {
+            src: "/projects/project-01.jpg",
+            alt: "The Macy's bag page on a laptop",
+        },
+        thumb: {
+            src: "/projects/icon-macys.svg",
+            alt: "Macy's",
+        },
         category: "Conversion",
-        year: "2025",
+        year: "2026",
         description: "Three variants, two of which lost.",
         tags: [],
         link: "work/macys-bag-page/",
@@ -58,18 +65,40 @@ export const projects: ProjectData[] = [
         title: "Uber Eats Contextual Advertising",
         image: { src: "/projects/project-02.jpg", alt: "Uber Eats" },
         thumb: {
-            src: "/projects/ubereats-logo.png",
+            src: "/projects/icon-ubereats.svg",
             alt: "Uber Eats",
         },
         // The hero pane runs the live placement loop instead of artwork.
         mediaType: "component",
         component: "uber-loop",
         category: "Ad formats",
-        year: "2025",
+        year: "2026",
         description:
             "Design that understands your order, and what to do while you wait.",
         tags: [],
         link: "work/uber-ads/",
+    },
+    {
+        title: "Agents that build partner mockups",
+        image: {
+            src: "/projects/project-04.jpg",
+            alt: "Agents that build partner mockups",
+        },
+        thumb: {
+            src: "/projects/icon-agent.svg",
+            alt: "Generated mockups",
+        },
+        // The hero pane takes a prompt naming a new partner, then writes out
+        // the format library while the phone renders each format in turn.
+        mediaType: "component",
+        component: "partner-agent",
+        category: "Internal tools",
+        year: "2026",
+        description:
+            "Onboarding a partner meant hand-building a mockup for every ad format. An agent does it from one prompt.",
+        tags: [],
+        // TODO: still points at the shoppable case study. Needs its own page.
+        link: "work/shoppable-pitching-platform/",
     },
     {
         title: "Branded Layouts",
@@ -85,34 +114,19 @@ export const projects: ProjectData[] = [
         link: "work/branded-layouts/",
     },
     {
-        title: "Rapid prototyping tool",
-        image: {
-            src: "/projects/project-04.jpg",
-            alt: "Rapid prototyping tool",
-        },
-        // The hero pane types the placement out and builds it in step.
-        mediaType: "component",
-        component: "shoppable-build",
-        category: "Internal tools",
-        year: "2025",
-        description: "Hand-built demos took a week. This one took minutes.",
-        tags: [],
-        link: "work/shoppable-pitching-platform/",
-    },
-    // DUPLICATE, for comparing hero treatments. Same project, same copy; the
-    // only difference is that this one's hero is the configuration panel
-    // rather than the code editor. Delete whichever you do not keep — and the
-    // seventh card colour in theme.ts with it.
-    {
         title: "Rapid prototyping tool (config hero)",
         image: {
             src: "/projects/project-04.jpg",
             alt: "Rapid prototyping tool",
         },
+        thumb: {
+            src: "/projects/icon-rokt.svg",
+            alt: "Rokt",
+        },
         mediaType: "component",
         component: "shoppable-config",
         category: "Internal tools",
-        year: "2025",
+        year: "2026",
         description: "Hand-built demos took a week. This one took minutes.",
         tags: [],
         link: "work/shoppable-config/",
@@ -120,8 +134,12 @@ export const projects: ProjectData[] = [
     {
         title: "McDonald's kiosk",
         image: { src: "/projects/project-05.jpg", alt: "McDonald's kiosk" },
+        thumb: {
+            src: "/projects/icon-mcdonalds.svg",
+            alt: "McDonald's",
+        },
         category: "In-person",
-        year: "2025",
+        year: "2026",
         description:
             "A placement on a screen you don't own, in a room full of people.",
         tags: [],
@@ -133,8 +151,12 @@ export const projects: ProjectData[] = [
             src: "/projects/project-06.jpg",
             alt: "Expedia 1P / 3P offers",
         },
+        thumb: {
+            src: "/projects/icon-expedia.svg",
+            alt: "Expedia",
+        },
         category: "Marketplace",
-        year: "2024",
+        year: "2026",
         description:
             "Whether a traveller should be able to tell whose offer it is.",
         tags: [],
