@@ -124,6 +124,16 @@ export const projects: ProjectData[] = [
         mediaType: "component",
         component: "branded-shuffle",
         category: "Design systems",
+        // Five of the partners, the most recognisable of the set. The hero
+        // carousel names each one as it passes, so the card does not have to
+        // carry all of them.
+        thumbs: [
+            { src: "/projects/partners/fanatics.jpg", alt: "Fanatics" },
+            { src: "/projects/partners/gap.jpg", alt: "Gap" },
+            { src: "/projects/partners/bestbuy.jpg", alt: "Best Buy" },
+            { src: "/projects/partners/seatgeek.jpg", alt: "SeatGeek" },
+            { src: "/projects/partners/depop.jpg", alt: "Depop" },
+        ],
         year: "2026",
         description:
             "A placement that inherits a partner's brand automatically.",
