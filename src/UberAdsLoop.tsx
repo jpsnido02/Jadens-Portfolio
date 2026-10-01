@@ -111,32 +111,16 @@ const TRACK = [...OFFERS, OFFERS[0]]
  * appears to erupt from a button inside Uber Eats, which is not a thing the
  * system does.
  *
- * The grid is built here rather than screenshotted so the two icon rects are
- * known exactly — the whole transition is a morph to and from them, and a
- * screenshot would mean measuring icons out of a bitmap.
+ * The screen is the design file's own, and the two icon rects were measured
+ * off it rather than estimated — the Uber Eats icon by its green, the App
+ * Store by the columns of strong blue across that icon's own rows, so the
+ * label beneath and the wallpaper behind are excluded. Both come out ~59
+ * square on one row, 91 apart.
  */
-const ICON = 60
+const ICON = 59
 const ICON_R = 13
-const GRID_X = 30
-const GRID_Y = 150
-const GRID_GAP_X = 28
-const GRID_GAP_Y = 30
-const slot = (col: number, row: number) => ({
-    x: GRID_X + col * (ICON + GRID_GAP_X),
-    y: GRID_Y + row * (ICON + GRID_GAP_Y),
-})
-/** Uber Eats closes into this one, and the App Store opens out of that one. */
-const UBER_SLOT = slot(0, 2)
-const STORE_SLOT = slot(3, 2)
-/** Everything else on the grid, to make it read as a home screen. */
-const FILLER: { col: number; row: number; src: string }[] = [
-    { col: 1, row: 0, src: "/projects/partners/gap-app.jpg" },
-    { col: 2, row: 0, src: "/projects/partners/bestbuy-app.jpg" },
-    { col: 0, row: 1, src: "/projects/partners/seatgeek-app.jpg" },
-    { col: 2, row: 1, src: "/projects/partners/depop-app.jpg" },
-    { col: 3, row: 1, src: "/projects/partners/frontier-app.jpg" },
-    { col: 1, row: 2, src: "/projects/partners/fanatics-app.jpg" },
-]
+const UBER_SLOT = { x: 28.5, y: 577 }
+const STORE_SLOT = { x: 119.5, y: 577 }
 
 const APPLE_EASE = "cubic-bezier(0.32, 0.72, 0, 1)"
 const PAGE_EASE = "cubic-bezier(0.33, 1, 0.68, 1)"
@@ -370,48 +354,20 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                         {/* The home screen, behind both apps. It is only
                             ever seen through the gap one app leaves on its
                             way out and the next fills on its way in. */}
-                        <div
+                        <img
                             aria-hidden="true"
+                            src={`${BASE}/homescreen.jpg`}
+                            alt=""
+                            loading="lazy"
                             style={{
                                 position: "absolute",
-                                inset: 0,
-                                background:
-                                    "linear-gradient(160deg, #2B3A55 0%, #1B2436 48%, #121826 100%)",
+                                left: 0,
+                                top: 0,
+                                width: px(SCREEN_W),
+                                height: px(SCREEN_H),
+                                display: "block",
                             }}
-                        >
-                            {[
-                                ...FILLER,
-                                {
-                                    col: 0,
-                                    row: 2,
-                                    src: "/projects/icon-ubereats.svg",
-                                },
-                                {
-                                    col: 3,
-                                    row: 2,
-                                    src: "/projects/icon-appstore.svg",
-                                },
-                            ].map(({ col, row, src }) => {
-                                const at = slot(col, row)
-                                return (
-                                    <img
-                                        key={src}
-                                        src={src}
-                                        alt=""
-                                        loading="lazy"
-                                        style={{
-                                            position: "absolute",
-                                            left: px(at.x),
-                                            top: px(at.y),
-                                            width: px(ICON),
-                                            height: px(ICON),
-                                            borderRadius: px(ICON_R),
-                                            display: "block",
-                                        }}
-                                    />
-                                )
-                            })}
-                        </div>
+                        />
 
                         {/* Uber Eats, which shrinks into its own icon while
                             the App Store grows out of its — the same thing
