@@ -13,6 +13,7 @@ import { CONTENT_MAX_WIDTH, FONT_FAMILY } from "./tokens"
 import ShoppableBuildLoop from "./ShoppableBuildLoop"
 import ShoppableConfigLoop from "./ShoppableConfigLoop"
 import BrandedLayoutsLoop from "./BrandedLayoutsLoop"
+import PartnerTile from "./PartnerTile"
 import PartnerAgentLoop from "./PartnerAgentLoop"
 import UberAdsLoop from "./UberAdsLoop"
 
@@ -44,9 +45,10 @@ export interface ProjectData {
     /** Fills the card's thumbnail square. Left empty it stays a plain plate. */
     thumb?: { src: string; alt: string }
     /**
-     * A row of partner tiles in place of the single thumbnail. For the one
-     * project whose subject is how many brands it covered — a single mark
-     * cannot say "many", and the card's form should follow its content.
+     * Several marks for one thumbnail slot, carouselled. For the project that
+     * covered many brands: a row of them all at once was tiring to look at,
+     * where one slot cycling says the same thing and leaves the card's rhythm
+     * matching every other card.
      */
     thumbs?: { src: string; alt: string }[]
 }
@@ -1485,57 +1487,15 @@ export default function PortfolioScroll({
                                             }}
                                         >
                                             {data.thumbs ? (
-                                                // Tiles sized so the row plus
-                                                // the year still clears the
-                                                // card's measure: five at 44
-                                                // with 7px gaps is 248 of the
-                                                // ~326 a card has inside its
-                                                // padding.
-                                                <div
-                                                    style={{
-                                                        display: "flex",
-                                                        gap: isMobile ? 5 : 7,
-                                                        flexShrink: 0,
-                                                    }}
-                                                >
-                                                    {data.thumbs.map((t) => (
-                                                        <div
-                                                            key={t.src}
-                                                            style={{
-                                                                width: isMobile
-                                                                    ? 34
-                                                                    : 44,
-                                                                height: isMobile
-                                                                    ? 34
-                                                                    : 44,
-                                                                borderRadius: 9,
-                                                                ...({
-                                                                    cornerShape:
-                                                                        CONFIG.CORNER_SHAPE,
-                                                                } as object),
-                                                                overflow:
-                                                                    "hidden",
-                                                                border: `1px solid ${palette.cardBorder}`,
-                                                                boxSizing:
-                                                                    "border-box",
-                                                                flexShrink: 0,
-                                                            }}
-                                                        >
-                                                            <img
-                                                                src={t.src}
-                                                                alt={t.alt}
-                                                                style={{
-                                                                    width: "100%",
-                                                                    height: "100%",
-                                                                    objectFit:
-                                                                        "cover",
-                                                                    display:
-                                                                        "block",
-                                                                }}
-                                                            />
-                                                        </div>
-                                                    ))}
-                                                </div>
+                                                <PartnerTile
+                                                    tiles={data.thumbs}
+                                                    size={isMobile ? 56 : 68}
+                                                    radius={thumbRadius}
+                                                    cornerShape={
+                                                        CONFIG.CORNER_SHAPE
+                                                    }
+                                                    border={palette.cardBorder}
+                                                />
                                             ) : (
                                                 <div
                                                     style={{
