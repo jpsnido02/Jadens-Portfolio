@@ -1135,7 +1135,10 @@ export default function PortfolioScroll({
                         const data = getProjectData(i, projects)
                         const isVideo =
                             data.mediaType === "video" && data.videoUrl
-                        const hasMediaLink = Boolean(data.link)
+                        // The hero is its own anchor, so it has to respect
+                        // the same rule: nothing to open yet, nothing to click.
+                        const hasMediaLink =
+                            Boolean(data.link) && !data.comingSoon
 
                         const media =
                             data.mediaType === "component" ? (
@@ -1250,7 +1253,11 @@ export default function PortfolioScroll({
                                                 ? "noopener noreferrer"
                                                 : undefined
                                         }
-                                        aria-label={`Open project: ${data.title}`}
+                                        aria-label={
+                                            data.comingSoon
+                                                ? `${data.title} — case study in progress`
+                                                : `Open project: ${data.title}`
+                                        }
                                         tabIndex={-1}
                                         style={{
                                             display: "block",
@@ -1349,6 +1356,7 @@ export default function PortfolioScroll({
                         const isHovered = hoveredCard === i
                         const isActive = i === activeCardIndex
                         const isInteractive = isActive && Boolean(data.link)
+                        const isLinked = isInteractive && !data.comingSoon
 
                         return (
                             <div
@@ -1370,23 +1378,27 @@ export default function PortfolioScroll({
                                 }}
                             >
                                 <a
-                                    href={isInteractive ? data.link : undefined}
+                                    href={isLinked ? data.link : undefined}
                                     target={
-                                        isInteractive && isExternal(data.link)
+                                        isLinked && isExternal(data.link)
                                             ? "_blank"
                                             : undefined
                                     }
                                     rel={
-                                        isInteractive && isExternal(data.link)
+                                        isLinked && isExternal(data.link)
                                             ? "noopener noreferrer"
                                             : undefined
                                     }
-                                    aria-label={`Open project: ${data.title}`}
+                                    aria-label={
+                                        data.comingSoon
+                                            ? `${data.title} — case study in progress`
+                                            : `Open project: ${data.title}`
+                                    }
                                     aria-hidden={!isInteractive}
-                                    tabIndex={isInteractive ? 0 : -1}
+                                    tabIndex={isLinked ? 0 : -1}
                                     {...pressProps(`card-${i}`)}
                                     onMouseEnter={() => {
-                                        if (!isInteractive) return
+                                        if (!isLinked) return
                                         startTransition(() => setHoveredCard(i))
                                     }}
                                     onMouseLeave={() =>
@@ -1395,8 +1407,7 @@ export default function PortfolioScroll({
                                         )
                                     }
                                     onClick={(event) => {
-                                        if (!isInteractive)
-                                            event.preventDefault()
+                                        if (!isLinked) event.preventDefault()
                                     }}
                                     style={{
                                         position: "relative",
@@ -1421,17 +1432,17 @@ export default function PortfolioScroll({
                                         justifyContent: "space-between",
                                         textDecoration: "none",
                                         color: "inherit",
-                                        cursor: isInteractive
+                                        cursor: isLinked
                                             ? "pointer"
                                             : "default",
-                                        pointerEvents: isInteractive
+                                        pointerEvents: isLinked
                                             ? "auto"
                                             : "none",
                                         transform:
-                                            isInteractive &&
+                                            isLinked &&
                                             pressedKey === `card-${i}`
                                                 ? "translateY(-1px) scale(0.99)"
-                                                : isInteractive && isHovered
+                                                : isLinked && isHovered
                                                   ? "translateY(-4px)"
                                                   : "translateY(0px)",
                                         transition: "transform 180ms ease",
@@ -1443,7 +1454,7 @@ export default function PortfolioScroll({
                                             inset: 0,
                                             backgroundColor: cardBackground,
                                             opacity:
-                                                isInteractive && isHovered
+                                                isLinked && isHovered
                                                     ? 0.85
                                                     : 1,
                                             transition: "opacity 180ms ease",
@@ -1599,36 +1610,47 @@ export default function PortfolioScroll({
                                             fontWeight: 600,
                                             // The partner's own brand colour,
                                             // and the only place one appears
-                                            // on an otherwise white card.
-                                            color: cardAccent,
+                                            // on an otherwise white card. A
+                                            // project with nothing to open
+                                            // takes the muted ink instead, so
+                                            // the accent never promises a
+                                            // click that does nothing.
+                                            color: data.comingSoon
+                                                ? "#71717A"
+                                                : cardAccent,
                                             fontFamily: FONT_FAMILY,
                                         }}
                                     >
-                                        View Project
-                                        <svg
-                                            viewBox="0 0 24 24"
-                                            width={isMobile ? 14 : 16}
-                                            height={isMobile ? 14 : 16}
-                                            aria-hidden="true"
-                                            style={{
-                                                display: "block",
-                                                transform:
-                                                    isInteractive && isHovered
-                                                        ? "translateX(3px)"
-                                                        : "translateX(0px)",
-                                                transition:
-                                                    "transform 180ms ease",
-                                            }}
-                                        >
-                                            <path
-                                                d="M4 12h14m0 0-5.5-5.5M18 12l-5.5 5.5"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="2"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            />
-                                        </svg>
+                                        {data.comingSoon
+                                            ? "Case study in progress"
+                                            : "View Project"}
+                                        {!data.comingSoon && (
+                                            <svg
+                                                viewBox="0 0 24 24"
+                                                width={isMobile ? 14 : 16}
+                                                height={isMobile ? 14 : 16}
+                                                aria-hidden="true"
+                                                style={{
+                                                    display: "block",
+                                                    transform:
+                                                        isInteractive &&
+                                                        isHovered
+                                                            ? "translateX(3px)"
+                                                            : "translateX(0px)",
+                                                    transition:
+                                                        "transform 180ms ease",
+                                                }}
+                                            >
+                                                <path
+                                                    d="M4 12h14m0 0-5.5-5.5M18 12l-5.5 5.5"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                />
+                                            </svg>
+                                        )}
                                     </div>
                                 </a>
                             </div>

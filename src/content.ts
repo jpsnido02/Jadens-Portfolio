@@ -137,7 +137,7 @@ export const projects: ProjectData[] = [
             alt: "Rapid prototyping tool",
         },
         thumb: {
-            src: "/projects/icon-rokt.svg",
+            src: "/projects/icon-rokt-logo.svg",
             alt: "Rokt",
         },
         mediaType: "component",
