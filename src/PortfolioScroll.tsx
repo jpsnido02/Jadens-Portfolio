@@ -26,6 +26,12 @@ export interface ProjectData {
     link?: string
     mediaType?: "image" | "video" | "component"
     videoUrl?: string
+    /**
+     * "contain" sits the artwork whole on white instead of filling the pane.
+     * A landscape mockup cropped to a tall pane is zoomed in past the point
+     * of being readable, which is what "cover" does to it.
+     */
+    imageFit?: "cover" | "contain"
     /** Renders a live component in the hero pane instead of artwork. */
     component?:
         | "uber-loop"
@@ -1170,6 +1176,34 @@ export default function PortfolioScroll({
                                         willChange: "transform",
                                     }}
                                 />
+                            ) : data.imageFit === "contain" ? (
+                                // Whole, on white, and deliberately not
+                                // parallaxed: shifting a contained image
+                                // inside its pane walks its edges away from
+                                // where they were placed.
+                                <div
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        backgroundColor: "#FFFFFF",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        padding: isMobile ? 16 : 32,
+                                        boxSizing: "border-box",
+                                    }}
+                                >
+                                    <img
+                                        src={data.image.src}
+                                        alt={data.image.alt}
+                                        style={{
+                                            maxWidth: "100%",
+                                            maxHeight: "100%",
+                                            objectFit: "contain",
+                                            display: "block",
+                                        }}
+                                    />
+                                </div>
                             ) : (
                                 <img
                                     data-parallax="true"
