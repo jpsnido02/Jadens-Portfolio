@@ -41,7 +41,11 @@ export interface Palette {
     cardBackgrounds: string[]
     /** One ink per card, index-matched to cardBackgrounds. */
     cardInks: string[]
-    /** One border per card, index-matched. */
+    /**
+     * One border per card, index-matched. It tracks the page: on the lighter
+     * ground #E4E7EC read at 1.19:1 against it, but on this one it would have
+     * fallen to 1.06:1 and stopped being an edge at all.
+     */
     cardCardBorders: string[]
     /**
      * One accent per card: the partner's primary brand colour, used on the
@@ -58,10 +62,12 @@ export interface Palette {
 
 export const PALETTES: Record<ThemeName, Palette> = {
     light: {
-        // Gray 50 — a cool white, to sit under ink that is already a
-        // blue-black. A neutral ground under #1F2129 reads faintly mismatched.
-        background: "#F9FAFB",
-        panel: "#F9FAFB",
+        // A cool light grey, still under ink that is already a blue-black —
+        // a neutral ground under #1F2129 reads faintly mismatched. Darker
+        // than the Gray 50 it was: against that, a white card separated by
+        // only 1.05:1 and disappeared on a poor screen. At this it is 1.17:1.
+        background: "#EAEDF2",
+        panel: "#EAEDF2",
         text: "#1F2129",
         textMuted: "#4B4F5C",
         key: {
@@ -69,8 +75,8 @@ export const PALETTES: Record<ThemeName, Palette> = {
             // page rather than a whiter card sitting on it. The hairline and
             // the shadow are the whole of its definition; the fill only moves
             // on press, and then only by one cool step.
-            fill: "#F9FAFB",
-            fillHover: "#F9FAFB",
+            fill: "#EAEDF2",
+            fillHover: "#EAEDF2",
             fillPressed: "#EFF1F5",
             border: "rgba(0,0,0,0.1)",
             borderHover: "rgba(0,0,0,0.15)",
@@ -131,13 +137,13 @@ export const PALETTES: Record<ThemeName, Palette> = {
             "#1F2129",
         ],
         cardCardBorders: [
-            "#E4E7EC",
-            "#E4E7EC",
-            "#E4E7EC",
-            "#E4E7EC",
-            "#E4E7EC",
-            "#E4E7EC",
-            "#E4E7EC",
+            "#D8DEE7",
+            "#D8DEE7",
+            "#D8DEE7",
+            "#D8DEE7",
+            "#D8DEE7",
+            "#D8DEE7",
+            "#D8DEE7",
         ],
         cardAccents: [
             "#048849",
@@ -221,13 +227,13 @@ export const PALETTES: Record<ThemeName, Palette> = {
             "#1F2129",
         ],
         cardCardBorders: [
-            "#E4E7EC",
-            "#E4E7EC",
-            "#E4E7EC",
-            "#E4E7EC",
-            "#E4E7EC",
-            "#E4E7EC",
-            "#E4E7EC",
+            "#D8DEE7",
+            "#D8DEE7",
+            "#D8DEE7",
+            "#D8DEE7",
+            "#D8DEE7",
+            "#D8DEE7",
+            "#D8DEE7",
         ],
         cardAccents: [
             "#048849",
