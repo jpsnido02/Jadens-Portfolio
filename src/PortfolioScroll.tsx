@@ -1161,7 +1161,12 @@ export default function PortfolioScroll({
                                     style={{
                                         width: "100%",
                                         height: "100%",
-                                        backgroundColor: "#FFFFFF",
+                                        // The stage follows the theme. The
+                                        // artwork on it is transparent, so a
+                                        // dark page gets a dark stage rather
+                                        // than a white slab with a device
+                                        // floating in it.
+                                        backgroundColor: palette.background,
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "center",
@@ -1205,7 +1210,12 @@ export default function PortfolioScroll({
                                     style={{
                                         width: "100%",
                                         height: "100%",
-                                        backgroundColor: "#FFFFFF",
+                                        // The stage follows the theme. The
+                                        // artwork on it is transparent, so a
+                                        // dark page gets a dark stage rather
+                                        // than a white slab with a device
+                                        // floating in it.
+                                        backgroundColor: palette.background,
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "center",

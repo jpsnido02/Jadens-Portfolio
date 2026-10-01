@@ -81,11 +81,11 @@ export const projects: ProjectData[] = [
     {
         title: "Macy's Bag page",
         image: {
-            src: "/projects/macys-bag-laptop.jpg",
+            src: "/projects/macys-bag-laptop.webp",
             alt: "The Macy's bag page on a laptop",
         },
         imageFit: "contain",
-        imageMobile: "/projects/macys-bag-laptop-mobile.jpg",
+        imageMobile: "/projects/macys-bag-laptop-mobile.webp",
         thumb: {
             src: "/projects/icon-macys.svg",
             alt: "Macy's",
@@ -155,11 +155,11 @@ export const projects: ProjectData[] = [
     {
         title: "Expedia 1P / 3P",
         image: {
-            src: "/projects/expedia-devices.jpg",
+            src: "/projects/expedia-devices.webp",
             alt: "The Expedia offer experience on a laptop and a phone",
         },
         imageFit: "contain",
-        imageMobile: "/projects/expedia-devices-mobile.jpg",
+        imageMobile: "/projects/expedia-devices-mobile.webp",
         thumb: {
             src: "/projects/icon-expedia.svg",
             alt: "Expedia",
