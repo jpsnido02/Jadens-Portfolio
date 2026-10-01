@@ -1148,6 +1148,17 @@ export default function PortfolioScroll({
                 >
                     {indices.map((i) => {
                         const data = getProjectData(i, projects)
+                        // The stage is the same surface this project's card
+                        // is, resolved the same way, so the two read as one
+                        // material lifted off the page rather than the hero
+                        // dissolving into it.
+                        const heroSurface =
+                            palette.cardBackgrounds[
+                                ((Math.abs(i) %
+                                    palette.cardBackgrounds.length) +
+                                    palette.cardBackgrounds.length) %
+                                    palette.cardBackgrounds.length
+                            ]
                         const isVideo =
                             data.mediaType === "video" && data.videoUrl
                         // The hero is its own anchor, so it has to respect
@@ -1161,12 +1172,12 @@ export default function PortfolioScroll({
                                     style={{
                                         width: "100%",
                                         height: "100%",
-                                        // No ground of its own: the artwork is
-                                        // transparent and the hero container
-                                        // behind already carries the page, so
-                                        // a fill here would only be a second
-                                        // copy of it.
-                                        backgroundColor: "transparent",
+                                        // The card's surface, not the page's.
+                                        // The artwork on it is transparent, so
+                                        // it takes whichever this resolves to
+                                        // rather than carrying a ground of its
+                                        // own.
+                                        backgroundColor: heroSurface,
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "center",
@@ -1210,12 +1221,12 @@ export default function PortfolioScroll({
                                     style={{
                                         width: "100%",
                                         height: "100%",
-                                        // No ground of its own: the artwork is
-                                        // transparent and the hero container
-                                        // behind already carries the page, so
-                                        // a fill here would only be a second
-                                        // copy of it.
-                                        backgroundColor: "transparent",
+                                        // The card's surface, not the page's.
+                                        // The artwork on it is transparent, so
+                                        // it takes whichever this resolves to
+                                        // rather than carrying a ground of its
+                                        // own.
+                                        backgroundColor: heroSurface,
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "center",
