@@ -124,19 +124,9 @@ export const projects: ProjectData[] = [
         mediaType: "component",
         component: "branded-shuffle",
         category: "Design systems",
-        // The partners' own app icons, which already arrive square and
-        // full-bleed — the earlier tiles were cropped out of the placement
-        // screens and had to be trimmed to their mark to sit straight. The
-        // hero carousel names each partner as it passes, so the card does not
-        // have to carry all of them at once.
-        thumbs: [
-            { src: "/projects/partners/fanatics-app.jpg", alt: "Fanatics" },
-            { src: "/projects/partners/gap-app.jpg", alt: "Gap" },
-            { src: "/projects/partners/bestbuy-app.jpg", alt: "Best Buy" },
-            { src: "/projects/partners/seatgeek-app.jpg", alt: "SeatGeek" },
-            { src: "/projects/partners/depop-app.jpg", alt: "Depop" },
-            { src: "/projects/partners/frontier-app.jpg", alt: "Frontier" },
-        ],
+        // The card's thumbnail follows the hero's carousel: same partner,
+        // same moment, both reading the rotation in src/partners.ts.
+        partnerRotation: true,
         year: "2026",
         description:
             "A placement that inherits a partner's brand automatically.",

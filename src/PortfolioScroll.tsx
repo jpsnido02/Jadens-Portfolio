@@ -45,12 +45,13 @@ export interface ProjectData {
     /** Fills the card's thumbnail square. Left empty it stays a plain plate. */
     thumb?: { src: string; alt: string }
     /**
-     * Several marks for one thumbnail slot, carouselled. For the project that
-     * covered many brands: a row of them all at once was tiring to look at,
-     * where one slot cycling says the same thing and leaves the card's rhythm
-     * matching every other card.
+     * Gives the thumbnail slot over to the shared partner rotation, so the
+     * icon there follows the same brand the hero's carousel is showing. For
+     * the project that covered many of them: a row of marks all at once was
+     * tiring to look at, where one slot cycling says the same thing and leaves
+     * the card's rhythm matching every other card.
      */
-    thumbs?: { src: string; alt: string }[]
+    partnerRotation?: boolean
 }
 
 export interface IntroLink {
@@ -1486,9 +1487,8 @@ export default function PortfolioScroll({
                                                     : 14,
                                             }}
                                         >
-                                            {data.thumbs ? (
+                                            {data.partnerRotation ? (
                                                 <PartnerTile
-                                                    tiles={data.thumbs}
                                                     size={isMobile ? 56 : 68}
                                                     radius={thumbRadius}
                                                     cornerShape={

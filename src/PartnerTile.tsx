@@ -9,49 +9,41 @@
  *
  * The motion is the hero carousel's: one mark leaves to the left as the next
  * arrives from the right, and nothing is ever mid-blend with anything else.
+ *
+ * Which partner shows comes from ./partners, the same rotation the hero reads,
+ * so this tile and the phone beside it are never two different brands.
  */
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useSyncExternalStore } from "react"
+import { currentPartner, ICON, PARTNERS, subscribe } from "./partners"
 
-const HOLD_MS = 2800
+/** Shorter than the hero's slide: the tile is small, so it settles sooner. */
 const SLIDE_MS = 700
 /** Apple's presentation curve, as the hero uses. */
 const SLIDE_EASE = "cubic-bezier(0.32, 0.72, 0, 1)"
 
 export default function PartnerTile({
-    tiles,
     size,
     radius,
     cornerShape,
     border,
 }: {
-    tiles: { src: string; alt: string }[]
     size: number
     radius: number
     cornerShape: string
     border: string
 }) {
-    const [current, setCurrent] = useState(0)
+    const current = useSyncExternalStore(subscribe, currentPartner, () => 0)
     const [outgoing, setOutgoing] = useState<number | null>(null)
-    const [reduced, setReduced] = useState(false)
+    const previous = useRef(current)
     const wrapRef = useRef<HTMLDivElement>(null)
 
+    // The icon leaving is whichever one the rotation just moved off.
     useEffect(() => {
-        const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
-        const sync = () => setReduced(mq.matches)
-        sync()
-        mq.addEventListener("change", sync)
-        return () => mq.removeEventListener("change", sync)
-    }, [])
-
-    useEffect(() => {
-        if (reduced || tiles.length < 2) return
-        const id = window.setTimeout(() => {
-            setOutgoing(current)
-            setCurrent((c) => (c + 1) % tiles.length)
-        }, HOLD_MS)
-        return () => window.clearTimeout(id)
-    }, [current, reduced, tiles.length])
+        if (previous.current === current) return
+        setOutgoing(previous.current)
+        previous.current = current
+    }, [current])
 
     // Released once it has left. It is past the clip by then, so sending it
     // back round to the right is never seen.
@@ -76,14 +68,14 @@ export default function PartnerTile({
                 position: "relative",
             }}
         >
-            {tiles.map((t, i) => {
+            {PARTNERS.map((p, i) => {
                 const isCurrent = i === current
                 const isOutgoing = i === outgoing
                 return (
                     <img
-                        key={t.src}
-                        src={t.src}
-                        alt={isCurrent ? t.alt : ""}
+                        key={p.id}
+                        src={ICON(p.id)}
+                        alt={isCurrent ? p.name : ""}
                         loading="eager"
                         style={{
                             position: "absolute",
