@@ -33,6 +33,12 @@ export interface ProjectData {
      * of being readable, which is what "cover" does to it.
      */
     imageFit?: "cover" | "contain"
+    /**
+     * A different crop for a phone. A landscape device mockup contained in a
+     * ~343px pane puts the whole UI at about a sixth scale, which no amount of
+     * fitting makes readable — the answer is to show less of it, closer.
+     */
+    imageMobile?: string
     /** Marks the project as still in progress, badged on the card. */
     comingSoon?: boolean
     /** Renders a live component in the hero pane instead of artwork. */
@@ -1207,16 +1213,24 @@ export default function PortfolioScroll({
                                         boxSizing: "border-box",
                                     }}
                                 >
-                                    <img
-                                        src={data.image.src}
-                                        alt={data.image.alt}
-                                        style={{
-                                            maxWidth: "100%",
-                                            maxHeight: "100%",
-                                            objectFit: "contain",
-                                            display: "block",
-                                        }}
-                                    />
+                                    <picture>
+                                        {data.imageMobile && (
+                                            <source
+                                                media="(max-width: 640px)"
+                                                srcSet={data.imageMobile}
+                                            />
+                                        )}
+                                        <img
+                                            src={data.image.src}
+                                            alt={data.image.alt}
+                                            style={{
+                                                maxWidth: "100%",
+                                                maxHeight: "100%",
+                                                objectFit: "contain",
+                                                display: "block",
+                                            }}
+                                        />
+                                    </picture>
                                 </div>
                             ) : (
                                 <img
@@ -1580,10 +1594,12 @@ export default function PortfolioScroll({
                                                                 "0.08em",
                                                             textTransform:
                                                                 "uppercase",
-                                                            color: "#71717A",
+                                                            color: palette
+                                                                .cardChip.ink,
                                                             background:
-                                                                "#F1F1F3",
-                                                            border: "1px solid #E4E7EC",
+                                                                palette.cardChip
+                                                                    .background,
+                                                            border: `1px solid ${palette.cardChip.border}`,
                                                             borderRadius: 999,
                                                             padding: "3px 8px",
                                                             whiteSpace:
@@ -1653,7 +1669,7 @@ export default function PortfolioScroll({
                                             // the accent never promises a
                                             // click that does nothing.
                                             color: data.comingSoon
-                                                ? "#71717A"
+                                                ? palette.cardInkDead
                                                 : cardAccent,
                                             fontFamily: FONT_FAMILY,
                                         }}

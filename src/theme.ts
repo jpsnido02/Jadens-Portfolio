@@ -47,6 +47,9 @@ export interface Palette {
      * 1.06:1 against a darker ground. This holds 1.18:1 against the page and
      * 1.31:1 against the card, so it reads from both sides.
      */
+    cardChip: { background: string; border: string; ink: string }
+    /** Footer text on a card with nothing to open. */
+    cardInkDead: string
     cardCardBorders: string[]
     /**
      * One accent per card: the partner's primary brand colour, used on the
@@ -139,6 +142,12 @@ export const PALETTES: Record<ThemeName, Palette> = {
             "#1F2129",
             "#1F2129",
         ],
+        cardChip: {
+            background: "#F1F1F3",
+            border: "#E4E7EC",
+            ink: "#71717A",
+        },
+        cardInkDead: "#71717A",
         cardCardBorders: [
             "#DCE1EA",
             "#DCE1EA",
@@ -195,13 +204,13 @@ export const PALETTES: Record<ThemeName, Palette> = {
         // The same seven, unchanged: at this saturation they carry on a
         // near-black page without glaring, and the dark card ink still holds.
         cardBackgrounds: [
-            "#FFFFFF",
-            "#FFFFFF",
-            "#FFFFFF",
-            "#FFFFFF",
-            "#FFFFFF",
-            "#FFFFFF",
-            "#FFFFFF",
+            "#1A1D24",
+            "#1A1D24",
+            "#1A1D24",
+            "#1A1D24",
+            "#1A1D24",
+            "#1A1D24",
+            "#1A1D24",
         ],
         // Accents are index-matched to position, so they are re-ordered with
         // the projects — otherwise reordering hands Uber Eats the Macy's red.
@@ -221,36 +230,42 @@ export const PALETTES: Record<ThemeName, Palette> = {
         // on "View Project".
 
         cardInks: [
-            "#1F2129",
-            "#1F2129",
-            "#1F2129",
-            "#1F2129",
-            "#1F2129",
-            "#1F2129",
-            "#1F2129",
+            "#F2F3F5",
+            "#F2F3F5",
+            "#F2F3F5",
+            "#F2F3F5",
+            "#F2F3F5",
+            "#F2F3F5",
+            "#F2F3F5",
         ],
+        cardChip: {
+            background: "#24272F",
+            border: "#333845",
+            ink: "#A9AFBA",
+        },
+        cardInkDead: "#A9AFBA",
         cardCardBorders: [
-            "#DCE1EA",
-            "#DCE1EA",
-            "#DCE1EA",
-            "#DCE1EA",
-            "#DCE1EA",
-            "#DCE1EA",
-            "#DCE1EA",
+            "#2E3440",
+            "#2E3440",
+            "#2E3440",
+            "#2E3440",
+            "#2E3440",
+            "#2E3440",
+            "#2E3440",
         ],
         cardAccents: [
-            "#048849",
-            "#976F00",
-            "#E21A2C",
-            "#7C3AED",
-            "#0F766E",
-            "#B22473",
-            "#1668E3",
+            "#0EA95F",
+            "#BB8C0A",
+            "#E76E79",
+            "#A77FED",
+            "#1EA79C",
+            "#DB70AC",
+            "#5E95E7",
         ],
         cardText: "#1F2129",
         cardTextMuted: "#2A2D36",
         cardBorder: "rgba(0,0,0,0.18)",
-        cardThumbBackground: "#EAEAEA",
+        cardThumbBackground: "#24272F",
     },
 }
 

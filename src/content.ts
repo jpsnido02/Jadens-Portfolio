@@ -85,6 +85,7 @@ export const projects: ProjectData[] = [
             alt: "The Macy's bag page on a laptop",
         },
         imageFit: "contain",
+        imageMobile: "/projects/macys-bag-laptop-mobile.jpg",
         thumb: {
             src: "/projects/icon-macys.svg",
             alt: "Macy's",
@@ -158,6 +159,7 @@ export const projects: ProjectData[] = [
             alt: "The Expedia offer experience on a laptop and a phone",
         },
         imageFit: "contain",
+        imageMobile: "/projects/expedia-devices-mobile.jpg",
         thumb: {
             src: "/projects/icon-expedia.svg",
             alt: "Expedia",
