@@ -124,15 +124,18 @@ export const projects: ProjectData[] = [
         mediaType: "component",
         component: "branded-shuffle",
         category: "Design systems",
-        // Five of the partners, the most recognisable of the set. The hero
-        // carousel names each one as it passes, so the card does not have to
-        // carry all of them.
+        // The partners' own app icons, which already arrive square and
+        // full-bleed — the earlier tiles were cropped out of the placement
+        // screens and had to be trimmed to their mark to sit straight. The
+        // hero carousel names each partner as it passes, so the card does not
+        // have to carry all of them at once.
         thumbs: [
-            { src: "/projects/partners/fanatics.jpg", alt: "Fanatics" },
-            { src: "/projects/partners/gap.jpg", alt: "Gap" },
-            { src: "/projects/partners/bestbuy.jpg", alt: "Best Buy" },
-            { src: "/projects/partners/seatgeek.jpg", alt: "SeatGeek" },
-            { src: "/projects/partners/depop.jpg", alt: "Depop" },
+            { src: "/projects/partners/fanatics-app.jpg", alt: "Fanatics" },
+            { src: "/projects/partners/gap-app.jpg", alt: "Gap" },
+            { src: "/projects/partners/bestbuy-app.jpg", alt: "Best Buy" },
+            { src: "/projects/partners/seatgeek-app.jpg", alt: "SeatGeek" },
+            { src: "/projects/partners/depop-app.jpg", alt: "Depop" },
+            { src: "/projects/partners/frontier-app.jpg", alt: "Frontier" },
         ],
         year: "2026",
         description:
