@@ -48,7 +48,7 @@ export const projects: ProjectData[] = [
     {
         title: "Macy's Bag page",
         image: {
-            src: "/projects/project-01.jpg",
+            src: "/projects/macys-bag-laptop.jpg",
             alt: "The Macy's bag page on a laptop",
         },
         imageFit: "contain",
@@ -149,7 +149,7 @@ export const projects: ProjectData[] = [
     {
         title: "Expedia 1P / 3P",
         image: {
-            src: "/projects/project-06.jpg",
+            src: "/projects/expedia-devices.jpg",
             alt: "The Expedia offer experience on a laptop and a phone",
         },
         imageFit: "contain",
