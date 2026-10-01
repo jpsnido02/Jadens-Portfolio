@@ -104,6 +104,40 @@ const TRACK = [...OFFERS, OFFERS[0]]
  * presentations: a long, decelerating tail with no overshoot, which is what
  * makes the motion read as a system transition rather than a web animation.
  */
+/**
+ * The home screen the app closes to. iOS does not cut from one app to
+ * another: it shrinks the first into its icon, shows the home screen, then
+ * grows the second out of its icon. Without that middle beat the App Store
+ * appears to erupt from a button inside Uber Eats, which is not a thing the
+ * system does.
+ *
+ * The grid is built here rather than screenshotted so the two icon rects are
+ * known exactly — the whole transition is a morph to and from them, and a
+ * screenshot would mean measuring icons out of a bitmap.
+ */
+const ICON = 60
+const ICON_R = 13
+const GRID_X = 30
+const GRID_Y = 150
+const GRID_GAP_X = 28
+const GRID_GAP_Y = 30
+const slot = (col: number, row: number) => ({
+    x: GRID_X + col * (ICON + GRID_GAP_X),
+    y: GRID_Y + row * (ICON + GRID_GAP_Y),
+})
+/** Uber Eats closes into this one, and the App Store opens out of that one. */
+const UBER_SLOT = slot(0, 2)
+const STORE_SLOT = slot(3, 2)
+/** Everything else on the grid, to make it read as a home screen. */
+const FILLER: { col: number; row: number; src: string }[] = [
+    { col: 1, row: 0, src: "/projects/partners/gap-app.jpg" },
+    { col: 2, row: 0, src: "/projects/partners/bestbuy-app.jpg" },
+    { col: 0, row: 1, src: "/projects/partners/seatgeek-app.jpg" },
+    { col: 2, row: 1, src: "/projects/partners/depop-app.jpg" },
+    { col: 3, row: 1, src: "/projects/partners/frontier-app.jpg" },
+    { col: 1, row: 2, src: "/projects/partners/fanatics-app.jpg" },
+]
+
 const APPLE_EASE = "cubic-bezier(0.32, 0.72, 0, 1)"
 const PAGE_EASE = "cubic-bezier(0.33, 1, 0.68, 1)"
 
@@ -111,12 +145,14 @@ const OPEN_MS = 620
 const CLOSE_MS = 520
 const PAGE_MS = 460
 
+/** Which of the three surfaces is forward. */
+type Stage = "app" | "home" | "store"
+
 type Step =
     | { kind: "hold"; ms: number }
     | { kind: "tap"; on: "notNow" | "claim"; ms: number }
     | { kind: "advance"; ms: number }
-    | { kind: "open"; ms: number }
-    | { kind: "close"; ms: number }
+    | { kind: "stage"; to: Stage; ms: number }
     | { kind: "reset"; ms: number }
 
 const SCRIPT: Step[] = [
@@ -133,9 +169,16 @@ const SCRIPT: Step[] = [
     // that gets pressed.
     { kind: "hold", ms: 1900 },
     { kind: "tap", on: "claim", ms: 320 },
-    { kind: "open", ms: OPEN_MS },
+    // Uber Eats closes to the home screen, the home screen is held long
+    // enough to be read as a place, then the App Store opens out of its icon.
+    { kind: "stage", to: "home", ms: CLOSE_MS },
+    { kind: "hold", ms: 560 },
+    { kind: "stage", to: "store", ms: OPEN_MS },
     { kind: "hold", ms: 2400 },
-    { kind: "close", ms: CLOSE_MS },
+    // And back out the same way.
+    { kind: "stage", to: "home", ms: CLOSE_MS },
+    { kind: "hold", ms: 460 },
+    { kind: "stage", to: "app", ms: OPEN_MS },
     { kind: "hold", ms: 420 },
     { kind: "advance", ms: PAGE_MS },
     // Snap from the duplicate first card back to the real one. Same pixels, so
@@ -166,7 +209,7 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
 
     const [step, setStep] = useState(0)
     const [index, setIndex] = useState(0)
-    const [appOpen, setAppOpen] = useState(false)
+    const [stage, setStage] = useState<Stage>("app")
     const [tap, setTap] = useState<null | "notNow" | "claim">(null)
     const [tapKey, setTapKey] = useState(0)
     const [animate, setAnimate] = useState(true)
@@ -227,16 +270,14 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                 setTap(null)
                 setIndex((i) => i + 1)
                 break
-            case "open":
+            case "stage":
                 setTap(null)
-                setAppOpen(true)
-                break
-            case "close":
-                setAppOpen(false)
+                setStage(current.to)
                 break
             case "reset":
                 setAnimate(false)
                 setIndex(0)
+                setStage("app")
                 break
             case "hold":
                 setTap(null)
@@ -252,7 +293,11 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
     const offer = TRACK[index] ?? TRACK[0]
     const cardH = offer.height
     const tapTarget = tap === "claim" ? offer.claim : offer.notNow
-    const origin = OFFERS[3].claim
+    // Each surface morphs to and from its own icon on the home screen, not
+    // from the button that was pressed.
+    const appAway = stage !== "app"
+    const storeOpen = stage === "store"
+    const MORPH_MS = stage === "store" ? OPEN_MS : CLOSE_MS
 
     /** Every measured Figma unit goes through this to reach its real size. */
     const px = (v: number) => v * scale
@@ -322,18 +367,81 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                             backgroundColor: "#ffffff",
                         }}
                     >
-                        {/* Uber Eats, which recedes and dims while the App
-                            Store comes forward — the same thing iOS does to
-                            the app you are leaving. */}
+                        {/* The home screen, behind both apps. It is only
+                            ever seen through the gap one app leaves on its
+                            way out and the next fills on its way in. */}
+                        <div
+                            aria-hidden="true"
+                            style={{
+                                position: "absolute",
+                                inset: 0,
+                                background:
+                                    "linear-gradient(160deg, #2B3A55 0%, #1B2436 48%, #121826 100%)",
+                            }}
+                        >
+                            {[
+                                ...FILLER,
+                                {
+                                    col: 0,
+                                    row: 2,
+                                    src: "/projects/icon-ubereats.svg",
+                                },
+                                {
+                                    col: 3,
+                                    row: 2,
+                                    src: "/projects/icon-appstore.svg",
+                                },
+                            ].map(({ col, row, src }) => {
+                                const at = slot(col, row)
+                                return (
+                                    <img
+                                        key={src}
+                                        src={src}
+                                        alt=""
+                                        loading="lazy"
+                                        style={{
+                                            position: "absolute",
+                                            left: px(at.x),
+                                            top: px(at.y),
+                                            width: px(ICON),
+                                            height: px(ICON),
+                                            borderRadius: px(ICON_R),
+                                            display: "block",
+                                        }}
+                                    />
+                                )
+                            })}
+                        </div>
+
+                        {/* Uber Eats, which shrinks into its own icon while
+                            the App Store grows out of its — the same thing
+                            iOS does when you leave one app for another. */}
                         <div
                             style={{
                                 position: "absolute",
                                 inset: 0,
-                                transform: appOpen ? "scale(0.96)" : "none",
-                                filter: appOpen
-                                    ? "brightness(0.72)"
-                                    : "brightness(1)",
-                                transition: `transform ${appOpen ? OPEN_MS : CLOSE_MS}ms ${APPLE_EASE}, filter ${appOpen ? OPEN_MS : CLOSE_MS}ms ${APPLE_EASE}`,
+                                // Scaled into its own icon rather than
+                                // merely dimmed: this is the app closing, so
+                                // it has to go somewhere, and the place it
+                                // goes is the slot the App Store will not
+                                // open from.
+                                transformOrigin: "top left",
+                                transform: appAway
+                                    ? `translate3d(${px(UBER_SLOT.x)}px, ${px(UBER_SLOT.y)}px, 0) scale(${ICON / SCREEN_W})`
+                                    : "translate3d(0, 0, 0) scale(1)",
+                                borderRadius: appAway
+                                    ? px(ICON_R / (ICON / SCREEN_W))
+                                    : 0,
+                                overflow: "hidden",
+                                opacity: appAway ? 0 : 1,
+                                transition: [
+                                    `transform ${MORPH_MS}ms ${APPLE_EASE}`,
+                                    `border-radius ${MORPH_MS}ms ${APPLE_EASE}`,
+                                    // Held opaque until it is nearly the size
+                                    // of the icon, so it never dissolves in
+                                    // mid-air.
+                                    `opacity ${Math.round(MORPH_MS * 0.3)}ms linear ${Math.round(MORPH_MS * 0.7)}ms`,
+                                ].join(", "),
                             }}
                         >
                             <img
@@ -437,27 +545,25 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                             aria-hidden="true"
                             style={{
                                 position: "absolute",
-                                left: appOpen ? 0 : px(origin.x),
-                                top: appOpen ? 0 : px(origin.y),
-                                width: px(appOpen ? SCREEN_W : BTN_W),
-                                height: px(appOpen ? SCREEN_H : BTN_H),
-                                borderRadius: px(appOpen ? SCREEN_R : 8),
+                                left: storeOpen ? 0 : px(STORE_SLOT.x),
+                                top: storeOpen ? 0 : px(STORE_SLOT.y),
+                                width: px(storeOpen ? SCREEN_W : ICON),
+                                height: px(storeOpen ? SCREEN_H : ICON),
+                                borderRadius: px(storeOpen ? SCREEN_R : ICON_R),
                                 overflow: "hidden",
-                                opacity: appOpen ? 1 : 0,
+                                opacity: storeOpen ? 1 : 0,
                                 pointerEvents: "none",
-                                boxShadow: appOpen
-                                    ? "none"
-                                    : "0 8px 24px rgba(0,0,0,0.28)",
+                                boxShadow: "none",
                                 transition: [
-                                    `left ${appOpen ? OPEN_MS : CLOSE_MS}ms ${APPLE_EASE}`,
-                                    `top ${appOpen ? OPEN_MS : CLOSE_MS}ms ${APPLE_EASE}`,
-                                    `width ${appOpen ? OPEN_MS : CLOSE_MS}ms ${APPLE_EASE}`,
-                                    `height ${appOpen ? OPEN_MS : CLOSE_MS}ms ${APPLE_EASE}`,
-                                    `border-radius ${appOpen ? OPEN_MS : CLOSE_MS}ms ${APPLE_EASE}`,
+                                    `left ${MORPH_MS}ms ${APPLE_EASE}`,
+                                    `top ${MORPH_MS}ms ${APPLE_EASE}`,
+                                    `width ${MORPH_MS}ms ${APPLE_EASE}`,
+                                    `height ${MORPH_MS}ms ${APPLE_EASE}`,
+                                    `border-radius ${MORPH_MS}ms ${APPLE_EASE}`,
                                     // Opacity resolves early on the way in and
                                     // late on the way out, so the morph is
                                     // never visible as an empty rectangle.
-                                    `opacity ${Math.round((appOpen ? OPEN_MS : CLOSE_MS) * 0.45)}ms linear`,
+                                    `opacity ${Math.round(MORPH_MS * 0.45)}ms linear`,
                                 ].join(", "),
                             }}
                         >
@@ -472,8 +578,8 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                                     width: px(SCREEN_W),
                                     height: px(SCREEN_H),
                                     display: "block",
-                                    transform: `translate(-50%, -50%) scale(${appOpen ? 1 : BTN_W / SCREEN_W})`,
-                                    transition: `transform ${appOpen ? OPEN_MS : CLOSE_MS}ms ${APPLE_EASE}`,
+                                    transform: `translate(-50%, -50%) scale(${storeOpen ? 1 : ICON / SCREEN_W})`,
+                                    transition: `transform ${MORPH_MS}ms ${APPLE_EASE}`,
                                 }}
                             />
                         </div>
