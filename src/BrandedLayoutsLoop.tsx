@@ -13,6 +13,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { FRAME_H, FRAME_W, PhoneShell } from "./ShoppablePhone"
+import { FONT_FAMILY } from "./tokens"
 
 const BASE = "../../projects/branded"
 
@@ -24,6 +25,7 @@ const PARTNERS: { id: string; name: string }[] = [
     { id: "frontier", name: "Frontier" },
     { id: "avis", name: "Avis" },
     { id: "depop", name: "Depop" },
+    { id: "seatgeek", name: "SeatGeek" },
 ]
 
 const HOLD_MS = 3200
@@ -151,6 +153,34 @@ export default function BrandedLayoutsLoop({ alt }: { alt?: string }) {
                 overflow: "hidden",
             }}
         >
+            {/* The partner on screen, named. The set of logos here is not
+                available as artwork — only SeatGeek is in any icon library —
+                and naming them scales to however many partners there are,
+                where a row of marks does not. */}
+            {width > 0 && (
+                <div
+                    aria-hidden="true"
+                    style={{
+                        position: "absolute",
+                        left: 0,
+                        right: 0,
+                        top: Math.max(
+                            10,
+                            (box.h - width * (FRAME_H / FRAME_W)) / 2 - 26
+                        ),
+                        textAlign: "center",
+                        fontFamily: FONT_FAMILY,
+                        fontSize: 9.5,
+                        fontWeight: 600,
+                        letterSpacing: "0.1em",
+                        textTransform: "uppercase",
+                        color: "#94A3B8",
+                        zIndex: 3,
+                    }}
+                >
+                    {PARTNERS[current].name}
+                </div>
+            )}
             {width > 0 &&
                 PARTNERS.map((p, i) => {
                     const isCurrent = i === current
