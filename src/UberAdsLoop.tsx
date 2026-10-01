@@ -376,6 +376,11 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                             style={{
                                 position: "absolute",
                                 inset: 0,
+                                // Opaque, or the home screen now behind it
+                                // shows through: the offer card is 358 wide
+                                // in a 393 screen, so the strips either side
+                                // of it were never covered by anything.
+                                backgroundColor: "#FFFFFF",
                                 // Scaled into its own icon rather than
                                 // merely dimmed: this is the app closing, so
                                 // it has to go somewhere, and the place it
