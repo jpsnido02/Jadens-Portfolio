@@ -356,7 +356,7 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                             way out and the next fills on its way in. */}
                         <img
                             aria-hidden="true"
-                            src={`${BASE}/homescreen.jpg`}
+                            src={`${BASE}/homescreen-941.webp`}
                             alt=""
                             loading="lazy"
                             style={{
@@ -406,7 +406,7 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                             }}
                         >
                             <img
-                                src={`${BASE}/chrome-top.jpg`}
+                                src={`${BASE}/chrome-top-941.webp`}
                                 alt=""
                                 style={{
                                     position: "absolute",
@@ -529,7 +529,7 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                             }}
                         >
                             <img
-                                src={`${BASE}/appstore.jpg`}
+                                src={`${BASE}/appstore-941.webp`}
                                 alt=""
                                 loading="lazy"
                                 style={{
