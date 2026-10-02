@@ -64,7 +64,15 @@ export const projects: ProjectData[] = [
     },
     {
         title: "McDonald's kiosk",
-        image: { src: "/projects/project-05.jpg", alt: "McDonald's kiosk" },
+        image: {
+            src: "/projects/mcdonalds-kiosk-pair.webp",
+            alt: "A customer at a McDonald's kiosk showing a Disney+ offer to scan, beside the notification that follows on their phone",
+        },
+        // Both halves of it, so neither is cropped away.
+        imageFit: "contain",
+        // The kiosk's own screen is the point, and it is unreadable at phone
+        // width across the full photo, so narrow screens get a crop in on it.
+        imageMobile: "/projects/mcdonalds-kiosk-pair-mobile.webp",
         thumb: {
             src: "/projects/icon-mcdonalds.svg",
             alt: "McDonald's",
