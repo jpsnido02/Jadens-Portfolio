@@ -31,6 +31,11 @@ const SLIDE_MS = 980
 const SLIDE_EASE = "cubic-bezier(0.32, 0.72, 0, 1)"
 /** Clearance past the edge, so a phone's shadow leaves with it. */
 const SHADOW_ROOM = 60
+/**
+ * Height set aside above the phone for its partner's name, so the name is
+ * never clipped by the pane when the phone is as tall as it can be.
+ */
+const LABEL_ROOM = 26
 
 export default function BrandedLayoutsLoop({ alt }: { alt?: string }) {
     const wrapRef = useRef<HTMLDivElement>(null)
@@ -81,7 +86,7 @@ export default function BrandedLayoutsLoop({ alt }: { alt?: string }) {
 
     const pad = box.w < 480 ? 12 : 24
     const availW = Math.max(0, box.w - pad * 2)
-    const availH = Math.max(0, box.h - pad * 2)
+    const availH = Math.max(0, box.h - pad * 2 - LABEL_ROOM)
     const width = Math.max(
         0,
         Math.min(availW, availH * (FRAME_W / FRAME_H), 440)
@@ -106,34 +111,6 @@ export default function BrandedLayoutsLoop({ alt }: { alt?: string }) {
                 overflow: "hidden",
             }}
         >
-            {/* The partner on screen, named. The set of logos here is not
-                available as artwork — only SeatGeek is in any icon library —
-                and naming them scales to however many partners there are,
-                where a row of marks does not. */}
-            {width > 0 && (
-                <div
-                    aria-hidden="true"
-                    style={{
-                        position: "absolute",
-                        left: 0,
-                        right: 0,
-                        top: Math.max(
-                            10,
-                            (box.h - width * (FRAME_H / FRAME_W)) / 2 - 26
-                        ),
-                        textAlign: "center",
-                        fontFamily: FONT_FAMILY,
-                        fontSize: 9.5,
-                        fontWeight: 600,
-                        letterSpacing: "0.1em",
-                        textTransform: "uppercase",
-                        color: "#94A3B8",
-                        zIndex: 3,
-                    }}
-                >
-                    {PARTNERS[current].name}
-                </div>
-            )}
             {width > 0 &&
                 PARTNERS.map((p, i) => {
                     const isCurrent = i === current
@@ -146,7 +123,10 @@ export default function BrandedLayoutsLoop({ alt }: { alt?: string }) {
                             style={{
                                 position: "absolute",
                                 left: "50%",
-                                top: "50%",
+                                // Nudged down by half the name's room, so the
+                                // name and the phone together sit centred in
+                                // the pane rather than the phone alone.
+                                top: `calc(50% + ${LABEL_ROOM / 2}px)`,
                                 transform: `translate3d(calc(-50% + ${x}px), -50%, 0)`,
                                 // Only the two phones in motion carry a
                                 // transition, so returning the departed one to
@@ -157,6 +137,36 @@ export default function BrandedLayoutsLoop({ alt }: { alt?: string }) {
                                         : "none",
                             }}
                         >
+                            {/* The partner's name, on the phone it belongs
+                                to rather than on the pane. Centred once for
+                                the whole hero, it snapped to the incoming
+                                partner while that phone was still most of a
+                                screen away, so for the first half of every
+                                slide the name sat over the phone leaving.
+                                Riding its own phone, it cannot. The set of
+                                logos here is not available as artwork — only
+                                SeatGeek is in any icon library — and naming
+                                them scales to however many partners there
+                                are, where a row of marks does not. */}
+                            <div
+                                aria-hidden="true"
+                                style={{
+                                    position: "absolute",
+                                    left: 0,
+                                    right: 0,
+                                    top: -LABEL_ROOM,
+                                    textAlign: "center",
+                                    fontFamily: FONT_FAMILY,
+                                    fontSize: 9.5,
+                                    fontWeight: 600,
+                                    letterSpacing: "0.1em",
+                                    textTransform: "uppercase",
+                                    color: "#94A3B8",
+                                }}
+                            >
+                                {p.name}
+                            </div>
+
                             <PhoneShell width={width}>
                                 {() => (
                                     <img
