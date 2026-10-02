@@ -145,6 +145,18 @@ const CLICK_BURST_ENABLED = false
 const BURST_SPOKES = [0, 45, 90, 135, 180, 225, 270, 315]
 
 /** Case studies are pages on this site; only real off-site links get a tab. */
+/**
+ * Whether a card opens anything.
+ *
+ * Off for now: the case studies behind the cards are not ready to be read, so
+ * nothing should navigate to them. The cards are otherwise untouched — the
+ * label and the arrow still say "View Project", because the design is what it
+ * is and the only thing missing is the page at the other end. What does go is
+ * everything that promises a click: the href, the keyboard stop, the pointer
+ * cursor and the hover. Turning them back on is this one line.
+ */
+const LINKS_ENABLED = false
+
 const isExternal = (href?: string) => Boolean(href && /^[a-z]+:/i.test(href))
 
 const lerp = (start: number, end: number, factor: number) =>
@@ -1166,7 +1178,9 @@ export default function PortfolioScroll({
                         // The hero is its own anchor, so it has to respect
                         // the same rule: nothing to open yet, nothing to click.
                         const hasMediaLink =
-                            Boolean(data.link) && !data.comingSoon
+                            LINKS_ENABLED &&
+                            Boolean(data.link) &&
+                            !data.comingSoon
 
                         const media =
                             data.mediaType === "component" ? (
@@ -1404,7 +1418,8 @@ export default function PortfolioScroll({
                         const isHovered = hoveredCard === i
                         const isActive = i === activeCardIndex
                         const isInteractive = isActive && Boolean(data.link)
-                        const isLinked = isInteractive && !data.comingSoon
+                        const isLinked =
+                            LINKS_ENABLED && isInteractive && !data.comingSoon
 
                         return (
                             <div
@@ -1440,7 +1455,9 @@ export default function PortfolioScroll({
                                     aria-label={
                                         data.comingSoon
                                             ? `${data.title} — case study in progress`
-                                            : `Open project: ${data.title}`
+                                            : isLinked
+                                              ? `Open project: ${data.title}`
+                                              : data.title
                                     }
                                     aria-hidden={!isInteractive}
                                     tabIndex={isLinked ? 0 : -1}
