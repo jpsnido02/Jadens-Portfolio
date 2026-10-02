@@ -49,12 +49,23 @@ export interface Offer {
     body?: string
     primary: string
     disclaimer: string
-    /** The card's height, as the export drew it. */
+    /**
+     * The card's height.
+     *
+     * The export's own heights plus EXTRA: stating the gap above the buttons
+     * and the gap under the disclaimer asks for more room than the export
+     * left, and the page below the card already moves down by whatever height
+     * this is, so the card takes the room rather than the copy being squeezed
+     * into it.
+     */
     height: number
     /** Where the two buttons sit, for the pointer to aim at. */
     claim: { x: number; y: number }
     notNow: { x: number; y: number }
 }
+
+/** What the spacing above the buttons and under the disclaimer costs. */
+const EXTRA = 24
 
 export const OFFERS: Offer[] = [
     {
@@ -70,7 +81,7 @@ export const OFFERS: Offer[] = [
         body: "Your Uber Eats order is on the way, press play on music, podcasts, and more with Spotify.",
         primary: "Open Spotify",
         disclaimer: "Spotify Premium subscription required.",
-        height: 223,
+        height: 223 + EXTRA,
         claim: { x: 32, y: 614 },
         notNow: { x: 160, y: 614 },
     },
@@ -87,7 +98,7 @@ export const OFFERS: Offer[] = [
         body: "While your Uber Eats order is on the way, explore fresh, personalized meals from The Farmer's Dog.",
         primary: "Explore meals",
         disclaimer: "Availability and terms may vary.",
-        height: 238,
+        height: 238 + EXTRA,
         claim: { x: 32, y: 629 },
         notNow: { x: 160, y: 629 },
     },
@@ -100,7 +111,7 @@ export const OFFERS: Offer[] = [
         body: "Your Joe & The Juice breakfast is on the way, keep the morning going with Starbucks.",
         primary: "Add to Order",
         disclaimer: "Availability varies by location.",
-        height: 221,
+        height: 221 + EXTRA,
         claim: { x: 32, y: 612 },
         notNow: { x: 160, y: 612 },
     },
@@ -111,7 +122,7 @@ export const OFFERS: Offer[] = [
         headline: "Breakfast's on the way. Queue up Disney+.",
         primary: "Open Disney+",
         disclaimer: "Disney+ subscription required. Terms apply.",
-        height: 282,
+        height: 282 + EXTRA,
         claim: { x: 33, y: 672 },
         notNow: { x: 161, y: 672 },
     },
@@ -132,6 +143,15 @@ const BODY_LINE = 20
 const PILL_H = 40
 const PILL_PAD = 15
 const PILL_GAP = 10
+/**
+ * Space between the copy and the buttons.
+ *
+ * The export ran them close together and the buttons were pushed to the
+ * bottom of the card, so the gap was whatever happened to be left. It is
+ * stated now, and roughly eight units more than the export gave, which is
+ * what Jaden asked for. The footer takes the slack instead.
+ */
+const CTA_GAP = 23
 const PILL_SIZE = 14.5
 const FILL = "#F6F6F6"
 const HAIRLINE = "#E8E8E8"
@@ -154,7 +174,7 @@ const DOT_OFF = "#E3E3E3"
  * them touching; this is 24, with the dots themselves sitting a little nearer
  * the edge to buy the difference without squeezing the copy above.
  */
-const FOOT_CLEAR = DOT_UP + DOT_D + 26
+const FOOT_CLEAR = DOT_UP + DOT_D + 22
 
 const EASE = "cubic-bezier(0.33, 1, 0.68, 1)"
 
@@ -399,7 +419,7 @@ export default function UberOfferCard({
                     hold their place as the copy above them changes length. */}
                 <div
                     style={{
-                        marginTop: "auto",
+                        marginTop: px(CTA_GAP),
                         display: "flex",
                         gap: px(PILL_GAP),
                     }}
@@ -416,7 +436,17 @@ export default function UberOfferCard({
 
                 <div
                     style={{
-                        marginTop: px(14),
+                        // Pinned, not flowed. Flowed with an auto margin it
+                        // depended on there being slack left in the column,
+                        // and stating the gap above the buttons used that
+                        // slack up — so the disclaimer slid down onto the
+                        // pager. Pinned, its distance from the pager is
+                        // FOOT_CLEAR less the pager's own height, on every
+                        // card.
+                        position: "absolute",
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",

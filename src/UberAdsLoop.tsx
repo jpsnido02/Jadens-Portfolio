@@ -72,11 +72,6 @@ const PAGE_TOP = 99
  * up a ground when you scroll and has none before that.
  */
 const BAR_PAD = 26
-/** The delivery-time pill, which floats rather than scrolls. */
-const PILL_X = 254
-const PILL_Y = 427
-const PILL_W = 123
-const PILL_H = 50
 /**
  * The loader's icons, measured off the capture and drawn separately so they
  * can move. A still row of icons reads as a screen that has hung.
@@ -243,14 +238,11 @@ const SCRIPT: Step[] = [
     { kind: "stage", to: "home", ms: CLOSE_MS },
     { kind: "hold", ms: 560 },
     { kind: "stage", to: "store", ms: OPEN_MS },
-    { kind: "hold", ms: 2400 },
-    // And back out the same way.
-    { kind: "stage", to: "home", ms: CLOSE_MS },
-    { kind: "hold", ms: 460 },
-    { kind: "stage", to: "app", ms: OPEN_MS },
-    // Long enough to read as being back in Uber Eats. At 700ms the tracking
-    // page flashed and the loop was already restarting on the loading screen.
-    { kind: "hold", ms: 2200 },
+    // And it ends there. Going back home and reopening Uber Eats was a tail
+    // on a story that had already finished: the point is the offer getting
+    // someone to the App Store, so that is the last thing shown. The loop
+    // then starts over from the order being placed.
+    { kind: "hold", ms: 2800 },
     { kind: "reset", ms: 60 },
 ]
 
@@ -742,22 +734,20 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                                         }}
                                     />
 
-                                    {/* The delivery-time pill. It is sticky
-                                        in the app — it holds its place on
-                                        screen while the page travels past
-                                        underneath — so it is drawn here
-                                        rather than left in the page it was
-                                        captured in. */}
-                                    <img
-                                        src={`${BASE}/flow-pill.webp`}
-                                        alt=""
+                                    {/* The bar's ground, once the page is
+                                        moving under it. */}
+                                    <div
                                         style={{
                                             position: "absolute",
-                                            left: px(PILL_X),
-                                            top: px(PILL_Y),
-                                            width: px(PILL_W),
-                                            height: px(PILL_H),
-                                            display: "block",
+                                            left: 0,
+                                            top: px(BAR_H),
+                                            width: px(SCREEN_W),
+                                            height: px(BAR_PAD),
+                                            background: "#FFFFFF",
+                                            opacity: scrollY > 0 ? 1 : 0,
+                                            transition: animate
+                                                ? `opacity ${Math.round(SCROLL_MS * 0.4)}ms linear`
+                                                : "none",
                                         }}
                                     />
 
