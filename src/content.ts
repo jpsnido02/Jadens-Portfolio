@@ -58,7 +58,7 @@ export const projects: ProjectData[] = [
         category: "Ad formats",
         year: "2026",
         description:
-            "Ad formats in Uber Eats order tracking, tuned to your order and your wait.",
+            "Ad formats inside Uber Eats order tracking, chosen for what you ordered and how long you are waiting for it.",
         tags: [],
         link: "work/uber-ads/",
     },
@@ -82,7 +82,7 @@ export const projects: ProjectData[] = [
         comingSoon: true,
         year: "2026",
         description:
-            "A kiosk offer after you pay. The sign-up finishes on your own phone.",
+            "A kiosk offer shown once you have paid. The kiosk only earns the scan; the rewards sign-up finishes on your phone.",
         tags: [],
         link: "work/mcdonalds-kiosk/",
     },
@@ -103,7 +103,7 @@ export const projects: ProjectData[] = [
         category: "Conversion",
         year: "2026",
         description:
-            "In the bag: add cufflinks, unlock the same shirt in blue at half price.",
+            "Bag review is the last chance to add to an order. Add cufflinks and the same shirt unlocks in blue at half price.",
         tags: [],
         link: "work/macys-bag-page/",
     },
@@ -124,7 +124,7 @@ export const projects: ProjectData[] = [
         category: "Internal tools",
         year: "2026",
         description:
-            "Agents draft 80% of a partner's mockups; designers drive the last 20%.",
+            "Mockup requests were backing up on the design team. Agents now draft the first 80%; designers drive the last 20%.",
         tags: [],
         // TODO: still points at the shoppable case study. Needs its own page.
         link: "work/shoppable-pitching-platform/",
@@ -141,7 +141,7 @@ export const projects: ProjectData[] = [
         partnerRotation: true,
         year: "2026",
         description:
-            "One template wears 50 clients' brands, so the offer fits the moment.",
+            "One template that wears each of 50 clients' brands, so the offer reads as part of the moment it interrupts.",
         tags: [],
         link: "work/branded-layouts/",
     },
@@ -160,7 +160,7 @@ export const projects: ProjectData[] = [
         category: "Internal tools",
         year: "2026",
         description:
-            "A platform so sales ship a live demo within an hour of the first call.",
+            "A prototyping platform shipped so sales can turn an introductory call into a live demo pitch within the hour.",
         tags: [],
         link: "work/shoppable-config/",
     },
@@ -181,7 +181,7 @@ export const projects: ProjectData[] = [
         category: "Marketplace",
         year: "2026",
         description:
-            "Upsells that close the trip: a hotel for the flight, a ride from the airport.",
+            "Upsells that close the trip: a hotel to go with the flight, or a ride out of the airport, inside the booking flow.",
         tags: [],
         link: "work/expedia-1p-3p/",
     },

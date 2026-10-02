@@ -1683,7 +1683,7 @@ export default function PortfolioScroll({
                                                 fontWeight: 500,
                                                 fontFamily: FONT_FAMILY,
                                                 display: "-webkit-box",
-                                                WebkitLineClamp: 2,
+                                                WebkitLineClamp: 3,
                                                 WebkitBoxOrient: "vertical",
                                                 overflow: "hidden",
                                             }}
@@ -1692,61 +1692,71 @@ export default function PortfolioScroll({
                                         </p>
                                     </div>
 
-                                    {/* Card Footer — the click affordance */}
-                                    <div
-                                        style={{
-                                            ...bodyFont,
-                                            position: "relative",
-                                            zIndex: 1,
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: 6,
-                                            fontSize: isMobile ? 12 : 14,
-                                            fontWeight: 600,
-                                            // The partner's own brand colour,
-                                            // and the only place one appears
-                                            // on an otherwise white card. A
-                                            // project with nothing to open
-                                            // takes the muted ink instead, so
-                                            // the accent never promises a
-                                            // click that does nothing.
-                                            color: data.comingSoon
-                                                ? palette.cardInkDead
-                                                : cardAccent,
-                                            fontFamily: FONT_FAMILY,
-                                        }}
-                                    >
-                                        {data.comingSoon
-                                            ? "Case study in progress"
-                                            : "View Project"}
-                                        {!data.comingSoon && (
-                                            <svg
-                                                viewBox="0 0 24 24"
-                                                width={isMobile ? 14 : 16}
-                                                height={isMobile ? 14 : 16}
-                                                aria-hidden="true"
-                                                style={{
-                                                    display: "block",
-                                                    transform:
-                                                        isInteractive &&
-                                                        isHovered
-                                                            ? "translateX(3px)"
-                                                            : "translateX(0px)",
-                                                    transition:
-                                                        "transform 180ms ease",
-                                                }}
-                                            >
-                                                <path
-                                                    d="M4 12h14m0 0-5.5-5.5M18 12l-5.5 5.5"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    strokeWidth="2"
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                />
-                                            </svg>
-                                        )}
-                                    </div>
+                                    {/* Card Footer — the click
+                                        affordance. Hidden entirely while
+                                        links are off: with nothing to
+                                        open, an arrow and the words "View
+                                        Project" are an instruction the
+                                        card cannot honour. A project still
+                                        in progress keeps saying so — that
+                                        is the pill in the corner, not
+                                        this. */}
+                                    {LINKS_ENABLED && (
+                                        <div
+                                            style={{
+                                                ...bodyFont,
+                                                position: "relative",
+                                                zIndex: 1,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: 6,
+                                                fontSize: isMobile ? 12 : 14,
+                                                fontWeight: 600,
+                                                // The partner's own brand colour,
+                                                // and the only place one appears
+                                                // on an otherwise white card. A
+                                                // project with nothing to open
+                                                // takes the muted ink instead, so
+                                                // the accent never promises a
+                                                // click that does nothing.
+                                                color: data.comingSoon
+                                                    ? palette.cardInkDead
+                                                    : cardAccent,
+                                                fontFamily: FONT_FAMILY,
+                                            }}
+                                        >
+                                            {data.comingSoon
+                                                ? "Case study in progress"
+                                                : "View Project"}
+                                            {!data.comingSoon && (
+                                                <svg
+                                                    viewBox="0 0 24 24"
+                                                    width={isMobile ? 14 : 16}
+                                                    height={isMobile ? 14 : 16}
+                                                    aria-hidden="true"
+                                                    style={{
+                                                        display: "block",
+                                                        transform:
+                                                            isInteractive &&
+                                                            isHovered
+                                                                ? "translateX(3px)"
+                                                                : "translateX(0px)",
+                                                        transition:
+                                                            "transform 180ms ease",
+                                                    }}
+                                                >
+                                                    <path
+                                                        d="M4 12h14m0 0-5.5-5.5M18 12l-5.5 5.5"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        strokeWidth="2"
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                    />
+                                                </svg>
+                                            )}
+                                        </div>
+                                    )}
                                 </a>
                             </div>
                         )
