@@ -174,14 +174,14 @@ const ZOOM_MS = 900
 /**
  * How far in the camera goes.
  *
- * Bounded by width, not by taste: the offer card is 358 of the frame's 473
- * units, so anything past about 1.25 starts cutting its sides off. The push-in
- * is modest because of that — what makes the offer dominate is the chrome
- * above and the nav below leaving the frame, rather than the card growing.
+ * Now that the whole phone scales, the limit is the hero pane rather than the
+ * frame: the phone is fitted to the pane's height, so it has slack sideways
+ * and none vertically. 1.3 keeps both bezels in view in a pane as wide as
+ * these are while cropping the map above and the nav below, which is what
+ * leaves the offer holding the frame.
  */
-const ZOOM_SCALE = 1.24
-/** The offer's own centre, in frame units, so the push-in lands on it. */
-const ZOOM_ORIGIN_X = ((SCREEN_X + CARD_X + CARD_W / 2) / FRAME_W) * 100
+const ZOOM_SCALE = 1.3
+/** The offer's own centre height, in frame units, so the push-in lands on it. */
 const ZOOM_ORIGIN_Y = ((SCREEN_Y + CARD_Y + MAX_CARD_H / 2) / FRAME_H) * 100
 
 /** Which of the three surfaces is forward. */
@@ -403,6 +403,22 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                       }),
                 aspectRatio: `${FRAME_W} / ${FRAME_H}`,
                 overflow: "hidden",
+                // The camera, on the phone rather than inside it.
+                //
+                // Scaling the box *within* this one got clipped by this one,
+                // so the phone appeared to crop rather than approach — the
+                // bezel stayed put while the screen grew past it. Scaling this
+                // element scales its own clip with it, so the whole device
+                // grows and the hero pane is what trims the overflow.
+                //
+                // Horizontally centred so the phone does not slide sideways on
+                // the way in; vertically anchored on the offer so the offer is
+                // what the move frames.
+                transformOrigin: `50% ${ZOOM_ORIGIN_Y}%`,
+                transform: zoom === "offer" ? `scale(${ZOOM_SCALE})` : "none",
+                transition: animate
+                    ? `transform ${ZOOM_MS}ms ${APPLE_EASE}`
+                    : "none",
             }}
         >
             {
@@ -424,17 +440,6 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                         width: "100%",
                         height: "100%",
                         position: "relative",
-                        // The camera. `none` rather than `scale(1)` when wide,
-                        // so for most of the loop there is genuinely no
-                        // ancestor transform and the note above holds; the
-                        // push-in is transient and the browser re-rasterises
-                        // at the new scale once it settles.
-                        transformOrigin: `${ZOOM_ORIGIN_X}% ${ZOOM_ORIGIN_Y}%`,
-                        transform:
-                            zoom === "offer" ? `scale(${ZOOM_SCALE})` : "none",
-                        transition: animate
-                            ? `transform ${ZOOM_MS}ms ${APPLE_EASE}`
-                            : "none",
                     }}
                 >
                     {/* The seam filler, then the screen inside it at its
