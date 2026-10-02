@@ -293,12 +293,18 @@ export default function PortfolioScroll({
     const heroRef = useRef<HTMLDivElement>(null)
 
     /**
-     * Four lines of description, which is what the copy needs to state a
-     * problem, what was done and what it moved. A line is 23px on desktop and
-     * 18 on a phone; hiding the footer paid for the third, and the card grows
-     * by one line for the fourth.
+     * Sized to the content now that the footer is gone.
+     *
+     * Measured off the laid-out card: the tallest description reaches 247px
+     * from the card's top, and the content box wants 20px under it, so 267.
+     * At 253 the two longest cards were down to 6px of bottom padding against
+     * 20 at the top, which read as cramped.
+     *
+     * One height for every card, because the scroll engine steps the stack by
+     * this number and keys the minimap off it; a card that hugged its own
+     * content would have to replace that step with cumulative offsets.
      */
-    const cardHeight = isMobile ? 208 : 253
+    const cardHeight = isMobile ? 218 : 267
     const taglineSize = isMobile ? 16 : 18
     // Sized against the tagline, so it keeps its ratio if the type changes.
     // Sized to the cap height of the sentence it sits in.
