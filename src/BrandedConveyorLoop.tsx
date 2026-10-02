@@ -23,22 +23,31 @@ import { useLayoutEffect, useRef, useState } from "react"
 import { FRAME_H, FRAME_W, PhoneShell } from "./ShoppablePhone"
 import { FONT_FAMILY } from "./tokens"
 import { PARTNERS, SCREEN } from "./partners"
-import { CYCLE_MS, LOOP, phaseDelay, useConveyorRunning } from "./conveyor"
+import { CYCLE_MS, LOOP, useConveyorRun } from "./conveyor"
 
 /** Space between phones, as a share of a phone's width. */
 const GAP_RATIO = 0.16
+/**
+ * A phone's width, as a share of the pane.
+ *
+ * It has to fit inside what the fades leave clear, or a phone is never once
+ * wholly in the open: at 0.74 of a pane with 0.3 fades either side, the clear
+ * middle was narrower than the phone itself, so the thing you were meant to be
+ * looking at was always partly dissolved or cut off at the edge. Kept under
+ * 1 - 2 * EDGE_RATIO so a phone crossing the centre is fully in the clear.
+ */
+const PHONE_RATIO = 0.56
 /** Room above a phone for its partner's name. */
 const LABEL_ROOM = 26
 /** How much of the pane each edge fades over. */
-const EDGE_RATIO = 0.3
+const EDGE_RATIO = 0.2
 
 export default function BrandedConveyorLoop({ alt }: { alt?: string }) {
     const wrapRef = useRef<HTMLDivElement>(null)
     const [box, setBox] = useState({ w: 0, h: 0 })
     /** Read once on mount: seeking the animation on every render would
      *  restart it, and the point of the shared epoch is that it does not. */
-    const delay = useRef(phaseDelay()).current
-    const running = useConveyorRunning(wrapRef)
+    const { running, delay } = useConveyorRun(wrapRef)
 
     useLayoutEffect(() => {
         const el = wrapRef.current
@@ -66,7 +75,11 @@ export default function BrandedConveyorLoop({ alt }: { alt?: string }) {
     // the next thing along is already on its way in.
     const width = Math.max(
         0,
-        Math.min(availH * (FRAME_W / FRAME_H), (box.w - pad * 2) * 0.74, 420),
+        Math.min(
+            availH * (FRAME_W / FRAME_H),
+            (box.w - pad * 2) * PHONE_RATIO,
+            420
+        ),
     )
     const gap = width * GAP_RATIO
     const slot = width + gap

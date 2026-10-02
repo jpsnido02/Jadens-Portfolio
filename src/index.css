@@ -1237,31 +1237,43 @@ dl {
 }
 .conveyor-edge--left {
     left: 0;
+    /* Fully ground over the outer stretch, not just at the very edge. A
+       phone is geometrically cut off at the pane's boundary whatever we do;
+       reaching full opacity before it gets there is what makes that cut
+       invisible instead of a hard line showing through a thin veil. */
     -webkit-mask-image: linear-gradient(
         to right,
         #000 0%,
-        rgba(0, 0, 0, 0.62) 42%,
+        #000 30%,
+        rgba(0, 0, 0, 0.52) 64%,
         transparent 100%
     );
     mask-image: linear-gradient(
         to right,
         #000 0%,
-        rgba(0, 0, 0, 0.62) 42%,
+        #000 30%,
+        rgba(0, 0, 0, 0.52) 64%,
         transparent 100%
     );
 }
 .conveyor-edge--right {
     right: 0;
+    /* Fully ground over the outer stretch, not just at the very edge. A
+       phone is geometrically cut off at the pane's boundary whatever we do;
+       reaching full opacity before it gets there is what makes that cut
+       invisible instead of a hard line showing through a thin veil. */
     -webkit-mask-image: linear-gradient(
         to left,
         #000 0%,
-        rgba(0, 0, 0, 0.62) 42%,
+        #000 30%,
+        rgba(0, 0, 0, 0.52) 64%,
         transparent 100%
     );
     mask-image: linear-gradient(
         to left,
         #000 0%,
-        rgba(0, 0, 0, 0.62) 42%,
+        #000 30%,
+        rgba(0, 0, 0, 0.52) 64%,
         transparent 100%
     );
 }
