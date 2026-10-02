@@ -292,7 +292,13 @@ export default function PortfolioScroll({
     const cardsViewportRef = useRef<HTMLDivElement>(null)
     const heroRef = useRef<HTMLDivElement>(null)
 
-    const cardHeight = isMobile ? 190 : 230
+    /**
+     * Four lines of description, which is what the copy needs to state a
+     * problem, what was done and what it moved. A line is 23px on desktop and
+     * 18 on a phone; hiding the footer paid for the third, and the card grows
+     * by one line for the fourth.
+     */
+    const cardHeight = isMobile ? 208 : 253
     const taglineSize = isMobile ? 16 : 18
     // Sized against the tagline, so it keeps its ratio if the type changes.
     // Sized to the cap height of the sentence it sits in.
@@ -1683,7 +1689,7 @@ export default function PortfolioScroll({
                                                 fontWeight: 500,
                                                 fontFamily: FONT_FAMILY,
                                                 display: "-webkit-box",
-                                                WebkitLineClamp: 3,
+                                                WebkitLineClamp: 4,
                                                 WebkitBoxOrient: "vertical",
                                                 overflow: "hidden",
                                             }}

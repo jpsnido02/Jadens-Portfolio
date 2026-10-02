@@ -82,7 +82,7 @@ export const projects: ProjectData[] = [
         comingSoon: true,
         year: "2026",
         description:
-            "A kiosk offer shown once you have paid. The kiosk only earns the scan; the rewards sign-up finishes on your phone.",
+            "A special offer catered to enjoy after your meal. The kiosk was the surface; our network identified what the customer wanted to do after.",
         tags: [],
         link: "work/mcdonalds-kiosk/",
     },
@@ -103,7 +103,7 @@ export const projects: ProjectData[] = [
         category: "Conversion",
         year: "2026",
         description:
-            "Bag review is the last chance to add to an order. Add cufflinks and the same shirt unlocks in blue at half price.",
+            "Bag review is the last chance to add units. We gamified the final stage before purchase: add a discounted item, get a second shirt half off.",
         tags: [],
         link: "work/macys-bag-page/",
     },
@@ -124,7 +124,7 @@ export const projects: ProjectData[] = [
         category: "Internal tools",
         year: "2026",
         description:
-            "Mockup requests were backing up on the design team. Agents now draft the first 80%; designers drive the last 20%.",
+            "A small design team can't handle 100 asset requests a week. An agent gets us 80% there, leaving designers to drive the most meaningful 20%.",
         tags: [],
         // TODO: still points at the shoppable case study. Needs its own page.
         link: "work/shoppable-pitching-platform/",
@@ -141,7 +141,7 @@ export const projects: ProjectData[] = [
         partnerRotation: true,
         year: "2026",
         description:
-            "One template that wears each of 50 clients' brands, so the offer reads as part of the moment it interrupts.",
+            "One template instantly turned on across our top 50 clients' brands, automatically driving a 20% revenue increase across our network.",
         tags: [],
         link: "work/branded-layouts/",
     },
@@ -160,7 +160,7 @@ export const projects: ProjectData[] = [
         category: "Internal tools",
         year: "2026",
         description:
-            "A prototyping platform shipped so sales can turn an introductory call into a live demo pitch within the hour.",
+            "A prototyping platform shipped so sales can turn an introductory call into a live demo the customer can interact with as if it were real.",
         tags: [],
         link: "work/shoppable-config/",
     },
