@@ -197,6 +197,8 @@ type Step =
     | { kind: "screen"; to: "loading" | "track"; ms: number }
     /** How far down the tracking page we are. */
     | { kind: "scroll"; to: number; ms: number }
+    /** To black, and hold there. */
+    | { kind: "cut"; ms: number }
     | { kind: "reset"; ms: number }
 
 const SCREEN_MS = 520
@@ -236,9 +238,13 @@ const SCRIPT: Step[] = [
     { kind: "stage", to: "store", ms: OPEN_MS },
     // And it ends there. Going back home and reopening Uber Eats was a tail
     // on a story that had already finished: the point is the offer getting
-    // someone to the App Store, so that is the last thing shown. The loop
-    // then starts over from the order being placed.
+    // someone to the App Store, so that is the last thing shown.
     { kind: "hold", ms: 2800 },
+    // Then out, on a cut rather than on the App Store shrinking back into
+    // its icon. The window going away was the loop tidying up after itself
+    // in full view; black is just the end.
+    { kind: "cut", ms: 900 },
+    // Everything is put back behind the black, so none of it is seen.
     { kind: "reset", ms: 60 },
 ]
 
@@ -269,6 +275,7 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
     const [zoom, setZoom] = useState<"wide" | "offer">("wide")
     const [screen, setScreen] = useState<"loading" | "track">("loading")
     const [scrollY, setScrollY] = useState(0)
+    const [cut, setCut] = useState(false)
     const [tap, setTap] = useState<null | "notNow" | "claim">(null)
     const [tapKey, setTapKey] = useState(0)
     const [animate, setAnimate] = useState(true)
@@ -364,8 +371,13 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                 setTap(null)
                 setScrollY(current.to)
                 break
+            case "cut":
+                setTap(null)
+                setCut(true)
+                break
             case "reset":
                 setAnimate(false)
+                setCut(false)
                 setIndex(0)
                 setStage("app")
                 setZoom("wide")
@@ -517,10 +529,12 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                                         ? "scale(1)"
                                         : `scale(${HOME_ZOOM})`,
                                     opacity: atHome ? 1 : 0,
-                                    transition: [
-                                        `transform ${MORPH_MS}ms ${APPLE_EASE}`,
-                                        `opacity ${Math.round(MORPH_MS * 0.6)}ms linear`,
-                                    ].join(", "),
+                                    transition: animate
+                                        ? [
+                                              `transform ${MORPH_MS}ms ${APPLE_EASE}`,
+                                              `opacity ${Math.round(MORPH_MS * 0.6)}ms linear`,
+                                          ].join(", ")
+                                        : "none",
                                 }}
                             />
 
@@ -746,17 +760,20 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                                     opacity: storeOpen ? 1 : 0,
                                     pointerEvents: "none",
                                     boxShadow: "none",
-                                    transition: [
-                                        `left ${MORPH_MS}ms ${APPLE_EASE}`,
-                                        `top ${MORPH_MS}ms ${APPLE_EASE}`,
-                                        `width ${MORPH_MS}ms ${APPLE_EASE}`,
-                                        `height ${MORPH_MS}ms ${APPLE_EASE}`,
-                                        `border-radius ${MORPH_MS}ms ${APPLE_EASE}`,
-                                        // Opacity resolves early on the way in and
-                                        // late on the way out, so the morph is
-                                        // never visible as an empty rectangle.
-                                        `opacity ${Math.round(MORPH_MS * 0.45)}ms linear`,
-                                    ].join(", "),
+                                    transition: animate
+                                        ? [
+                                              `left ${MORPH_MS}ms ${APPLE_EASE}`,
+                                              `top ${MORPH_MS}ms ${APPLE_EASE}`,
+                                              `width ${MORPH_MS}ms ${APPLE_EASE}`,
+                                              `height ${MORPH_MS}ms ${APPLE_EASE}`,
+                                              `border-radius ${MORPH_MS}ms ${APPLE_EASE}`,
+                                              // Opacity resolves early on the
+                                              // way in and late on the way
+                                              // out, so the morph is never
+                                              // visible as an empty rectangle.
+                                              `opacity ${Math.round(MORPH_MS * 0.45)}ms linear`,
+                                          ].join(", ")
+                                        : "none",
                                 }}
                             >
                                 <img
@@ -771,10 +788,27 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                                         height: px(SCREEN_H),
                                         display: "block",
                                         transform: `translate(-50%, -50%) scale(${storeOpen ? 1 : ICON / SCREEN_W})`,
-                                        transition: `transform ${MORPH_MS}ms ${APPLE_EASE}`,
+                                        transition: animate
+                                            ? `transform ${MORPH_MS}ms ${APPLE_EASE}`
+                                            : "none",
                                     }}
                                 />
                             </div>
+
+                            {/* The end. Over every surface and under the
+                                frame, and with no transition on it, because
+                                this is a cut: the phone is still there, the
+                                screen is simply done. */}
+                            <div
+                                aria-hidden="true"
+                                style={{
+                                    position: "absolute",
+                                    inset: 0,
+                                    backgroundColor: "#000000",
+                                    opacity: cut ? 1 : 0,
+                                    pointerEvents: "none",
+                                }}
+                            />
                         </div>
                     </div>
 
