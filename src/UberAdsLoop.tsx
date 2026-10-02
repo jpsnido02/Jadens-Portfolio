@@ -42,19 +42,59 @@ const SCREEN_R = 56
 const SEAM = 2
 
 const CARD_X = 16
-const CARD_Y = 494
 const CARD_W = 358
-/** Padding below the card inside its own frame. */
-const CARD_GAP = 16
-const CHROME_TOP_H = 494
-const CHROME_BOTTOM_H = 121
+/* -------------------------------------------------------------------------
+ * The order-tracking page, sliced out of the real app.
+ *
+ * Two captures stitch into one continuous page: the unscrolled one supplies
+ * everything above the offer — the collapsing header, the map, the bundling
+ * row — and the scrolled one supplies everything below it. The offer sits
+ * between the halves rather than inside either, which is what lets the lower
+ * half move down as the card changes height. The bar is fixed, as it is in
+ * the app, so the page travels under it.
+ * ---------------------------------------------------------------------- */
+/**
+ * The fixed bar, and where the scrolling page starts under it.
+ *
+ * These are not the same number. The bar is taller than the point the page
+ * begins, so there is white between the Help button and whatever is scrolling
+ * past — without it the content ran straight into the bar with nothing
+ * between them.
+ */
+const BAR_H = 124
+const PAGE_TOP = 99
+/** The delivery-time pill, which floats rather than scrolls. */
+const PILL_X = 254
+const PILL_Y = 427
+const PILL_W = 123
+const PILL_H = 50
+/**
+ * The loader's icons, measured off the capture and drawn separately so they
+ * can move. A still row of icons reads as a screen that has hung.
+ */
+const LOAD_ICONS: [number, number, number, number][] = [
+    [70, 440, 52, 70],
+    [138, 440, 50, 70],
+    [214, 440, 31, 70],
+    [267, 440, 57, 70],
+]
+const LOAD_BOUNCE_MS = 1150
+const PAGE_A_H = 736
+const PAGE_B_H = 466
+/** The offer's inset, matching the slot the cream container occupied. */
+const SLOT_X = 16
+/** Where the offer lands once the page has scrolled to it. */
+const SLOT_Y = 203
+const SCROLL_TO = PAGE_A_H - (SLOT_Y - PAGE_TOP)
+/** The pills sit a fixed distance up from the card's bottom, whatever its
+ *  height, so the pointer can be aimed without measuring the DOM. */
+const PILL_FROM_BOTTOM = 108
+const PRIMARY_MID = 15 + 119 / 2
+const SECONDARY_MID = 144 + 90 / 2
 
 /** Two levels up: these pages are served from /work/<slug>/. */
 const BASE = "../../projects/uber"
 // The frame itself is shared with the Shoppable hero, so it sits a level up.
-
-const BTN_W = 120
-const BTN_H = 40
 
 /**
  * Button positions are read from each card's CTA frame in Figma. The rows sit
@@ -142,7 +182,7 @@ const ZOOM_MS = 900
  */
 const ZOOM_SCALE = 1.3
 /** The offer's own centre height, in frame units, so the push-in lands on it. */
-const ZOOM_ORIGIN_Y = ((SCREEN_Y + CARD_Y + MAX_CARD_H / 2) / FRAME_H) * 100
+const ZOOM_ORIGIN_Y = ((SCREEN_Y + SLOT_Y + MAX_CARD_H / 2) / FRAME_H) * 100
 
 /** Which of the three surfaces is forward. */
 type Stage = "app" | "home" | "store"
@@ -153,13 +193,25 @@ type Step =
     | { kind: "advance"; ms: number }
     | { kind: "stage"; to: Stage; ms: number }
     | { kind: "zoom"; to: "wide" | "offer"; ms: number }
+    /** Which surface the app is showing. */
+    | { kind: "screen"; to: "loading" | "track"; ms: number }
+    /** How far down the tracking page we are. */
+    | { kind: "scroll"; to: number; ms: number }
     | { kind: "reset"; ms: number }
 
+const SCREEN_MS = 520
+const SCROLL_MS = 1150
+
 const SCRIPT: Step[] = [
-    // Open on the whole phone, so the offer is seen in its place first.
+    // The order goes in.
     { kind: "hold", ms: 1500 },
-    // In on the offer, and stay there for the whole rotation: the point of
-    // these three beats is the offer changing, not the screen around it.
+    // The tracking page takes over.
+    { kind: "screen", to: "track", ms: SCREEN_MS },
+    { kind: "hold", ms: 1600 },
+    // Down the page to the offer, the way you would reach it.
+    { kind: "scroll", to: SCROLL_TO, ms: SCROLL_MS },
+    { kind: "hold", ms: 520 },
+    // In on the offer, and stay there for the whole rotation.
     { kind: "zoom", to: "offer", ms: ZOOM_MS },
     { kind: "hold", ms: 1100 },
     { kind: "tap", on: "notNow", ms: 320 },
@@ -187,10 +239,9 @@ const SCRIPT: Step[] = [
     { kind: "stage", to: "home", ms: CLOSE_MS },
     { kind: "hold", ms: 460 },
     { kind: "stage", to: "app", ms: OPEN_MS },
-    { kind: "hold", ms: 420 },
-    { kind: "advance", ms: PAGE_MS },
-    // Snap from the duplicate first card back to the real one. Same pixels, so
-    // the cut is invisible.
+    // Long enough to read as being back in Uber Eats. At 700ms the tracking
+    // page flashed and the loop was already restarting on the loading screen.
+    { kind: "hold", ms: 2200 },
     { kind: "reset", ms: 60 },
 ]
 
@@ -219,6 +270,8 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
     const [index, setIndex] = useState(0)
     const [stage, setStage] = useState<Stage>("app")
     const [zoom, setZoom] = useState<"wide" | "offer">("wide")
+    const [screen, setScreen] = useState<"loading" | "track">("loading")
+    const [scrollY, setScrollY] = useState(0)
     const [tap, setTap] = useState<null | "notNow" | "claim">(null)
     const [tapKey, setTapKey] = useState(0)
     const [animate, setAnimate] = useState(true)
@@ -230,7 +283,13 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
         const el = wrapRef.current
         if (!el) return
         const measure = () => {
-            const w = el.getBoundingClientRect().width
+            // offsetWidth, not getBoundingClientRect: this element carries the
+            // camera transform, and a measured rect comes back multiplied by
+            // it. Reading the rect meant pushing the camera in inflated the
+            // scale, which laid the whole phone out larger on top of the
+            // transform already enlarging it — so the screen's contents grew
+            // past a clip that had not grown with them.
+            const w = el.offsetWidth
             if (w > 0) setScale(w / FRAME_W)
         }
         measure()
@@ -300,11 +359,21 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                 setTap(null)
                 setZoom(current.to)
                 break
+            case "screen":
+                setTap(null)
+                setScreen(current.to)
+                break
+            case "scroll":
+                setTap(null)
+                setScrollY(current.to)
+                break
             case "reset":
                 setAnimate(false)
                 setIndex(0)
                 setStage("app")
                 setZoom("wide")
+                setScreen("loading")
+                setScrollY(0)
                 break
             case "hold":
                 setTap(null)
@@ -319,7 +388,17 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
 
     const offer = OFFERS[index % OFFERS.length]
     const cardH = offer.height
-    const tapTarget = tap === "claim" ? offer.claim : offer.notNow
+    /**
+     * Where the pills are, in screen units. Derived rather than written down:
+     * the card hangs its buttons a fixed distance up from its own bottom, so
+     * the only variables are the card's height and how far the page has
+     * scrolled.
+     */
+    const slotTop = PAGE_TOP + PAGE_A_H - scrollY
+    const tapTarget = {
+        x: SLOT_X + (tap === "claim" ? PRIMARY_MID : SECONDARY_MID),
+        y: slotTop + cardH - PILL_FROM_BOTTOM + 20,
+    }
     // Each surface morphs to and from its own icon on the home screen, not
     // from the button that was pressed.
     const appAway = stage !== "app"
@@ -503,77 +582,180 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                                     ].join(", "),
                                 }}
                             >
+                                {/* The screen the order is placed on. */}
                                 <img
-                                    src={`${BASE}/chrome-top-941.webp`}
+                                    src={`${BASE}/flow-loading.webp`}
                                     alt=""
                                     style={{
                                         position: "absolute",
                                         left: 0,
                                         top: 0,
                                         width: px(SCREEN_W),
-                                        height: px(CHROME_TOP_H),
+                                        height: px(SCREEN_H),
                                         display: "block",
-                                    }}
-                                />
-
-                                {/* The offer window, held at the tallest card so
-                                its height never animates. */}
-                                <div
-                                    style={{
-                                        position: "absolute",
-                                        left: px(CARD_X),
-                                        top: px(CARD_Y),
-                                        width: px(CARD_W),
-                                        height: px(MAX_CARD_H),
-                                        overflow: "hidden",
-                                    }}
-                                >
-                                    {/* The offer, assembled from its
-                                        parts so the pieces inside it can
-                                        change independently: the headline and
-                                        body cross-fade their text, the media
-                                        swaps whether it sits beside the
-                                        headline or runs across the top, the
-                                        primary button travels to the width of
-                                        its own label, and the pager hands
-                                        over. The container itself only ever
-                                        changes height. */}
-                                    <UberOfferCard
-                                        offer={offer}
-                                        index={index % OFFERS.length}
-                                        px={px}
-                                        swapMs={PAGE_MS}
-                                        animate={animate}
-                                    />
-                                </div>
-
-                                <img
-                                    src={`${BASE}/chrome-bottom.jpg`}
-                                    alt=""
-                                    style={{
-                                        position: "absolute",
-                                        left: 0,
-                                        // Anchored once and moved by transform.
-                                        // Animating `top` is a layout property and
-                                        // relaid out the subtree every frame.
-                                        top: px(CARD_Y + CARD_GAP),
-                                        width: px(SCREEN_W),
-                                        height: px(CHROME_BOTTOM_H),
-                                        display: "block",
-                                        transform: `translate3d(0, ${px(cardH)}px, 0)`,
+                                        opacity: screen === "loading" ? 1 : 0,
                                         transition: animate
-                                            ? `transform ${PAGE_MS}ms ${PAGE_EASE}`
+                                            ? `opacity ${SCREEN_MS}ms ${PAGE_EASE}`
                                             : "none",
                                     }}
                                 />
+
+                                {/* The loader's icons, rising in turn. */}
+                                {LOAD_ICONS.map(([x, y, w, h], i) => (
+                                    <img
+                                        key={i}
+                                        src={`${BASE}/load-icon-${i + 1}.webp`}
+                                        alt=""
+                                        style={{
+                                            position: "absolute",
+                                            left: px(x),
+                                            top: px(y),
+                                            width: px(w),
+                                            height: px(h),
+                                            display: "block",
+                                            opacity:
+                                                screen === "loading" ? 1 : 0,
+                                            animation: animate
+                                                ? `uber-load-bounce ${LOAD_BOUNCE_MS}ms ease-in-out ${i * 130}ms infinite`
+                                                : "none",
+                                            transition: animate
+                                                ? `opacity ${SCREEN_MS}ms ${PAGE_EASE}`
+                                                : "none",
+                                        }}
+                                    />
+                                ))}
+
+                                {/* The tracking page, travelling under a bar
+                                    that stays where it is. */}
+                                <div
+                                    style={{
+                                        position: "absolute",
+                                        inset: 0,
+                                        opacity: screen === "track" ? 1 : 0,
+                                        transition: animate
+                                            ? `opacity ${SCREEN_MS}ms ${PAGE_EASE}`
+                                            : "none",
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            position: "absolute",
+                                            left: 0,
+                                            top: px(PAGE_TOP),
+                                            width: px(SCREEN_W),
+                                            height: px(SCREEN_H - PAGE_TOP),
+                                            overflow: "hidden",
+                                        }}
+                                    >
+                                        <div
+                                            style={{
+                                                position: "absolute",
+                                                left: 0,
+                                                top: 0,
+                                                width: px(SCREEN_W),
+                                                transform: `translate3d(0, ${px(-scrollY)}px, 0)`,
+                                                transition: animate
+                                                    ? `transform ${SCROLL_MS}ms ${PAGE_EASE}`
+                                                    : "none",
+                                            }}
+                                        >
+                                            <img
+                                                src={`${BASE}/flow-page-a.webp`}
+                                                alt=""
+                                                style={{
+                                                    position: "absolute",
+                                                    left: 0,
+                                                    top: 0,
+                                                    width: px(SCREEN_W),
+                                                    height: px(PAGE_A_H),
+                                                    display: "block",
+                                                }}
+                                            />
+
+                                            {/* The offer, in the slot the
+                                                page left for it. */}
+                                            <div
+                                                style={{
+                                                    position: "absolute",
+                                                    left: px(SLOT_X),
+                                                    top: px(PAGE_A_H),
+                                                    width: px(CARD_W),
+                                                    height: px(cardH),
+                                                }}
+                                            >
+                                                <UberOfferCard
+                                                    offer={offer}
+                                                    index={
+                                                        index % OFFERS.length
+                                                    }
+                                                    px={px}
+                                                    swapMs={PAGE_MS}
+                                                    animate={animate}
+                                                />
+                                            </div>
+
+                                            {/* Everything under the offer,
+                                                moved down by whatever height
+                                                the offer is taking. */}
+                                            <img
+                                                src={`${BASE}/flow-page-b.webp`}
+                                                alt=""
+                                                style={{
+                                                    position: "absolute",
+                                                    left: 0,
+                                                    top: px(PAGE_A_H),
+                                                    width: px(SCREEN_W),
+                                                    height: px(PAGE_B_H),
+                                                    display: "block",
+                                                    transform: `translate3d(0, ${px(cardH)}px, 0)`,
+                                                    transition: animate
+                                                        ? `transform ${PAGE_MS}ms ${PAGE_EASE}`
+                                                        : "none",
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* The delivery-time pill. It is sticky
+                                        in the app — it holds its place on
+                                        screen while the page travels past
+                                        underneath — so it is drawn here
+                                        rather than left in the page it was
+                                        captured in. */}
+                                    <img
+                                        src={`${BASE}/flow-pill.webp`}
+                                        alt=""
+                                        style={{
+                                            position: "absolute",
+                                            left: px(PILL_X),
+                                            top: px(PILL_Y),
+                                            width: px(PILL_W),
+                                            height: px(PILL_H),
+                                            display: "block",
+                                        }}
+                                    />
+
+                                    <img
+                                        src={`${BASE}/flow-bar.webp`}
+                                        alt=""
+                                        style={{
+                                            position: "absolute",
+                                            left: 0,
+                                            top: 0,
+                                            width: px(SCREEN_W),
+                                            height: px(BAR_H),
+                                            display: "block",
+                                        }}
+                                    />
+                                </div>
 
                                 {tap && (
                                     <span
                                         key={tapKey}
                                         className="uber-tap"
                                         style={{
-                                            left: px(tapTarget.x + BTN_W / 2),
-                                            top: px(tapTarget.y + BTN_H / 2),
+                                            left: px(tapTarget.x),
+                                            top: px(tapTarget.y),
                                             width: px(44),
                                             height: px(44),
                                             marginLeft: px(-22),
