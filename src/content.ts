@@ -173,11 +173,13 @@ export const projects: ProjectData[] = [
     {
         title: "Expedia 1P / 3P",
         image: {
-            src: "/projects/expedia-devices.webp",
+            src: "/projects/expedia-offer.webp",
             alt: "The Expedia offer experience on a laptop and a phone",
         },
         imageFit: "contain",
-        imageMobile: "/projects/expedia-devices-mobile.webp",
+        // The laptop is unreadable at phone width, so narrow screens get a
+        // crop led by the phone with the laptop bleeding off behind it.
+        imageMobile: "/projects/expedia-offer-mobile.webp",
         thumb: {
             src: "/projects/icon-expedia.svg",
             alt: "Expedia",
