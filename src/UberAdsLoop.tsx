@@ -72,28 +72,28 @@ const BTN_H = 40
  */
 const OFFERS: Offer[] = [
     {
-        src: `${BASE}/card-1.jpg`,
+        src: `${BASE}/offer-1.webp`,
         height: 223,
         claim: { x: 32, y: 614 },
         notNow: { x: 160, y: 614 },
         label: "Spotify Premium",
     },
     {
-        src: `${BASE}/card-2.jpg`,
+        src: `${BASE}/offer-2.webp`,
         height: 238,
         claim: { x: 32, y: 629 },
         notNow: { x: 160, y: 629 },
         label: "The Farmer's Dog",
     },
     {
-        src: `${BASE}/card-3.jpg`,
+        src: `${BASE}/offer-3.webp`,
         height: 221,
         claim: { x: 32, y: 612 },
         notNow: { x: 160, y: 612 },
         label: "Starbucks",
     },
     {
-        src: `${BASE}/card-4.jpg`,
+        src: `${BASE}/offer-4.webp`,
         height: 282,
         claim: { x: 33, y: 672 },
         notNow: { x: 161, y: 672 },
@@ -110,6 +110,23 @@ const OFFERS: Offer[] = [
  * that space because it comes later in the DOM — visually identical, no layout.
  */
 const MAX_CARD_H = Math.max(...OFFERS.map((o) => o.height))
+
+/**
+ * The pager dots, lifted out of the artwork so they can animate.
+ *
+ * They were baked into each card, which meant they could only cross-fade with
+ * everything around them — and a pager is the one part of this that should
+ * read as responding rather than being replaced. Painted out of the exports
+ * and drawn here instead, at the positions they occupied: 8px across, 16px
+ * apart, the first centred 20px in, and the row sitting 20px up from whichever
+ * card's bottom edge.
+ */
+const DOT_D = 8
+const DOT_GAP = 16
+const DOT_X = 20
+const DOT_UP = 20
+const DOT_ON = "#030303"
+const DOT_OFF = "#E3E3E3"
 
 /** The track carries a fifth card — a copy of the first — so the wrap forward
  *  slides in the same direction as every other advance instead of rewinding. */
@@ -374,10 +391,6 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
     /** Every measured Figma unit goes through this to reach its real size. */
     const px = (v: number) => v * scale
 
-    const pageTransition = animate
-        ? `transform ${PAGE_MS}ms ${PAGE_EASE}`
-        : "none"
-
     return (
         <div
             ref={wrapRef}
@@ -572,32 +585,78 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                                         overflow: "hidden",
                                     }}
                                 >
-                                    <div
-                                        style={{
-                                            display: "flex",
-                                            alignItems: "flex-start",
-                                            width: px(CARD_W * TRACK.length),
-                                            transform: `translate3d(${px(-index * CARD_W)}px, 0, 0)`,
-                                            transition: pageTransition,
-                                        }}
-                                    >
-                                        {TRACK.map((card, i) => (
-                                            <img
+                                    {/* The offers change in place rather than
+                                        sliding. A pager that swipes says the
+                                        card moved; what actually happens is
+                                        the content inside it being replaced,
+                                        so one fades down to the card's own
+                                        white and the next comes up out of it.
+                                        Sequential rather than overlapping,
+                                        because these four are different
+                                        layouts and a true dissolve ghosts one
+                                        headline through another. */}
+                                    {TRACK.map((card, i) => (
+                                        <img
+                                            key={i}
+                                            src={card.src}
+                                            alt=""
+                                            loading={i > 1 ? "lazy" : "eager"}
+                                            style={{
+                                                position: "absolute",
+                                                left: 0,
+                                                top: 0,
+                                                width: px(CARD_W),
+                                                height: px(card.height),
+                                                display: "block",
+                                                opacity: i === index ? 1 : 0,
+                                                transition: animate
+                                                    ? i === index
+                                                        ? `opacity ${Math.round(PAGE_MS * 0.45)}ms linear ${Math.round(PAGE_MS * 0.45)}ms`
+                                                        : `opacity ${Math.round(PAGE_MS * 0.4)}ms linear`
+                                                    : "none",
+                                            }}
+                                        />
+                                    ))}
+
+                                    {/* The pager. It sits against the current
+                                        card's bottom, so it travels with the
+                                        height as the card changes. */}
+                                    {OFFERS.map((_, i) => {
+                                        const on = i === index % OFFERS.length
+                                        return (
+                                            <span
                                                 key={i}
-                                                src={card.src}
-                                                alt=""
-                                                loading={
-                                                    i > 1 ? "lazy" : "eager"
-                                                }
                                                 style={{
-                                                    width: px(CARD_W),
-                                                    height: px(card.height),
-                                                    flexShrink: 0,
-                                                    display: "block",
+                                                    position: "absolute",
+                                                    left: px(
+                                                        DOT_X +
+                                                            i * DOT_GAP -
+                                                            DOT_D / 2,
+                                                    ),
+                                                    top: px(
+                                                        cardH -
+                                                            DOT_UP -
+                                                            DOT_D / 2,
+                                                    ),
+                                                    width: px(DOT_D),
+                                                    height: px(DOT_D),
+                                                    borderRadius: "50%",
+                                                    background: on
+                                                        ? DOT_ON
+                                                        : DOT_OFF,
+                                                    transition: animate
+                                                        ? [
+                                                              // Lands with the
+                                                              // new offer, not
+                                                              // ahead of it.
+                                                              `background-color ${Math.round(PAGE_MS * 0.3)}ms linear ${Math.round(PAGE_MS * 0.45)}ms`,
+                                                              `top ${PAGE_MS}ms ${PAGE_EASE}`,
+                                                          ].join(", ")
+                                                        : "none",
                                                 }}
                                             />
-                                        ))}
-                                    </div>
+                                        )
+                                    })}
                                 </div>
 
                                 <img
