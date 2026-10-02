@@ -32,7 +32,13 @@ import {
     watchVisibility,
 } from "./partners"
 
-const SLIDE_MS = 980
+/**
+ * How long a phone takes to travel. Slower than the 980ms it started on: the
+ * screen arriving is the only chance to see it move, and at that speed it was
+ * across before the eye had followed it. Still well inside partners.ts's
+ * HOLD_MS, so a slide always lands before the next one is asked for.
+ */
+const SLIDE_MS = 1280
 /** Apple's presentation curve: decisive away, long settle in. */
 const SLIDE_EASE = "cubic-bezier(0.32, 0.72, 0, 1)"
 /** Clearance past the edge, so a phone's shadow leaves with it. */

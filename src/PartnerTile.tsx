@@ -23,8 +23,12 @@ import {
     watchVisibility,
 } from "./partners"
 
-/** Shorter than the hero's slide: the tile is small, so it settles sooner. */
-const SLIDE_MS = 700
+/**
+ * Shorter than the hero's slide: the tile is small, so it settles sooner.
+ * Kept at the same share of it as before, so the two still read as one
+ * movement on the card rather than the tile finishing early.
+ */
+const SLIDE_MS = 910
 /** Apple's presentation curve, as the hero uses. */
 const SLIDE_EASE = "cubic-bezier(0.32, 0.72, 0, 1)"
 
