@@ -173,7 +173,7 @@ const renderTagline = (
     clicks: ReactNode,
     verb: ReactNode,
     textLineHeight: number,
-    keyLineHeight: number
+    keyLineHeight: number,
 ) =>
     text.split("\n").map((line, li) => (
         <span
@@ -242,7 +242,7 @@ export default function PortfolioScroll({
     const [isMobile, setIsMobile] = useState(false)
     const [hoveredCard, setHoveredCard] = useState<number | null>(null)
     const [hoveredIntroIcon, setHoveredIntroIcon] = useState<number | null>(
-        null
+        null,
     )
     const [activeCardIndex, setActiveCardIndex] = useState(0)
     // HIG: "Always include a press state for a custom button." These are
@@ -292,7 +292,15 @@ export default function PortfolioScroll({
     const cardsViewportRef = useRef<HTMLDivElement>(null)
     const heroRef = useRef<HTMLDivElement>(null)
 
-    const cardHeight = isMobile ? 190 : 230
+    /**
+     * Tall enough for a third line of description.
+     *
+     * At two lines the focused card gave about 68 characters, which is enough
+     * to allude to a project and not enough to say what it was and what it
+     * was tuned for. A line is 23px on desktop and 18 on a phone; the card
+     * grows by exactly that and nothing else moves.
+     */
+    const cardHeight = isMobile ? 208 : 253
     const taglineSize = isMobile ? 16 : 18
     // Sized against the tagline, so it keeps its ratio if the type changes.
     // Sized to the cap height of the sentence it sits in.
@@ -309,7 +317,7 @@ export default function PortfolioScroll({
     const updateParallax = (
         element: HTMLImageElement | HTMLVideoElement | null,
         offset: number,
-        scale: number
+        scale: number,
     ) => {
         if (!element) return
 
@@ -368,7 +376,7 @@ export default function PortfolioScroll({
                     y,
                     // A 1.5x zoom on top of an already tight phone crop throws
                     // most of the photo away.
-                    isMobile ? 1.15 : imageScale
+                    isMobile ? 1.15 : imageScale,
                 )
             })
 
@@ -395,7 +403,7 @@ export default function PortfolioScroll({
                         : Math.min(
                               1,
                               Math.max(0.08, baseOpacity * 0.62) +
-                                  CONFIG.UNFOCUSED_OPACITY_LIFT
+                                  CONFIG.UNFOCUSED_OPACITY_LIFT,
                           )
                 const blur = Math.min(8, absRelative * 2.8)
                 el.style.transform = `translate3d(${isMobile ? "-50%" : "0%"}, ${y}px, 0) scale(${scale})`
@@ -419,7 +427,7 @@ export default function PortfolioScroll({
         const updateSnap = () => {
             const progress = Math.min(
                 (Date.now() - s.snapStart.time) / snapDuration,
-                1
+                1,
             )
             const eased = 1 - Math.pow(1 - progress, 3)
             s.targetY =
@@ -494,7 +502,7 @@ export default function PortfolioScroll({
             const gain = scrollSpeed * (isNotch ? CONFIG.WHEEL_NOTCH_GAIN : 1)
             const delta = Math.max(
                 Math.min(raw * gain, maxVelocity),
-                -maxVelocity
+                -maxVelocity,
             )
             s.targetY -= delta
         }
@@ -526,7 +534,7 @@ export default function PortfolioScroll({
                 const start = -s.dragStart.index * s.projectHeight
                 s.targetY = Math.max(
                     Math.min(dragged, start + s.projectHeight),
-                    start - s.projectHeight
+                    start - s.projectHeight,
                 )
             } else {
                 s.targetY = dragged
@@ -674,7 +682,7 @@ export default function PortfolioScroll({
             window.clearTimeout(confirmTimer.current)
             window.clearTimeout(settleTimer.current)
         },
-        []
+        [],
     )
 
     // The stack ends with a copy of the first word, so the last step still
@@ -708,7 +716,7 @@ export default function PortfolioScroll({
         // Matches the burst-line animation; the node is inert before this.
         window.setTimeout(
             () => setBursts((current) => current.filter((b) => b.id !== id)),
-            560
+            560,
         )
     }
 
@@ -753,7 +761,7 @@ export default function PortfolioScroll({
             window.clearTimeout(settleTimer.current)
             settleTimer.current = window.setTimeout(
                 () => setCtaSettling(false),
-                240
+                240,
             )
         }, 1600)
     }
@@ -994,7 +1002,7 @@ export default function PortfolioScroll({
                     clicksCta,
                     verbShifter,
                     textLineHeight,
-                    keyLineHeight
+                    keyLineHeight,
                 )}
             </p>
             {introLinks.length > 0 && (
@@ -1041,12 +1049,12 @@ export default function PortfolioScroll({
                                     {...pressProps(`link-${idx}`)}
                                     onMouseEnter={() =>
                                         startTransition(() =>
-                                            setHoveredIntroIcon(idx)
+                                            setHoveredIntroIcon(idx),
                                         )
                                     }
                                     onMouseLeave={() =>
                                         startTransition(() =>
-                                            setHoveredIntroIcon(null)
+                                            setHoveredIntroIcon(null),
                                         )
                                     }
                                     style={{
@@ -1076,7 +1084,7 @@ export default function PortfolioScroll({
                                             item.icon ??
                                             resolveIntroIcon(
                                                 item.label,
-                                                item.url
+                                                item.url,
                                             )
                                         }
                                         size={18}
@@ -1204,7 +1212,7 @@ export default function PortfolioScroll({
                                         <MacysBagLoop />
                                     ) : data.component === "partner-agent" ? (
                                         <PartnerAgentLoop />
-                                                                        ) : data.component === "branded-shuffle" ? (
+                                    ) : data.component === "branded-shuffle" ? (
                                         <BrandedLayoutsLoop />
                                     ) : data.component ===
                                       "shoppable-config" ? (
@@ -1468,7 +1476,7 @@ export default function PortfolioScroll({
                                     }}
                                     onMouseLeave={() =>
                                         startTransition(() =>
-                                            setHoveredCard(null)
+                                            setHoveredCard(null),
                                         )
                                     }
                                     onClick={(event) => {
@@ -1683,7 +1691,7 @@ export default function PortfolioScroll({
                                                 fontWeight: 500,
                                                 fontFamily: FONT_FAMILY,
                                                 display: "-webkit-box",
-                                                WebkitLineClamp: 2,
+                                                WebkitLineClamp: 3,
                                                 WebkitBoxOrient: "vertical",
                                                 overflow: "hidden",
                                             }}
