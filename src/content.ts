@@ -124,7 +124,7 @@ export const projects: ProjectData[] = [
         category: "Internal tools",
         year: "2026",
         description:
-            "A small design team can't handle 100 asset requests a week. A skill templatizes asset production, landing 80% of the design for designers to fine-tune.",
+            "100 asset requests a week, against a small design team. A skill templatizes production 80% of the way, so designers proof rather than produce.",
         tags: [],
         // TODO: still points at the shoppable case study. Needs its own page.
         link: "work/shoppable-pitching-platform/",
