@@ -46,6 +46,17 @@ const E = (s: string): Token => [s, "e"]
 
 const PROMPT = "Design Home Depot, they're a net new client"
 const NEXT_PROMPT = "next format"
+/**
+ * The designer's 20%.
+ *
+ * The rest of this hero is the 80% an agent does. It ended with the last
+ * format on screen, which left the work looking fully automated — and the
+ * project's point is the opposite: the skill gets it most of the way and a
+ * designer signs it off. So the last instruction is a person approving the
+ * set and asking for it packaged, and the file becomes a folder.
+ */
+const SIGNOFF = "Everything looks good, compile these into a folder to download"
+const FOLDER_NAME = "home-depot-mocks"
 const FILE_NAME = "home-depot.mocks.ts"
 
 interface Line {
@@ -244,6 +255,10 @@ const VEIL_MS = pace(300)
  * through PACE together, so that relationship holds at any pace.
  */
 const SHEET_MS = pace(1050)
+/** The folder assembling itself once the set is approved. */
+const PACKAGE_MS = pace(900)
+/** Time on the finished folder before the loop goes round. */
+const FOLDER_MS = pace(2400)
 /**
  * The partner's page arriving. It paints down from the top and resolves out of
  * blur rather than cross-fading, so it reads as a page loading rather than a
@@ -264,6 +279,8 @@ type Step =
     | { kind: "code"; seg: number; ms: number }
     | { kind: "loading"; seg: number; ms: number }
     | { kind: "dwell"; seg: number; ms: number }
+    /** The approved set compiling into a folder. */
+    | { kind: "package"; seg: number; ms: number }
     | { kind: "hold"; seg: number; ms: number }
     | { kind: "reset"; ms: number }
 
@@ -290,14 +307,27 @@ const SCRIPT: Step[] = (() => {
         steps.push({ kind: "dwell", seg, ms: DWELL_MS })
     })
     steps.push({ kind: "hold", seg: SNIPPETS.length - 1, ms: HOLD_MS })
+    // The designer's 20%: proof the set, approve it, take the folder away.
+    // `seg` is one past the last snippet so the file keeps showing the final
+    // format's code while this is typed, rather than stepping back one.
+    steps.push({
+        kind: "prompt",
+        seg: SNIPPETS.length,
+        text: SIGNOFF,
+        ms: SIGNOFF.length * PROMPT_CHAR_MS,
+    })
+    steps.push({ kind: "send", seg: SNIPPETS.length, ms: SEND_MS })
+    steps.push({ kind: "package", seg: SNIPPETS.length - 1, ms: PACKAGE_MS })
+    steps.push({ kind: "hold", seg: SNIPPETS.length - 1, ms: FOLDER_MS })
     steps.push({ kind: "reset", ms: 80 })
     return steps
 })()
 
 const AGENT_STEP = SCRIPT.findIndex((s) => s.kind === "agent")
+const PACKAGE_STEP = SCRIPT.findIndex((s) => s.kind === "package")
 const LOAD_STEPS = SCRIPT.reduce<number[]>(
     (acc, s, i) => (s.kind === "loading" ? [...acc, i] : acc),
-    []
+    [],
 )
 /** How many formats have finished rendering by the time we reach `step`. */
 const builtAt = (step: number) => LOAD_STEPS.filter((i) => i < step).length
@@ -366,7 +396,7 @@ export default function PartnerAgentLoop({ alt }: { alt?: string }) {
         if (!el) return
         const io = new IntersectionObserver(
             ([e]) => setVisible(e.isIntersecting),
-            { threshold: 0.15 }
+            { threshold: 0.15 },
         )
         io.observe(el)
         return () => io.disconnect()
@@ -399,9 +429,9 @@ export default function PartnerAgentLoop({ alt }: { alt?: string }) {
                         Math.min(
                             cur.text.length,
                             Math.floor(
-                                (performance.now() - start) / PROMPT_CHAR_MS
-                            )
-                        )
+                                (performance.now() - start) / PROMPT_CHAR_MS,
+                            ),
+                        ),
                     )
                 }, 33)
                 break
@@ -413,8 +443,8 @@ export default function PartnerAgentLoop({ alt }: { alt?: string }) {
                     setTyped(
                         Math.min(
                             total,
-                            Math.floor((performance.now() - start) / CHAR_MS)
-                        )
+                            Math.floor((performance.now() - start) / CHAR_MS),
+                        ),
                     )
                 }, 33)
                 break
@@ -455,9 +485,13 @@ export default function PartnerAgentLoop({ alt }: { alt?: string }) {
         ? SNIPPETS.length - 1
         : cur.kind === "reset"
           ? -1
-          : cur.kind === "prompt"
-            ? cur.seg - 1
-            : cur.seg
+          : // The sign-off steps sit one past the last snippet, so that the
+            // file keeps the final format's code while the approval is typed
+            // rather than stepping back a format. Clamped, because there is
+            // no snippet at that index to look up.
+            cur.kind === "prompt"
+            ? Math.min(cur.seg - 1, SNIPPETS.length - 1)
+            : Math.min(cur.seg, SNIPPETS.length - 1)
     const snippet = fileSeg < 0 ? [] : SNIPPETS[fileSeg]
     const ends = fileSeg < 0 ? [] : ENDS[fileSeg]
     const shown =
@@ -486,6 +520,8 @@ export default function PartnerAgentLoop({ alt }: { alt?: string }) {
     const pageOn = reduced || (step >= AGENT_STEP && cur.kind !== "reset")
     const working =
         cur.kind === "agent" || cur.kind === "loading" || cur.kind === "code"
+    /** The folder is up from the moment it compiles until the loop resets. */
+    const packaged = !reduced && step >= PACKAGE_STEP && cur.kind !== "reset"
     const promptText = reduced
         ? PROMPT
         : ((): string => {
@@ -577,7 +613,13 @@ export default function PartnerAgentLoop({ alt }: { alt?: string }) {
                         >
                             {/* 1 — the file the agent writes, as a code block
                                 in the conversation. */}
-                            <div style={{ ...card, borderRadius: 12 }}>
+                            <div
+                                style={{
+                                    ...card,
+                                    borderRadius: 12,
+                                    position: "relative",
+                                }}
+                            >
                                 <div
                                     style={{
                                         display: "flex",
@@ -674,14 +716,14 @@ export default function PartnerAgentLoop({ alt }: { alt?: string }) {
                                                 >
                                                     {i + 1}
                                                 </div>
-                                            )
+                                            ),
                                         )}
                                     </div>
 
                                     <div style={{ flex: 1, minWidth: 0 }}>
                                         {Array.from(
                                             { length: MAX_LINES },
-                                            (_, i) => i
+                                            (_, i) => i,
                                         ).map((i) => {
                                             const line = snippet[i]
                                             if (!line)
@@ -737,7 +779,7 @@ export default function PartnerAgentLoop({ alt }: { alt?: string }) {
                                                             const slice =
                                                                 text.slice(
                                                                     0,
-                                                                    left
+                                                                    left,
                                                                 )
                                                             left -= text.length
                                                             return (
@@ -759,7 +801,7 @@ export default function PartnerAgentLoop({ alt }: { alt?: string }) {
                                                                     {slice}
                                                                 </span>
                                                             )
-                                                        }
+                                                        },
                                                     )}
                                                     {!reduced &&
                                                         cur.kind === "code" &&
@@ -776,6 +818,115 @@ export default function PartnerAgentLoop({ alt }: { alt?: string }) {
                                         })}
                                     </div>
                                 </div>
+
+                                {/* The folder, over the file it was compiled
+                                    from. Laid over rather than swapped in so
+                                    the code stays mounted underneath and the
+                                    pane cannot change height as it arrives. */}
+                                {packaged && (
+                                    <div
+                                        style={{
+                                            position: "absolute",
+                                            inset: 0,
+                                            background: "#FFFFFF",
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            animation: `agent-folder-in ${Math.round(PACKAGE_MS * 0.8)}ms ${EASE} both`,
+                                        }}
+                                    >
+                                        <div
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: 8,
+                                                padding: "9px 12px",
+                                                background: HEADER,
+                                                borderBottom: `1px solid ${LINE}`,
+                                            }}
+                                        >
+                                            <svg
+                                                width="14"
+                                                height="14"
+                                                viewBox="0 0 16 16"
+                                                fill="none"
+                                                style={{ display: "block" }}
+                                            >
+                                                <path
+                                                    d="M1.8 4.2a1.4 1.4 0 0 1 1.4-1.4h2.6l1.3 1.6h4.9a1.4 1.4 0 0 1 1.4 1.4v6a1.4 1.4 0 0 1-1.4 1.4H3.2a1.4 1.4 0 0 1-1.4-1.4z"
+                                                    fill={ACCENT}
+                                                />
+                                            </svg>
+                                            <span
+                                                style={{
+                                                    flex: 1,
+                                                    fontFamily: MONO,
+                                                    fontSize: fontSize - 1,
+                                                    letterSpacing: "0.01em",
+                                                    color: TEXT,
+                                                }}
+                                            >
+                                                {FOLDER_NAME}/
+                                            </span>
+                                            <span
+                                                style={{
+                                                    fontFamily: FONT_FAMILY,
+                                                    fontSize: fontSize - 1.5,
+                                                    fontWeight: 600,
+                                                    color: "#3F7A54",
+                                                }}
+                                            >
+                                                Download
+                                            </span>
+                                        </div>
+                                        <div
+                                            style={{
+                                                flex: 1,
+                                                padding: "8px 12px",
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                justifyContent: "center",
+                                                gap: 1,
+                                            }}
+                                        >
+                                            {FORMATS.map((f, i) => (
+                                                <div
+                                                    key={f.src}
+                                                    style={{
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        gap: 7,
+                                                        fontFamily: MONO,
+                                                        fontSize: fontSize - 1,
+                                                        lineHeight: `${lineH}px`,
+                                                        color: MUTED,
+                                                        // Each file lands in
+                                                        // turn, so the folder
+                                                        // fills rather than
+                                                        // appears full.
+                                                        animation: `agent-folder-in ${Math.round(PACKAGE_MS * 0.5)}ms ${EASE} ${Math.round(i * PACKAGE_MS * 0.11)}ms both`,
+                                                    }}
+                                                >
+                                                    <span
+                                                        style={{
+                                                            color: "#3F7A54",
+                                                        }}
+                                                    >
+                                                        ✓
+                                                    </span>
+                                                    <span>
+                                                        {f.label
+                                                            .toLowerCase()
+                                                            .replace(
+                                                                /[^a-z0-9]+/g,
+                                                                "-",
+                                                            )}
+                                                        .png
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             {/* 2 — the composer. It is the thing driving the
@@ -836,7 +987,7 @@ export default function PartnerAgentLoop({ alt }: { alt?: string }) {
                                             0,
                                             reduced
                                                 ? promptText.length
-                                                : promptChars
+                                                : promptChars,
                                         )}
                                         {!reduced && composing && (
                                             <span
@@ -923,8 +1074,9 @@ export default function PartnerAgentLoop({ alt }: { alt?: string }) {
                                         <>
                                             <span>✓</span>
                                             <span>
-                                                {built} of {FORMATS.length}{" "}
-                                                formats built
+                                                {packaged
+                                                    ? `Approved — ${FORMATS.length} files ready`
+                                                    : `${built} of ${FORMATS.length} formats built`}
                                             </span>
                                         </>
                                     )}
