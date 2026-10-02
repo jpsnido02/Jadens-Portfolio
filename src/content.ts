@@ -137,6 +137,22 @@ export const projects: ProjectData[] = [
         link: "work/branded-layouts/",
     },
     {
+        // The same project, with the conveyor take on its hero, so the two
+        // can be looked at side by side. One of these goes once a direction
+        // is settled on.
+        title: "Branded Layouts (conveyor)",
+        image: { src: "/projects/project-03.jpg", alt: "Branded Layouts" },
+        mediaType: "component",
+        component: "branded-conveyor",
+        category: "Design systems",
+        partnerConveyor: true,
+        year: "2026",
+        description:
+            "A placement that inherits a partner's brand automatically.",
+        tags: [],
+        link: "work/branded-layouts/",
+    },
+    {
         title: "Rapid prototyping tool (config hero)",
         image: {
             src: "/projects/project-04.jpg",

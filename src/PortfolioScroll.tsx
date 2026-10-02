@@ -13,7 +13,9 @@ import { CONTENT_MAX_WIDTH, FONT_FAMILY } from "./tokens"
 import ShoppableBuildLoop from "./ShoppableBuildLoop"
 import ShoppableConfigLoop from "./ShoppableConfigLoop"
 import BrandedLayoutsLoop from "./BrandedLayoutsLoop"
+import BrandedConveyorLoop from "./BrandedConveyorLoop"
 import PartnerTile from "./PartnerTile"
+import PartnerConveyor from "./PartnerConveyor"
 import PartnerAgentLoop from "./PartnerAgentLoop"
 import UberAdsLoop from "./UberAdsLoop"
 import MacysBagLoop from "./MacysBagLoop"
@@ -48,6 +50,7 @@ export interface ProjectData {
         | "shoppable-build"
         | "shoppable-config"
         | "branded-shuffle"
+        | "branded-conveyor"
         | "partner-agent"
         | "macys-bag"
     /** Fills the card's thumbnail square. Left empty it stays a plain plate. */
@@ -60,6 +63,8 @@ export interface ProjectData {
      * the card's rhythm matching every other card.
      */
     partnerRotation?: boolean
+    /** Same idea, on the conveyor's belt rather than the carousel's slots. */
+    partnerConveyor?: boolean
 }
 
 export interface IntroLink {
@@ -1190,6 +1195,9 @@ export default function PortfolioScroll({
                                         <MacysBagLoop />
                                     ) : data.component === "partner-agent" ? (
                                         <PartnerAgentLoop />
+                                    ) : data.component ===
+                                      "branded-conveyor" ? (
+                                        <BrandedConveyorLoop />
                                     ) : data.component === "branded-shuffle" ? (
                                         <BrandedLayoutsLoop />
                                     ) : data.component ===
@@ -1526,7 +1534,16 @@ export default function PortfolioScroll({
                                                     : 14,
                                             }}
                                         >
-                                            {data.partnerRotation ? (
+                                            {data.partnerConveyor ? (
+                                                <PartnerConveyor
+                                                    size={isMobile ? 56 : 68}
+                                                    radius={thumbRadius}
+                                                    cornerShape={
+                                                        CONFIG.CORNER_SHAPE
+                                                    }
+                                                    border={palette.cardBorder}
+                                                />
+                                            ) : data.partnerRotation ? (
                                                 <PartnerTile
                                                     size={isMobile ? 56 : 68}
                                                     radius={thumbRadius}
