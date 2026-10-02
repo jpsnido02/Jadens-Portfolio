@@ -49,23 +49,10 @@ export interface Offer {
     body?: string
     primary: string
     disclaimer: string
-    /**
-     * The card's height.
-     *
-     * The export's own heights plus EXTRA: stating the gap above the buttons
-     * and the gap under the disclaimer asks for more room than the export
-     * left, and the page below the card already moves down by whatever height
-     * this is, so the card takes the room rather than the copy being squeezed
-     * into it.
-     */
-    height: number
     /** Where the two buttons sit, for the pointer to aim at. */
     claim: { x: number; y: number }
     notNow: { x: number; y: number }
 }
-
-/** What the spacing above the buttons and under the disclaimer costs. */
-const EXTRA = 24
 
 export const OFFERS: Offer[] = [
     {
@@ -81,7 +68,6 @@ export const OFFERS: Offer[] = [
         body: "Your Uber Eats order is on the way, press play on music, podcasts, and more with Spotify.",
         primary: "Open Spotify",
         disclaimer: "Spotify Premium subscription required.",
-        height: 223 + EXTRA,
         claim: { x: 32, y: 614 },
         notNow: { x: 160, y: 614 },
     },
@@ -98,7 +84,6 @@ export const OFFERS: Offer[] = [
         body: "While your Uber Eats order is on the way, explore fresh, personalized meals from The Farmer's Dog.",
         primary: "Explore meals",
         disclaimer: "Availability and terms may vary.",
-        height: 238 + EXTRA,
         claim: { x: 32, y: 629 },
         notNow: { x: 160, y: 629 },
     },
@@ -108,10 +93,9 @@ export const OFFERS: Offer[] = [
         badge: "Buy 1 get 1",
         media: { kind: "none" },
         headline: "Breakfast's coming. Coffee next?",
-        body: "Your Joe & The Juice breakfast is on the way, keep the morning going with Starbucks.",
+        body: "Your Lenwich breakfast is on the way, keep the morning going with Starbucks.",
         primary: "Add to Order",
         disclaimer: "Availability varies by location.",
-        height: 221 + EXTRA,
         claim: { x: 32, y: 612 },
         notNow: { x: 160, y: 612 },
     },
@@ -122,7 +106,6 @@ export const OFFERS: Offer[] = [
         headline: "Breakfast's on the way. Queue up Disney+.",
         primary: "Open Disney+",
         disclaimer: "Disney+ subscription required. Terms apply.",
-        height: 282 + EXTRA,
         claim: { x: 33, y: 672 },
         notNow: { x: 161, y: 672 },
     },
@@ -143,15 +126,15 @@ const BODY_LINE = 20
 const PILL_H = 40
 const PILL_PAD = 15
 const PILL_GAP = 10
-/**
- * Space between the copy and the buttons.
- *
- * The export ran them close together and the buttons were pushed to the
- * bottom of the card, so the gap was whatever happened to be left. It is
- * stated now, and roughly eight units more than the export gave, which is
- * what Jaden asked for. The footer takes the slack instead.
- */
-const CTA_GAP = 23
+/* Every gap in the card is stated, so none of them depends on how much room
+ * happens to be left over. */
+/** Copy to buttons. */
+const CTA_GAP = 8
+/** Buttons to the disclaimer. */
+const DISC_GAP = 6
+/** Headline to body, with media beside the headline and without. */
+const BODY_GAP_MEDIA = 12
+const BODY_GAP_BARE = 4
 const PILL_SIZE = 14.5
 const FILL = "#F6F6F6"
 const HAIRLINE = "#E8E8E8"
@@ -166,17 +149,41 @@ const DOT_UP = 15
 const DOT_ON = "#030303"
 const DOT_OFF = "#E3E3E3"
 /**
- * What the content column leaves clear at the bottom for the pager.
- *
- * The dots are positioned against the card's own bottom edge rather than
- * flowing after the footer, so the column has to stop short of them. The
- * export left 13 units between the disclaimer and the dots, which reads as
- * them touching; this is 24, with the dots themselves sitting a little nearer
- * the edge to buy the difference without squeezing the copy above.
+ * Room the content leaves under itself for the pager, which hangs off the
+ * card's bottom edge rather than flowing after the disclaimer.
  */
-const FOOT_CLEAR = DOT_UP + DOT_D + 22
+const PAGER_ROOM = DOT_UP + DOT_D + 8
 
 const EASE = "cubic-bezier(0.33, 1, 0.68, 1)"
+
+/**
+ * The height the card takes for what is currently in it.
+ *
+ * The container is the one thing that carries across all four offers, so it
+ * has to move between their heights rather than jump — and a transition needs
+ * two lengths, which `auto` is not. So the content is laid out freely, its
+ * own height is read back, and that number is what the card is set to: the
+ * height follows the copy without the copy having to be measured by hand.
+ */
+function useContentHeight(deps: unknown[]) {
+    const ref = useRef<HTMLDivElement>(null)
+    const [height, setHeight] = useState<number | null>(null)
+    useLayoutEffect(() => {
+        const el = ref.current
+        if (!el) return
+        // offsetTop/offsetHeight, not a measured rect: the hero puts a
+        // camera transform on an ancestor, and a rect comes back scaled by
+        // it. offsetTop is against the card, which is the positioned
+        // parent, and it counts the bleed media's margin.
+        // offsetTop is measured from the card's padding edge, so the
+        // card's own hairline has to be added back on both sides for a
+        // border-box height.
+        const next = el.offsetTop + el.offsetHeight + 2
+        if (next > 0) setHeight(next)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, deps)
+    return { ref, height }
+}
 
 /* ------------------------------------------------------------------ render */
 
@@ -211,12 +218,15 @@ function Pill({
     width,
     px,
     ms,
+    tapKey,
 }: {
     label: string
     primary: boolean
     width?: number
     px: (v: number) => number
     ms: number
+    /** Set when this button is the one being pressed; changes to replay. */
+    tapKey?: number
 }) {
     return (
         <span
@@ -238,9 +248,26 @@ function Pill({
                 whiteSpace: "nowrap",
                 // The width follows the label, so it has to be able to move.
                 transition: `width ${ms}ms ${EASE}`,
+                position: "relative",
             }}
         >
             {label}
+            {/* The press, drawn on the button rather than at a coordinate
+                worked out from the card's height. */}
+            {tapKey !== undefined && (
+                <span
+                    key={tapKey}
+                    className="uber-tap"
+                    style={{
+                        left: "50%",
+                        top: "50%",
+                        width: px(44),
+                        height: px(44),
+                        marginLeft: px(-22),
+                        marginTop: px(-22),
+                    }}
+                />
+            )}
         </span>
     )
 }
@@ -251,6 +278,8 @@ export default function UberOfferCard({
     px,
     swapMs,
     animate,
+    tap,
+    tapKey,
 }: {
     offer: Offer
     /** Which of the four, for the pager. */
@@ -258,6 +287,9 @@ export default function UberOfferCard({
     px: (v: number) => number
     swapMs: number
     animate: boolean
+    /** Which button is being pressed, if either. */
+    tap?: "claim" | "notNow" | null
+    tapKey?: number
 }) {
     const { ref: measureRef, widths } = usePillWidths(px)
     const bleed = offer.media.kind === "bleed" ? offer.media : null
@@ -265,22 +297,26 @@ export default function UberOfferCard({
     /** Text gives way to the media beside it, when there is any. */
     const textW = inline ? CARD_W - PAD * 3 - inline.w : CARD_W - PAD * 2
     const fade = `opacity ${Math.round(swapMs * 0.42)}ms linear`
+    // Re-read once the buttons have their measured widths, since until then
+    // the row is laid out at its intrinsic size.
+    const { ref: contentRef, height } = useContentHeight([offer.id, px, widths])
 
     return (
         <div
             style={{
-                position: "absolute",
-                left: 0,
-                top: 0,
+                // In flow and as tall as what is in it, so the page below
+                // follows it without anyone having to know its height.
+                position: "relative",
                 width: px(CARD_W),
-                height: px(offer.height),
                 borderRadius: px(CARD_R),
                 border: `1px solid ${CARD_BORDER}`,
                 background: "#FFFFFF",
                 boxSizing: "border-box",
                 overflow: "hidden",
                 fontFamily: UBER_TEXT,
-                // The container holds still; only what is in it changes.
+                // Set, not auto, so the one thing that carries across the
+                // four offers can move between their heights.
+                height: height ?? undefined,
                 transition: animate ? `height ${swapMs}ms ${EASE}` : "none",
             }}
         >
@@ -324,12 +360,10 @@ export default function UberOfferCard({
             )}
 
             <div
+                ref={contentRef}
                 style={{
-                    position: "absolute",
-                    left: px(PAD),
-                    right: px(PAD),
-                    top: px(bleed ? bleed.h + PAD : PAD),
-                    bottom: px(FOOT_CLEAR),
+                    padding: `${px(bleed ? 0 : PAD)}px ${px(PAD)}px ${px(PAGER_ROOM)}px`,
+                    marginTop: px(bleed ? bleed.h + PAD : 0),
                     display: "flex",
                     flexDirection: "column",
                 }}
@@ -354,10 +388,14 @@ export default function UberOfferCard({
                     </span>
                 )}
 
+                {/* Centred against the media rather than topped out with
+                    it: the headline is one or two lines and the media is a
+                    fixed block, so aligning their tops left whichever was
+                    shorter hanging. */}
                 <div
                     style={{
                         display: "flex",
-                        alignItems: "flex-start",
+                        alignItems: "center",
                         gap: px(PAD),
                     }}
                 >
@@ -367,7 +405,7 @@ export default function UberOfferCard({
                             // The media aligns to the row's top; the
                             // headline's cap sits a few units below it, as
                             // the export has it.
-                            margin: `${px(3)}px 0 0`,
+                            margin: 0,
                             width: px(textW),
                             fontFamily: UBER_DISPLAY,
                             fontSize: px(HEAD_SIZE),
@@ -404,7 +442,7 @@ export default function UberOfferCard({
                     <p
                         key={`${offer.id}-b`}
                         style={{
-                            margin: `${px(12)}px 0 0`,
+                            margin: `${px(inline ? BODY_GAP_MEDIA : BODY_GAP_BARE)}px 0 0`,
                             fontSize: px(BODY_SIZE),
                             lineHeight: `${px(BODY_LINE)}px`,
                             color: "#2B2B2B",
@@ -430,23 +468,20 @@ export default function UberOfferCard({
                         width={widths ? widths[index] : undefined}
                         px={px}
                         ms={swapMs}
+                        tapKey={tap === "claim" ? tapKey : undefined}
                     />
-                    <Pill label="Not now" primary={false} px={px} ms={swapMs} />
+                    <Pill
+                        label="Not now"
+                        primary={false}
+                        px={px}
+                        ms={swapMs}
+                        tapKey={tap === "notNow" ? tapKey : undefined}
+                    />
                 </div>
 
                 <div
                     style={{
-                        // Pinned, not flowed. Flowed with an auto margin it
-                        // depended on there being slack left in the column,
-                        // and stating the gap above the buttons used that
-                        // slack up — so the disclaimer slid down onto the
-                        // pager. Pinned, its distance from the pager is
-                        // FOOT_CLEAR less the pager's own height, on every
-                        // card.
-                        position: "absolute",
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
+                        marginTop: px(DISC_GAP),
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
@@ -478,13 +513,17 @@ export default function UberOfferCard({
                     style={{
                         position: "absolute",
                         left: px(DOT_X + i * DOT_GAP - DOT_D / 2),
-                        top: px(offer.height - DOT_UP - DOT_D / 2),
+                        bottom: px(DOT_UP - DOT_D / 2),
                         width: px(DOT_D),
                         height: px(DOT_D),
                         borderRadius: "50%",
                         background: i === index ? DOT_ON : DOT_OFF,
+                        // No delay: the dots are anchored to the card's
+                        // bottom edge, so they travel with the height, and
+                        // the one that lights up should be moving with them
+                        // rather than catching up afterwards.
                         transition: animate
-                            ? `background-color ${Math.round(swapMs * 0.3)}ms linear ${Math.round(swapMs * 0.4)}ms, top ${swapMs}ms ${EASE}`
+                            ? `background-color ${Math.round(swapMs * 0.45)}ms linear`
                             : "none",
                     }}
                 />

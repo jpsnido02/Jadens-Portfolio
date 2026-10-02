@@ -64,14 +64,14 @@ const CARD_W = 358
 const BAR_H = 99
 const PAGE_TOP = 99
 /**
- * White under the bar, which fades in with the scroll.
+ * White under the bar. Constant, not tied to the scroll.
  *
- * A fixed band of it pushed the header down at the start, where the app has
- * the content sitting right under the bar. The band is only needed once
- * something is travelling past, which is what the app does too: the bar picks
- * up a ground when you scroll and has none before that.
+ * It was 26 and only on once the page moved, which meant the header shifted
+ * as you scrolled. Two units, always there, is what Jaden asked for: enough
+ * to keep the content off the Help button and the same whether the page has
+ * moved or not.
  */
-const BAR_PAD = 26
+const BAR_PAD = 6
 /**
  * The loader's icons, measured off the capture and drawn separately so they
  * can move. A still row of icons reads as a screen that has hung.
@@ -90,11 +90,6 @@ const SLOT_X = 16
 /** Where the offer lands once the page has scrolled to it. */
 const SLOT_Y = 203
 const SCROLL_TO = PAGE_A_H - (SLOT_Y - PAGE_TOP)
-/** The pills sit a fixed distance up from the card's bottom, whatever its
- *  height, so the pointer can be aimed without measuring the DOM. */
-const PILL_FROM_BOTTOM = 108
-const PRIMARY_MID = 15 + 119 / 2
-const SECONDARY_MID = 144 + 90 / 2
 
 /** Two levels up: these pages are served from /work/<slug>/. */
 const BASE = "../../projects/uber"
@@ -114,7 +109,8 @@ const BASE = "../../projects/uber"
  * simply leaves transparent space below it, and the lower chrome paints over
  * that space because it comes later in the DOM — visually identical, no layout.
  */
-const MAX_CARD_H = Math.max(...OFFERS.map((o) => o.height))
+/** Roughly how tall an offer runs, for aiming the camera at the slot. */
+const NOMINAL_CARD_H = 250
 
 /** The track carries a fifth card — a copy of the first — so the wrap forward
  *  slides in the same direction as every other advance instead of rewinding. */
@@ -186,7 +182,7 @@ const ZOOM_MS = 900
  */
 const ZOOM_SCALE = 1.3
 /** The offer's own centre height, in frame units, so the push-in lands on it. */
-const ZOOM_ORIGIN_Y = ((SCREEN_Y + SLOT_Y + MAX_CARD_H / 2) / FRAME_H) * 100
+const ZOOM_ORIGIN_Y = ((SCREEN_Y + SLOT_Y + NOMINAL_CARD_H / 2) / FRAME_H) * 100
 
 /** Which of the three surfaces is forward. */
 type Stage = "app" | "home" | "store"
@@ -388,18 +384,6 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
     }, [step, visible, reduced])
 
     const offer = OFFERS[index % OFFERS.length]
-    const cardH = offer.height
-    /**
-     * Where the pills are, in screen units. Derived rather than written down:
-     * the card hangs its buttons a fixed distance up from its own bottom, so
-     * the only variables are the card's height and how far the page has
-     * scrolled.
-     */
-    const slotTop = PAGE_TOP + PAGE_A_H - scrollY
-    const tapTarget = {
-        x: SLOT_X + (tap === "claim" ? PRIMARY_MID : SECONDARY_MID),
-        y: slotTop + cardH - PILL_FROM_BOTTOM + 20,
-    }
     // Each surface morphs to and from its own icon on the home screen, not
     // from the button that was pressed.
     const appAway = stage !== "app"
@@ -661,12 +645,9 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                                             }}
                                         >
                                             <img
-                                                src={`${BASE}/flow-page-a.webp`}
+                                                src={`${BASE}/flow-page-a2.webp`}
                                                 alt=""
                                                 style={{
-                                                    position: "absolute",
-                                                    left: 0,
-                                                    top: 0,
                                                     width: px(SCREEN_W),
                                                     height: px(PAGE_A_H),
                                                     display: "block",
@@ -674,14 +655,14 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                                             />
 
                                             {/* The offer, in the slot the
-                                                page left for it. */}
+                                                page left for it. In flow, so
+                                                the half below follows its
+                                                height without anything having
+                                                to be told what that is. */}
                                             <div
                                                 style={{
-                                                    position: "absolute",
-                                                    left: px(SLOT_X),
-                                                    top: px(PAGE_A_H),
+                                                    marginLeft: px(SLOT_X),
                                                     width: px(CARD_W),
-                                                    height: px(cardH),
                                                 }}
                                             >
                                                 <UberOfferCard
@@ -692,33 +673,27 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                                                     px={px}
                                                     swapMs={PAGE_MS}
                                                     animate={animate}
+                                                    tap={tap}
+                                                    tapKey={tapKey}
                                                 />
                                             </div>
 
-                                            {/* Everything under the offer,
-                                                moved down by whatever height
-                                                the offer is taking. */}
                                             <img
-                                                src={`${BASE}/flow-page-b.webp`}
+                                                src={`${BASE}/flow-page-b2.webp`}
                                                 alt=""
                                                 style={{
-                                                    position: "absolute",
-                                                    left: 0,
-                                                    top: px(PAGE_A_H),
                                                     width: px(SCREEN_W),
                                                     height: px(PAGE_B_H),
                                                     display: "block",
-                                                    transform: `translate3d(0, ${px(cardH)}px, 0)`,
-                                                    transition: animate
-                                                        ? `transform ${PAGE_MS}ms ${PAGE_EASE}`
-                                                        : "none",
                                                 }}
                                             />
                                         </div>
                                     </div>
 
-                                    {/* The bar's ground, once the page is
-                                        moving under it. */}
+                                    {/* The bar's own ground, so the page
+                                        scrolls under it rather than up to
+                                        it. The same depth at every scroll
+                                        position. */}
                                     <div
                                         style={{
                                             position: "absolute",
@@ -727,27 +702,7 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                                             width: px(SCREEN_W),
                                             height: px(BAR_PAD),
                                             background: "#FFFFFF",
-                                            opacity: scrollY > 0 ? 1 : 0,
-                                            transition: animate
-                                                ? `opacity ${Math.round(SCROLL_MS * 0.4)}ms linear`
-                                                : "none",
-                                        }}
-                                    />
-
-                                    {/* The bar's ground, once the page is
-                                        moving under it. */}
-                                    <div
-                                        style={{
-                                            position: "absolute",
-                                            left: 0,
-                                            top: px(BAR_H),
-                                            width: px(SCREEN_W),
-                                            height: px(BAR_PAD),
-                                            background: "#FFFFFF",
-                                            opacity: scrollY > 0 ? 1 : 0,
-                                            transition: animate
-                                                ? `opacity ${Math.round(SCROLL_MS * 0.4)}ms linear`
-                                                : "none",
+                                            opacity: 1,
                                         }}
                                     />
 
@@ -764,21 +719,6 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                                         }}
                                     />
                                 </div>
-
-                                {tap && (
-                                    <span
-                                        key={tapKey}
-                                        className="uber-tap"
-                                        style={{
-                                            left: px(tapTarget.x),
-                                            top: px(tapTarget.y),
-                                            width: px(44),
-                                            height: px(44),
-                                            marginLeft: px(-22),
-                                            marginTop: px(-22),
-                                        }}
-                                    />
-                                )}
                             </div>
 
                             {/*
