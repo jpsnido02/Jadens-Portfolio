@@ -154,7 +154,35 @@ const PAGE_EASE = "cubic-bezier(0.33, 1, 0.68, 1)"
 
 const OPEN_MS = 620
 const CLOSE_MS = 520
-const PAGE_MS = 460
+/**
+ * An offer giving way to the next. Slower than the 460ms it ran at: with the
+ * camera in close the swap is the thing being watched, and at that speed it
+ * was over before it registered.
+ */
+const PAGE_MS = 780
+/**
+ * The camera moving between the whole phone and the offer.
+ *
+ * The scale is a transform, which the rest of this component deliberately
+ * avoids — a layer promoted under a scaled ancestor is rasterised once and
+ * then resampled, which softens the artwork. It is safe here because it is
+ * transient and settles: the wide state carries no transform at all, and the
+ * cards are drawn at 716px against a 358px slot, so there is real detail for
+ * the browser to re-rasterise from once the move ends.
+ */
+const ZOOM_MS = 900
+/**
+ * How far in the camera goes.
+ *
+ * Bounded by width, not by taste: the offer card is 358 of the frame's 473
+ * units, so anything past about 1.25 starts cutting its sides off. The push-in
+ * is modest because of that — what makes the offer dominate is the chrome
+ * above and the nav below leaving the frame, rather than the card growing.
+ */
+const ZOOM_SCALE = 1.24
+/** The offer's own centre, in frame units, so the push-in lands on it. */
+const ZOOM_ORIGIN_X = ((SCREEN_X + CARD_X + CARD_W / 2) / FRAME_W) * 100
+const ZOOM_ORIGIN_Y = ((SCREEN_Y + CARD_Y + MAX_CARD_H / 2) / FRAME_H) * 100
 
 /** Which of the three surfaces is forward. */
 type Stage = "app" | "home" | "store"
@@ -164,22 +192,31 @@ type Step =
     | { kind: "tap"; on: "notNow" | "claim"; ms: number }
     | { kind: "advance"; ms: number }
     | { kind: "stage"; to: Stage; ms: number }
+    | { kind: "zoom"; to: "wide" | "offer"; ms: number }
     | { kind: "reset"; ms: number }
 
 const SCRIPT: Step[] = [
+    // Open on the whole phone, so the offer is seen in its place first.
     { kind: "hold", ms: 1500 },
-    { kind: "tap", on: "notNow", ms: 300 },
+    // In on the offer, and stay there for the whole rotation: the point of
+    // these three beats is the offer changing, not the screen around it.
+    { kind: "zoom", to: "offer", ms: ZOOM_MS },
+    { kind: "hold", ms: 1100 },
+    { kind: "tap", on: "notNow", ms: 320 },
     { kind: "advance", ms: PAGE_MS },
-    { kind: "hold", ms: 1500 },
-    { kind: "tap", on: "notNow", ms: 300 },
+    { kind: "hold", ms: 1700 },
+    { kind: "tap", on: "notNow", ms: 320 },
     { kind: "advance", ms: PAGE_MS },
-    { kind: "hold", ms: 1500 },
-    { kind: "tap", on: "notNow", ms: 300 },
+    { kind: "hold", ms: 1700 },
+    { kind: "tap", on: "notNow", ms: 320 },
     { kind: "advance", ms: PAGE_MS },
     // The Disney+ offer holds a beat longer, because its button is the one
     // that gets pressed.
-    { kind: "hold", ms: 1900 },
+    { kind: "hold", ms: 2000 },
     { kind: "tap", on: "claim", ms: 320 },
+    // Back out to the whole phone before it leaves, or the window would
+    // shrink into an icon that is off screen.
+    { kind: "zoom", to: "wide", ms: ZOOM_MS },
     // Uber Eats closes to the home screen, the home screen is held long
     // enough to be read as a place, then the App Store opens out of its icon.
     { kind: "stage", to: "home", ms: CLOSE_MS },
@@ -221,6 +258,7 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
     const [step, setStep] = useState(0)
     const [index, setIndex] = useState(0)
     const [stage, setStage] = useState<Stage>("app")
+    const [zoom, setZoom] = useState<"wide" | "offer">("wide")
     const [tap, setTap] = useState<null | "notNow" | "claim">(null)
     const [tapKey, setTapKey] = useState(0)
     const [animate, setAnimate] = useState(true)
@@ -298,10 +336,15 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                 setTap(null)
                 setStage(current.to)
                 break
+            case "zoom":
+                setTap(null)
+                setZoom(current.to)
+                break
             case "reset":
                 setAnimate(false)
                 setIndex(0)
                 setStage("app")
+                setZoom("wide")
                 break
             case "hold":
                 setTap(null)
@@ -381,6 +424,17 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                         width: "100%",
                         height: "100%",
                         position: "relative",
+                        // The camera. `none` rather than `scale(1)` when wide,
+                        // so for most of the loop there is genuinely no
+                        // ancestor transform and the note above holds; the
+                        // push-in is transient and the browser re-rasterises
+                        // at the new scale once it settles.
+                        transformOrigin: `${ZOOM_ORIGIN_X}% ${ZOOM_ORIGIN_Y}%`,
+                        transform:
+                            zoom === "offer" ? `scale(${ZOOM_SCALE})` : "none",
+                        transition: animate
+                            ? `transform ${ZOOM_MS}ms ${APPLE_EASE}`
+                            : "none",
                     }}
                 >
                     {/* The seam filler, then the screen inside it at its

@@ -45,7 +45,16 @@ const N = (s: string): Token => [s, "n"]
 const E = (s: string): Token => [s, "e"]
 
 const PROMPT = "Design Home Depot, they're a net new client"
-const NEXT_PROMPT = "next format"
+/**
+ * What gets asked for each round after the first.
+ *
+ * "next format" said nothing about what was coming, so the file and the phone
+ * filled with something the instruction had not named. Each round now asks for
+ * the format by name, minus its P1/P2 placement prefix — that prefix is where
+ * the format sits on a page, which is Rokt's vocabulary rather than anything a
+ * reader of this needs.
+ */
+const nextPrompt = (label: string) => `Do ${label.replace(/^P\d\s+/, "")}`
 /**
  * The designer's 20%.
  *
@@ -297,8 +306,10 @@ const SCRIPT: Step[] = (() => {
         steps.push({
             kind: "prompt",
             seg,
-            text: seg === 0 ? PROMPT : NEXT_PROMPT,
-            ms: (seg === 0 ? PROMPT : NEXT_PROMPT).length * PROMPT_CHAR_MS,
+            text: seg === 0 ? PROMPT : nextPrompt(FORMATS[seg].label),
+            ms:
+                (seg === 0 ? PROMPT : nextPrompt(FORMATS[seg].label)).length *
+                PROMPT_CHAR_MS,
         })
         steps.push({ kind: "send", seg, ms: SEND_MS })
         if (seg === 0) steps.push({ kind: "agent", seg, ms: AGENT_MS })
