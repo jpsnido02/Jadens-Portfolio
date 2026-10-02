@@ -353,3 +353,732 @@ dl {
         animation: none;
     }
 }
+
+/* ---------------------------------------------------------------------------
+ * The Macy's bag page, inside the hero's laptop.
+ *
+ * Ported from the Netlify prototype this project replicates, scoped under
+ * .macys-page so none of it reaches the portfolio around it. The values are
+ * the prototype's own rather than re-derived, because the hero is meant to be
+ * that page and not an impression of it.
+ *
+ * It lays out at its natural 1920px and the shell scales the result, so every
+ * length here is a real page pixel. Scaling the rendered output rather than
+ * shrinking the type keeps the layout metrics intact at any hero size.
+ * ------------------------------------------------------------------------ */
+.macys-page {
+    --macys-red: #e01a2b;
+    --macys-gray-900: #646464;
+    --macys-gray-700: #a2a2a2;
+    --macys-gray-500: #b3b3b3;
+    --macys-gray-200: #f0f0f0;
+    --macys-gray-100: #f9f9f9;
+    --macys-green: #008a00;
+    /* The real page sets Macys Sans, a licensed corporate face. The hero runs
+       on the prototype's own fallback stack instead of shipping it. */
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    line-height: 1.4;
+    color: #000;
+    background: #fff;
+}
+.macys-page *,
+.macys-page *::before,
+.macys-page *::after {
+    box-sizing: border-box;
+}
+.macys-page img {
+    display: block;
+    max-width: 100%;
+}
+.macys-page button {
+    font: inherit;
+    border: 0;
+    background: none;
+    padding: 0;
+    color: inherit;
+}
+.macys-page input {
+    font: inherit;
+}
+.macys-page .text-link {
+    text-decoration: underline;
+}
+
+/* Header ------------------------------------------------------------------ */
+.macys-page .site-header {
+    border-bottom: 1px solid #ddd;
+}
+.macys-page .site-header__top,
+.macys-page .site-nav,
+.macys-page .bag-page {
+    width: min(100%, 1464px);
+    margin: 0 auto;
+    padding-inline: 12px;
+}
+.macys-page .site-header__top {
+    display: grid;
+    grid-template-columns: 180px 1fr auto;
+    gap: 24px;
+    align-items: center;
+    min-height: 64px;
+}
+.macys-page .site-header__logo {
+    width: 140px;
+}
+.macys-page .site-header__search {
+    display: flex;
+    gap: 12px;
+}
+.macys-page .site-header__search input {
+    flex: 1;
+    height: 40px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0 12px;
+    color: var(--macys-gray-900);
+}
+.macys-page .site-header__ask {
+    min-width: 107px;
+    height: 40px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-weight: 600;
+}
+.macys-page .site-header__utilities {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    font-size: 14px;
+}
+.macys-page .site-header__bag {
+    position: relative;
+    font-weight: 600;
+}
+.macys-page .site-header__bag span {
+    position: absolute;
+    top: -8px;
+    right: -12px;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    background: #000;
+    color: #fff;
+    font-size: 11px;
+    line-height: 16px;
+    text-align: center;
+    transition:
+        transform 180ms ease,
+        background-color 180ms ease;
+}
+.macys-page .site-header__bag--receiving span {
+    transform: scale(1.25);
+    background: var(--macys-red);
+}
+.macys-page .site-nav {
+    display: flex;
+    gap: 18px;
+    overflow: hidden;
+    min-height: 52px;
+    align-items: center;
+}
+.macys-page .site-nav button {
+    white-space: nowrap;
+    font-size: 14px;
+}
+.macys-page .site-nav__sale {
+    color: var(--macys-red);
+    font-weight: 700;
+}
+
+/* Bag --------------------------------------------------------------------- */
+.macys-page .bag-page {
+    display: grid;
+    grid-template-columns: minmax(0, 830px) minmax(320px, 464px);
+    gap: 32px;
+    padding-block: 24px 48px;
+}
+.macys-page .bag-page__main h1 {
+    margin: 0 0 24px;
+    font-size: 31px;
+    line-height: 1.1;
+}
+.macys-page .bag-items {
+    margin-bottom: 32px;
+}
+.macys-page .bag-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 24px;
+    padding: 24px 0;
+    border-top: 1px solid #ddd;
+}
+.macys-page .bag-item__main {
+    display: grid;
+    grid-template-columns: 138px minmax(0, 1fr);
+    gap: 24px;
+}
+.macys-page .bag-item__image {
+    width: 138px;
+    height: 169px;
+    object-fit: cover;
+}
+.macys-page .bag-item__brand {
+    margin: 0;
+    font-weight: 700;
+}
+.macys-page .bag-item__name {
+    margin: 0;
+    font-size: 14px;
+}
+.macys-page .bag-item__meta {
+    margin-top: 8px;
+    color: var(--macys-gray-900);
+    font-size: 14px;
+}
+.macys-page .bag-item__meta p {
+    margin: 0;
+}
+.macys-page .bag-item__price {
+    margin: 16px 0 0;
+    font-weight: 700;
+}
+.macys-page .bag-item__price--sale {
+    color: var(--macys-red);
+}
+.macys-page .bag-item__price--sale span {
+    font-size: 14px;
+    font-weight: 400;
+}
+.macys-page .bag-item__original {
+    margin: 0;
+    font-size: 14px;
+    text-decoration: line-through;
+}
+.macys-page .bag-item__pricing {
+    margin-bottom: 12px;
+}
+.macys-page .bag-item__qty {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+.macys-page .bag-item__links {
+    display: flex;
+    gap: 24px;
+    font-size: 14px;
+}
+.macys-page .bag-item__fulfillment {
+    font-size: 14px;
+}
+.macys-page .fulfillment-option {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+.macys-page .fulfillment-option--spaced {
+    margin-top: 16px;
+}
+.macys-page .fulfillment-option i {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+    border: 1px solid #767676;
+    border-radius: 50%;
+}
+.macys-page .fulfillment-option--on i {
+    border: 5px solid #000;
+}
+.macys-page .fulfillment-detail {
+    margin: 4px 0 0 24px;
+}
+.macys-page .fulfillment-detail--success {
+    color: var(--macys-green);
+}
+.macys-page .fulfillment-badge {
+    display: inline-block;
+    margin: 8px 0 0 24px;
+    padding: 5px 10px;
+    background: var(--macys-gray-100);
+    font-size: 14px;
+}
+
+/* Suggested for you ------------------------------------------------------- */
+.macys-page .quick-picks {
+    margin-bottom: 32px;
+}
+.macys-page .quick-picks__header h2,
+.macys-page .exclusive-discount h2 {
+    margin: 0 0 2px;
+    font-size: 22px;
+}
+.macys-page .quick-picks__header p {
+    margin: 0 0 16px;
+    font-size: 14px;
+}
+.macys-page .quick-picks__unlock {
+    color: var(--macys-red);
+    font-weight: 700;
+}
+.macys-page .quick-picks__carousel {
+    position: relative;
+    width: 100%;
+    max-width: 830px;
+}
+.macys-page .quick-picks__viewport {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}
+.macys-page .quick-picks__track {
+    display: flex;
+    gap: 16px;
+}
+.macys-page .quick-pick-card {
+    display: flex;
+    gap: 12px;
+    width: 269px;
+    min-width: 269px;
+    padding: 12px;
+    background: var(--macys-gray-100);
+}
+.macys-page .quick-pick-card__image-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 90px;
+    height: 119px;
+    background: #fff;
+}
+.macys-page .quick-pick-card__image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.macys-page .quick-pick-card__content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 0;
+}
+.macys-page .quick-pick-card__brand {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+}
+.macys-page .quick-pick-card__name {
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+}
+.macys-page .quick-pick-card__sale {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+}
+.macys-page .quick-pick-card__sale span {
+    color: var(--macys-red);
+    font-size: 12px;
+    font-weight: 500;
+}
+.macys-page .quick-pick-card__original {
+    margin: 2px 0 0;
+    color: var(--macys-gray-900);
+    font-size: 12px;
+    text-decoration: line-through;
+}
+.macys-page .quick-picks__fade {
+    position: absolute;
+    top: 0;
+    width: 120px;
+    height: 100%;
+    pointer-events: none;
+}
+.macys-page .quick-picks__fade--left {
+    left: 0;
+    background: linear-gradient(
+        270deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.45) 75%
+    );
+}
+.macys-page .quick-picks__fade--right {
+    right: 0;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.45) 75%
+    );
+}
+.macys-page .quick-picks__nav {
+    position: absolute;
+    /* Card padding (12px) + half the image height (119px). */
+    top: calc(12px + 119px / 2);
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1;
+}
+.macys-page .quick-picks__nav--prev {
+    left: -16px;
+}
+.macys-page .quick-picks__nav--next {
+    right: -16px;
+}
+
+/* The add-to-bag control, in its three states ----------------------------- */
+.macys-page .add-to-bag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 12px;
+    border: 1.5px solid #000;
+    border-radius: 4px;
+    background: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    transition:
+        background-color 180ms ease,
+        border-color 180ms ease,
+        color 180ms ease;
+}
+.macys-page .quick-pick-card__cta {
+    width: 100%;
+}
+.macys-page .add-to-bag--loading {
+    border-color: var(--macys-gray-500);
+    background: #f5f5f5;
+}
+.macys-page .add-to-bag--added {
+    border-color: var(--macys-green);
+    color: var(--macys-green);
+}
+.macys-page .add-to-bag--locked {
+    border: 0;
+    background: var(--macys-gray-200);
+    color: var(--macys-gray-700);
+    font-weight: 600;
+}
+.macys-page .add-to-bag__spinner {
+    animation: macys-spin 0.8s linear infinite;
+}
+@keyframes macys-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Your exclusive discount ------------------------------------------------- */
+.macys-page .exclusive-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr) 130px;
+    gap: 24px;
+    align-items: center;
+    padding: 24px;
+    background: var(--macys-gray-100);
+}
+.macys-page .exclusive-card__image-wrap {
+    position: relative;
+    height: 132px;
+}
+.macys-page .exclusive-card__image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.macys-page .exclusive-card__badge {
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: var(--macys-red);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+}
+.macys-page .exclusive-card__brand {
+    margin: 0;
+    font-weight: 700;
+}
+.macys-page .exclusive-card__name {
+    margin: 0;
+    font-size: 14px;
+}
+.macys-page .exclusive-card__meta {
+    margin-top: 8px;
+    font-size: 14px;
+}
+.macys-page .exclusive-card__meta p {
+    margin: 0;
+}
+.macys-page .exclusive-card__pricing {
+    margin-top: 12px;
+}
+.macys-page .exclusive-card__sale {
+    margin: 0;
+    font-weight: 700;
+}
+.macys-page .exclusive-card__sale span {
+    font-size: 12px;
+    font-weight: 500;
+}
+.macys-page .exclusive-card__original {
+    margin: 0;
+    font-size: 14px;
+    text-decoration: line-through;
+}
+/* Locked is the resting state: everything but the badge is drained of colour,
+   and unlocking is a transition back rather than a swap. */
+.macys-page .exclusive-card__brand,
+.macys-page .exclusive-card__name,
+.macys-page .exclusive-card__meta,
+.macys-page .exclusive-card__original {
+    color: var(--macys-gray-500);
+    transition: color 420ms ease;
+}
+.macys-page .exclusive-card__sale {
+    color: rgba(224, 26, 43, 0.35);
+    transition: color 420ms ease;
+}
+.macys-page .exclusive-card--unlocked .exclusive-card__brand,
+.macys-page .exclusive-card--unlocked .exclusive-card__name,
+.macys-page .exclusive-card--unlocked .exclusive-card__meta {
+    color: #000;
+}
+.macys-page .exclusive-card--unlocked .exclusive-card__original {
+    color: var(--macys-gray-900);
+}
+.macys-page .exclusive-card--unlocked .exclusive-card__sale {
+    color: var(--macys-red);
+}
+
+/* Star Rewards ------------------------------------------------------------ */
+.macys-page .rewards-strip {
+    padding-top: 40px;
+    border-top: 1px solid #ddd;
+}
+.macys-page .rewards-strip__progress {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    height: 10px;
+    margin-bottom: 16px;
+}
+.macys-page .rewards-strip__progress span:nth-child(1) {
+    background: #f5a623;
+}
+.macys-page .rewards-strip__progress span:nth-child(2) {
+    background: #f8d7a0;
+}
+.macys-page .rewards-strip__progress span:nth-child(3) {
+    background: #111;
+}
+.macys-page .rewards-strip__progress span:nth-child(4) {
+    background: #ddd;
+}
+.macys-page .rewards-strip__content {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 24px;
+    align-items: center;
+    padding: 24px;
+    background: var(--macys-gray-100);
+    font-size: 14px;
+}
+.macys-page .rewards-strip__title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+}
+.macys-page .rewards-strip__content p {
+    margin: 0;
+}
+
+/* Order summary ----------------------------------------------------------- */
+.macys-page .order-summary {
+    align-self: start;
+}
+.macys-page .order-summary__promo,
+.macys-page .order-summary__totals,
+.macys-page .order-summary__checkout,
+.macys-page .order-summary__card-offer {
+    padding-block: 24px;
+    border-top: 1px solid #ddd;
+}
+.macys-page .order-summary__promo {
+    border-top: 0;
+    padding-top: 0;
+}
+.macys-page .order-summary__promo-heading {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    margin-bottom: 16px;
+}
+.macys-page .order-summary__promo-heading h2 {
+    margin: 0;
+    font-size: 14px;
+}
+.macys-page .order-summary__promo-heading span {
+    color: var(--macys-gray-900);
+    font-size: 14px;
+}
+.macys-page .promo-input {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    margin-bottom: 12px;
+}
+.macys-page .promo-input input {
+    height: 50px;
+    border: 1px solid #ccc;
+    border-right: 0;
+    border-radius: 4px 0 0 4px;
+    padding: 0 12px;
+    color: var(--macys-gray-900);
+}
+.macys-page .promo-input button {
+    min-width: 72px;
+    border-radius: 0 4px 4px 0;
+    background: #000;
+    color: #fff;
+    font-weight: 700;
+}
+.macys-page .order-summary__sign-in {
+    font-size: 14px;
+}
+.macys-page .total-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+.macys-page .total-row__discount {
+    color: var(--macys-red);
+}
+.macys-page .total-row--emphasis {
+    margin: 20px 0 0;
+    font-size: 18px;
+    font-weight: 700;
+}
+.macys-page .checkout-button {
+    width: 100%;
+    height: 50px;
+    border-radius: 4px;
+    background: #ab0000;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+}
+.macys-page .alt-payments {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+}
+.macys-page .alt-payment {
+    height: 50px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-weight: 700;
+}
+.macys-page .order-summary__continue {
+    display: block;
+    margin: 16px auto 0;
+    font-size: 14px;
+}
+.macys-page .order-summary__card-offer {
+    display: grid;
+    grid-template-columns: 1fr 160px;
+    gap: 16px;
+}
+.macys-page .card-offer__headline {
+    margin: 0 0 8px;
+    color: var(--macys-red);
+    font-weight: 700;
+}
+.macys-page .card-offer__fine-print {
+    margin: 0;
+    color: var(--macys-gray-900);
+    font-size: 13px;
+}
+.macys-page .card-offer__cards {
+    position: relative;
+    width: 89px;
+    height: 51px;
+    margin-bottom: 8px;
+}
+.macys-page .card-offer__cards span {
+    position: absolute;
+    width: 54px;
+    height: 34px;
+    border-radius: 4px;
+    background: linear-gradient(135deg, #d4142a, #8b0000);
+}
+.macys-page .card-offer__cards span:last-child {
+    top: 17px;
+    left: 27px;
+}
+.macys-page .card-offer__cta {
+    font-size: 13px;
+}
+.macys-page .card-offer__cta p {
+    margin: 8px 0 0;
+    font-size: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .macys-page .add-to-bag__spinner {
+        animation: none;
+    }
+    .macys-page .site-header__bag span,
+    .macys-page .add-to-bag,
+    .macys-page .exclusive-card__brand,
+    .macys-page .exclusive-card__name,
+    .macys-page .exclusive-card__meta,
+    .macys-page .exclusive-card__original,
+    .macys-page .exclusive-card__sale {
+        transition: none;
+    }
+}
+
+/* The frame the Macy's page sits in. A plain bordered rectangle rather than a
+   device mock-up: the page is dense enough that a laptop's bezel and base were
+   spending a third of the hero on nothing. The border and radius stay in
+   rendered pixels, so the edge is a hairline whatever size the hero is. */
+.macys-frame {
+    border: 1px solid #dce1ea;
+    box-shadow:
+        0 18px 44px rgba(16, 24, 40, 0.12),
+        0 2px 8px rgba(16, 24, 40, 0.06);
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .macys-frame {
+        border-color: #2e3440;
+        box-shadow:
+            0 18px 44px rgba(0, 0, 0, 0.45),
+            0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+}
+:root[data-theme="dark"] .macys-frame {
+    border-color: #2e3440;
+    box-shadow:
+        0 18px 44px rgba(0, 0, 0, 0.45),
+        0 2px 8px rgba(0, 0, 0, 0.3);
+}

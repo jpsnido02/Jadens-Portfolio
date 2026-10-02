@@ -1,0 +1,1047 @@
+/**
+ * The Macy's bag page hero: the Netlify prototype, running.
+ *
+ * The project was a prototype of Macy's bag page carrying a Rokt placement,
+ * and the thing worth showing is not the page but what happens on it — an
+ * exclusive discount sits greyed out until something from "Suggested for you"
+ * goes in the bag, and then the whole card comes alive. A screenshot cannot
+ * say that, so this replays it.
+ *
+ * The markup and the stylesheet are ported from that prototype rather than
+ * reinterpreted, so the hero is the same page: same grid, same type scale,
+ * same three states on the add-to-bag control, same timings. The page lays out
+ * at its natural 1920px inside the laptop and the shell scales the rendered
+ * result, which keeps every layout metric intact however small the hero gets.
+ * Shrinking the font sizes instead would have rounded the layout to pieces.
+ *
+ * Prices are computed from the same product data the prototype used, so the
+ * order summary adds up rather than being written down.
+ */
+
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import Cursor from "./Cursor"
+
+/* -------------------------------------------------------------------------
+ * The frame. A plain bordered rectangle rather than a device: the page is
+ * dense, and a laptop's bezel, chin and base were taking roughly a third of
+ * the pane away from the thing worth looking at. The viewport is kept just
+ * wider than the page's own 1464px max-width for the same reason — wide
+ * gutters only bought empty white.
+ * ---------------------------------------------------------------------- */
+const VIEW_W = 1500
+/**
+ * Tall enough for the page at its fullest — the shirt, the suggestion that
+ * goes in, and the exclusive discount, all three lines in the bag. Sized to
+ * the end state rather than the start so nothing ever has to scroll; the hero
+ * pane is portrait, so the extra height costs nothing in scale and the page
+ * simply grows down into white it already owned.
+ */
+const VIEW_H = 1700
+export const FRAME_W = VIEW_W
+export const FRAME_H = VIEW_H
+/** Breathing room above the page, inside the frame. Rendered pixels. */
+const FRAME_PAD_TOP = 16
+
+/* -------------------------------------------------------------------------
+ * Products, from the prototype's own catalogue.
+ * ---------------------------------------------------------------------- */
+const BASE = "../../projects/macys"
+
+type Product = {
+    id: string
+    brand: string
+    name: string
+    size?: string
+    color?: string
+    price: number
+    was?: number
+    off?: string
+    image: string
+}
+
+const SHIPPING = 10.95
+
+const SHIRT: Product = {
+    id: "shirt-white",
+    brand: "Tommy Hilfiger",
+    name: "Men's Regular Fit Wrinkle Resistant Stretch Dress Shirt",
+    size: "15.5 34/35",
+    color: "White",
+    price: 79.99,
+    image: `${BASE}/shirt-white.webp`,
+}
+
+const EXCLUSIVE: Product = {
+    id: "shirt-blue",
+    brand: "Tommy Hilfiger",
+    name: "Men's Regular Fit Wrinkle Resistant Stretch Dress Shirt",
+    size: "15.5 34/35",
+    color: "Blue",
+    price: 39.99,
+    was: 79.99,
+    off: "(50% off)",
+    image: `${BASE}/shirt-blue.webp`,
+}
+
+const PICKS: Product[] = [
+    {
+        id: "belt",
+        brand: "Polo Ralph Lauren",
+        name: "Men's Bear Print Leather-Trim Belt",
+        price: 24.99,
+        image: `${BASE}/belt.webp`,
+    },
+    {
+        id: "tie",
+        brand: "Perry Ellis",
+        name: "Silk Modern Tie",
+        price: 20.99,
+        was: 24.69,
+        off: "(15% off)",
+        image: `${BASE}/tie.webp`,
+    },
+    {
+        id: "cufflinks",
+        brand: "Calvin Klein",
+        name: "Men's Brushed Silver-Tone Cufflinks",
+        price: 14.99,
+        was: 18.74,
+        off: "(20% off)",
+        image: `${BASE}/cufflinks.webp`,
+    },
+    {
+        id: "socks",
+        brand: "Polo Ralph Lauren",
+        name: "Men's 3-Pk. Over the Calf Mercerized Cotton Rib Dress Socks",
+        price: 12.99,
+        was: 15.99,
+        off: "(19% off)",
+        image: `${BASE}/socks.webp`,
+    },
+    {
+        id: "pocket-square",
+        brand: "Brooks Brothers",
+        name: "Men's Silk Pocket Square",
+        price: 18.99,
+        was: 24.99,
+        off: "(24% off)",
+        image: `${BASE}/pocket-square.webp`,
+    },
+    {
+        id: "tie-bar",
+        brand: "Tommy Hilfiger",
+        name: "Men's Brushed Tie Bar",
+        price: 14.99,
+        was: 19.99,
+        off: "(25% off)",
+        image: `${BASE}/tie-bar.webp`,
+    },
+]
+
+const money = (n: number) => `$${n.toFixed(2)}`
+const savingsOf = (p: Product) => (p.was && p.was > p.price ? p.was - p.price : 0)
+
+/* -------------------------------------------------------------------------
+ * Timing. The prototype's own durations where it has them — 800ms on the
+ * add-to-bag spinner, 320ms on the bag badge — so the hero runs at the speed
+ * the thing actually ran at.
+ * ---------------------------------------------------------------------- */
+const LOADING_MS = 800
+const PULSE_MS = 320
+const PRESS_MS = 300
+const DWELL_MS = 260
+const UNLOCK_MS = 420
+const CAROUSEL_MS = 280
+const HOLD_MS = 3400
+
+/** Travel is timed by distance, as elsewhere on the site, so a long reach
+ *  across the page takes longer than a nudge to the next control. */
+const MOVE_MIN = 520
+const MOVE_MAX = 1400
+const MS_PER_PX = 0.9
+
+type Target = "next" | "pick" | "exclusive"
+
+type Step =
+    /** `ms` is filled in at runtime from how far the pointer has to travel. */
+    | { kind: "move"; to: Target; ms: number }
+    | { kind: "press"; to: Target; ms: number }
+    | { kind: "load"; who: "pick" | "exclusive"; ms: number }
+    | { kind: "add"; who: "pick" | "exclusive"; ms: number }
+    | { kind: "hold"; ms: number }
+    | { kind: "reset"; ms: number }
+
+const SCRIPT: Step[] = [
+    { kind: "hold", ms: 1200 },
+    // The carousel first, so it reads as something you can work through rather
+    // than a row of three.
+    { kind: "move", to: "next", ms: 0 },
+    { kind: "hold", ms: DWELL_MS },
+    { kind: "press", to: "next", ms: PRESS_MS },
+    { kind: "hold", ms: CAROUSEL_MS + 320 },
+    { kind: "press", to: "next", ms: PRESS_MS },
+    { kind: "hold", ms: CAROUSEL_MS + 460 },
+    // Then the add that unlocks the discount.
+    { kind: "move", to: "pick", ms: 0 },
+    { kind: "hold", ms: DWELL_MS },
+    { kind: "press", to: "pick", ms: PRESS_MS },
+    { kind: "load", who: "pick", ms: LOADING_MS },
+    { kind: "add", who: "pick", ms: PULSE_MS },
+    // Long enough to watch the exclusive card come up out of grey.
+    { kind: "hold", ms: UNLOCK_MS + 900 },
+    { kind: "move", to: "exclusive", ms: 0 },
+    { kind: "hold", ms: DWELL_MS },
+    { kind: "press", to: "exclusive", ms: PRESS_MS },
+    { kind: "load", who: "exclusive", ms: LOADING_MS },
+    { kind: "add", who: "exclusive", ms: PULSE_MS },
+    { kind: "hold", ms: HOLD_MS },
+    { kind: "reset", ms: 60 },
+]
+
+/**
+ * The pointer's two axes run on curves that disagree, so the path bows instead
+ * of running straight between controls. Same technique as the other heroes
+ * here; a single transform transition is a straight line by definition.
+ */
+const LEAD = "cubic-bezier(0.18, 0.72, 0.28, 1)"
+const LAG = "cubic-bezier(0.68, 0.02, 0.42, 1)"
+const ARCS = [
+    { x: LEAD, y: LAG },
+    { x: LAG, y: LEAD },
+]
+const PRESS_EASE = "cubic-bezier(0.33, 1, 0.68, 1)"
+
+function Spinner() {
+    return (
+        <svg
+            className="add-to-bag__spinner"
+            width="18"
+            height="18"
+            viewBox="0 0 22 22"
+            aria-hidden="true"
+        >
+            {Array.from({ length: 8 }, (_, i) => (
+                <rect
+                    key={i}
+                    x="10"
+                    y="1.5"
+                    width="2"
+                    height="5"
+                    rx="1"
+                    transform={`rotate(${i * 45} 11 11)`}
+                    fill="currentColor"
+                    opacity={0.25 + (i / 8) * 0.75}
+                />
+            ))}
+        </svg>
+    )
+}
+
+function Check() {
+    return (
+        <svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true">
+            <circle
+                cx="9"
+                cy="9"
+                r="8"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+            />
+            <path
+                d="M5.5 9.2 7.8 11.5 12.5 6.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </svg>
+    )
+}
+
+function Lock() {
+    return (
+        <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+            <path
+                d="M3.5 5.5V3.5a2.5 2.5 0 0 1 5 0v2"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.2"
+            />
+            <rect x="2.4" y="5.4" width="7.2" height="5.6" rx="1" fill="currentColor" />
+        </svg>
+    )
+}
+
+function Chevron({ dir }: { dir: "left" | "right" }) {
+    return (
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+                d={dir === "right" ? "M10 7l5 5-5 5" : "M14 7l-5 5 5 5"}
+                fill="none"
+                stroke="#000"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </svg>
+    )
+}
+
+/**
+ * One line in the bag. The shirt starts here and everything added joins it,
+ * which is what the prototype does — the totals moving on their own was the
+ * tell that nothing had really gone in.
+ */
+function BagRow({ product }: { product: Product }) {
+    const onSale = product.was !== undefined && product.was > product.price
+    return (
+        <article className="bag-item">
+            <div className="bag-item__main">
+                <img className="bag-item__image" src={product.image} alt="" />
+                <div>
+                    <p className="bag-item__brand">{product.brand}</p>
+                    <p className="bag-item__name">{product.name}</p>
+                    {(product.size || product.color) && (
+                        <div className="bag-item__meta">
+                            {product.size && <p>Size: {product.size}</p>}
+                            {product.color && <p>Color: {product.color}</p>}
+                        </div>
+                    )}
+                    <div className="bag-item__pricing">
+                        {onSale ? (
+                            <>
+                                <p className="bag-item__price bag-item__price--sale">
+                                    {money(product.price)}{" "}
+                                    <span>{product.off}</span>
+                                </p>
+                                <p className="bag-item__original">
+                                    {money(product.was!)}
+                                </p>
+                            </>
+                        ) : (
+                            <p className="bag-item__price">
+                                {money(product.price)}
+                            </p>
+                        )}
+                    </div>
+                    <p className="bag-item__qty">Qty 1</p>
+                    <div className="bag-item__links">
+                        <span className="text-link">Save for later</span>
+                        <span className="text-link">Remove</span>
+                    </div>
+                </div>
+            </div>
+            {/* Only the line that opened the bag carries the fulfilment
+                column, as in the prototype. */}
+            {product.id === SHIRT.id && (
+                <div className="bag-item__fulfillment">
+                    <div className="fulfillment-option fulfillment-option--on">
+                        <i />
+                        <span>
+                            Deliver to <span className="text-link">10001</span>
+                        </span>
+                    </div>
+                    <p className="fulfillment-detail fulfillment-detail--success">
+                        Arrives by Thu, Jun. 25
+                    </p>
+                    <p className="fulfillment-badge">
+                        Eligible for Next-Day Delivery
+                    </p>
+                    <div className="fulfillment-option fulfillment-option--spaced">
+                        <i />
+                        <span>
+                            Free pickup today at{" "}
+                            <span className="text-link">
+                                Macy&apos;s Herald Square
+                            </span>
+                        </span>
+                    </div>
+                    <p className="fulfillment-detail">Order by 4pm.</p>
+                </div>
+            )}
+        </article>
+    )
+}
+
+type CtaPhase = "idle" | "loading" | "added"
+
+function AddToBag({
+    phase,
+    locked,
+    label = "Add to bag",
+    className = "",
+    innerRef,
+}: {
+    phase: CtaPhase
+    locked?: boolean
+    label?: string
+    className?: string
+    innerRef?: React.Ref<HTMLButtonElement>
+}) {
+    const state =
+        phase === "loading"
+            ? "add-to-bag--loading"
+            : phase === "added"
+              ? "add-to-bag--added"
+              : locked
+                ? "add-to-bag--locked"
+                : ""
+    return (
+        <button
+            ref={innerRef}
+            type="button"
+            tabIndex={-1}
+            className={`add-to-bag ${state} ${className}`.trim()}
+        >
+            {phase === "loading" && <Spinner />}
+            {phase === "added" && (
+                <>
+                    <Check />
+                    <span>Added</span>
+                </>
+            )}
+            {phase === "idle" && <span>{label}</span>}
+        </button>
+    )
+}
+
+export default function MacysBagLoop({ alt }: { alt?: string }) {
+    const wrapRef = useRef<HTMLDivElement>(null)
+    const pageRef = useRef<HTMLDivElement>(null)
+    const nextRef = useRef<HTMLButtonElement>(null)
+    const pickRef = useRef<HTMLButtonElement>(null)
+    const exclusiveRef = useRef<HTMLButtonElement>(null)
+
+    const [box, setBox] = useState({ w: 0, h: 0 })
+    const [step, setStep] = useState(0)
+    const [visible, setVisible] = useState(true)
+    const [reduced, setReduced] = useState(false)
+
+    /** How far the carousel has been advanced. */
+    const [rotation, setRotation] = useState(0)
+    const [added, setAdded] = useState<Product[]>([])
+    const [pickPhase, setPickPhase] = useState<CtaPhase>("idle")
+    const [exclusivePhase, setExclusivePhase] = useState<CtaPhase>("idle")
+    const [pulsing, setPulsing] = useState(false)
+    const [pressing, setPressing] = useState(false)
+    const [moveMs, setMoveMs] = useState(MOVE_MIN)
+    const [arc, setArc] = useState(0)
+    const [cursor, setCursor] = useState({ x: VIEW_W * 0.62, y: VIEW_H * 0.78 })
+    const cursorRef = useRef(cursor)
+
+    useLayoutEffect(() => {
+        const el = wrapRef.current
+        if (!el) return
+        const measure = () => {
+            const r = el.getBoundingClientRect()
+            if (r.width > 0) setBox({ w: r.width, h: r.height })
+        }
+        measure()
+        window.addEventListener("resize", measure)
+        let ro: ResizeObserver | undefined
+        if (typeof ResizeObserver !== "undefined") {
+            ro = new ResizeObserver(measure)
+            ro.observe(el)
+        }
+        return () => {
+            window.removeEventListener("resize", measure)
+            ro?.disconnect()
+        }
+    }, [])
+
+    useEffect(() => {
+        const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
+        const sync = () => setReduced(mq.matches)
+        sync()
+        mq.addEventListener("change", sync)
+        return () => mq.removeEventListener("change", sync)
+    }, [])
+
+    useEffect(() => {
+        const el = wrapRef.current
+        if (!el) return
+        const io = new IntersectionObserver(
+            ([e]) => setVisible(e.isIntersecting),
+            { threshold: 0.15 }
+        )
+        io.observe(el)
+        return () => io.disconnect()
+    }, [])
+
+    /**
+     * Where a control sits, read off the laid-out page rather than written
+     * down. The page is inside a scaled container, so the measured offset is
+     * divided back out to the page's own coordinates — the ones the cursor
+     * moves in.
+     */
+    const locate = (target: Target) => {
+        const page = pageRef.current
+        const el =
+            target === "next"
+                ? nextRef.current
+                : target === "pick"
+                  ? pickRef.current
+                  : exclusiveRef.current
+        if (!page || !el) return cursorRef.current
+        const pr = page.getBoundingClientRect()
+        const r = el.getBoundingClientRect()
+        const k = pr.width / VIEW_W || 1
+        return {
+            x: (r.left + r.width / 2 - pr.left) / k,
+            y: (r.top + r.height / 2 - pr.top) / k,
+        }
+    }
+
+    useEffect(() => {
+        if (!visible || reduced || box.w === 0) return
+        const current = SCRIPT[step]
+        let ms = current.ms
+
+        switch (current.kind) {
+            case "move": {
+                const to = locate(current.to)
+                const from = cursorRef.current
+                const dist = Math.hypot(to.x - from.x, to.y - from.y)
+                cursorRef.current = to
+                setCursor(to)
+                ms = Math.min(
+                    MOVE_MAX,
+                    Math.max(MOVE_MIN, Math.round(dist * MS_PER_PX))
+                )
+                setMoveMs(ms)
+                setArc((a) => 1 - a)
+                setPressing(false)
+                break
+            }
+            case "press":
+                setPressing(true)
+                if (current.to === "next") setRotation((r) => r + 1)
+                if (current.to === "pick") setPickPhase("loading")
+                if (current.to === "exclusive") setExclusivePhase("loading")
+                break
+            case "load":
+                setPressing(false)
+                break
+            case "add":
+                // The control settles, the bag badge takes the hit, and the
+                // order summary moves — all off the one event, as it did.
+                if (current.who === "pick") {
+                    setPickPhase("added")
+                    setAdded((a) => [...a, PICKS[(rotation + 1) % PICKS.length]])
+                } else {
+                    setExclusivePhase("added")
+                    setAdded((a) => [...a, EXCLUSIVE])
+                }
+                setPulsing(true)
+                break
+            case "reset":
+                setRotation(0)
+                setAdded([])
+                setPickPhase("idle")
+                setExclusivePhase("idle")
+                setPulsing(false)
+                setPressing(false)
+                cursorRef.current = { x: VIEW_W * 0.62, y: VIEW_H * 0.78 }
+                setCursor(cursorRef.current)
+                break
+            case "hold":
+                setPressing(false)
+                break
+        }
+
+        const id = window.setTimeout(() => {
+            if (current.kind === "add") setPulsing(false)
+            setStep((s) => (s + 1) % SCRIPT.length)
+        }, Math.max(60, ms))
+        return () => window.clearTimeout(id)
+        // `rotation` is read when a pick is added, so the step this depends on
+        // has to re-run if it changes.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [step, visible, reduced, box.w])
+
+    /* ---- layout ---------------------------------------------------------- */
+    const pad = box.w < 480 ? 8 : 16
+    const availW = Math.max(0, box.w - pad * 2)
+    const availH = Math.max(0, box.h - pad * 2 - FRAME_PAD_TOP)
+    const width = Math.max(0, Math.min(availW, availH * (FRAME_W / FRAME_H)))
+    const scale = width / FRAME_W
+    // Half the hero pane's own corner, by the same rule it uses, so the frame
+    // nests inside it rather than echoing it.
+    const frameRadius =
+        (box.w < 640 ? 13 : Math.min(26, Math.max(17, box.w * 0.09))) / 2
+
+    /* ---- derived page state ---------------------------------------------- */
+    const unlocked = added.some((p) => p.id !== EXCLUSIVE.id)
+    const bagCount = 1 + added.length
+    const items = [SHIRT, ...added]
+    const subtotal = items.reduce((t, p) => t + p.price, 0)
+    const savings = items.reduce((t, p) => t + savingsOf(p), 0)
+    const total = subtotal + SHIPPING
+
+    // The carousel is a ring: the order rotates, and only the window is shown.
+    const ordered = PICKS.map((_, i) => PICKS[(i + rotation) % PICKS.length])
+
+    return (
+        <div
+            ref={wrapRef}
+            role="img"
+            aria-label={
+                alt ??
+                "The Macy's bag page prototype: adding a suggested item unlocks an exclusive 50% discount, which comes up out of grey as the order summary updates."
+            }
+            style={{
+                width: "100%",
+                height: "100%",
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+            }}
+        >
+            {width > 0 && (
+                <div
+                    style={{
+                        width,
+                        height: width * (FRAME_H / FRAME_W) + FRAME_PAD_TOP,
+                        position: "relative",
+                        flexShrink: 0,
+                    }}
+                >
+                    {/* One bordered, clipped box. The border and the
+                        radius are in rendered pixels rather than page ones,
+                        so the edge stays a hairline at any hero size instead
+                        of scaling down into nothing. */}
+                    <div
+                        className="macys-frame"
+                        style={{
+                            position: "absolute",
+                            inset: 0,
+                            overflow: "hidden",
+                            background: "#FFFFFF",
+                            borderRadius: frameRadius,
+                            paddingTop: FRAME_PAD_TOP,
+                        }}
+                    >
+                        {/* The page at its own size, the result scaled. */}
+                        <div
+                            ref={pageRef}
+                            className="macys-page"
+                            style={{
+                                width: VIEW_W,
+                                transform: `scale(${scale})`,
+                                transformOrigin: "top left",
+                                position: "relative",
+                            }}
+                        >
+                            <header className="site-header">
+                                <div className="site-header__top">
+                                    <span className="site-header__brand">
+                                        <img
+                                            className="site-header__logo"
+                                            src={`${BASE}/macys-wordmark.webp`}
+                                            alt=""
+                                        />
+                                    </span>
+                                    <div className="site-header__search">
+                                        <input
+                                            readOnly
+                                            tabIndex={-1}
+                                            placeholder="What are you looking for?"
+                                        />
+                                        <button
+                                            type="button"
+                                            tabIndex={-1}
+                                            className="site-header__ask"
+                                        >
+                                            Ask Macy&apos;s
+                                        </button>
+                                    </div>
+                                    <div className="site-header__utilities">
+                                        <span>Sign In</span>
+                                        <span>Your store</span>
+                                        <span>Gift Registry</span>
+                                        <button
+                                            type="button"
+                                            tabIndex={-1}
+                                            className={`site-header__bag${pulsing ? " site-header__bag--receiving" : ""}`}
+                                        >
+                                            Bag<span>{bagCount}</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <nav className="site-nav">
+                                    {[
+                                        "Shop All",
+                                        "Women",
+                                        "Men",
+                                        "Beauty",
+                                        "Shoes",
+                                        "Home",
+                                        "Jewelry",
+                                        "Handbags",
+                                        "Furniture & Mattresses",
+                                        "Kids & Baby",
+                                        "Gifts",
+                                        "New & Trending",
+                                        "Sale",
+                                    ].map((label) => (
+                                        <button
+                                            key={label}
+                                            type="button"
+                                            tabIndex={-1}
+                                            className={
+                                                label === "Sale"
+                                                    ? "site-nav__sale"
+                                                    : undefined
+                                            }
+                                        >
+                                            {label}
+                                        </button>
+                                    ))}
+                                </nav>
+                            </header>
+
+                            <main className="bag-page">
+                                <section className="bag-page__main">
+                                    <h1>Bag</h1>
+
+                                    <div className="bag-items">
+                                        {items.map((product, i) => (
+                                            <BagRow
+                                                key={`${product.id}-${i}`}
+                                                product={product}
+                                            />
+                                        ))}
+                                    </div>
+
+                                    <section className="quick-picks">
+                                        <div className="quick-picks__header">
+                                            <h2>Suggested for you</h2>
+                                            <p>
+                                                Add any of these items to{" "}
+                                                <span className="quick-picks__unlock">
+                                                    unlock your exclusive
+                                                    discount
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <div className="quick-picks__carousel">
+                                            <div className="quick-picks__viewport">
+                                                <div className="quick-picks__track">
+                                                    {ordered.map((p, i) => {
+                                                        const isTarget = i === 1
+                                                        const inBag =
+                                                            added.some(
+                                                                (a) =>
+                                                                    a.id ===
+                                                                    p.id
+                                                            )
+                                                        return (
+                                                            <article
+                                                                key={p.id}
+                                                                className="quick-pick-card"
+                                                            >
+                                                                <div className="quick-pick-card__image-wrap">
+                                                                    <img
+                                                                        src={
+                                                                            p.image
+                                                                        }
+                                                                        alt=""
+                                                                    />
+                                                                </div>
+                                                                <div className="quick-pick-card__content">
+                                                                    <div>
+                                                                        <p className="quick-pick-card__brand">
+                                                                            {
+                                                                                p.brand
+                                                                            }
+                                                                        </p>
+                                                                        <p className="quick-pick-card__name">
+                                                                            {
+                                                                                p.name
+                                                                            }
+                                                                        </p>
+                                                                        <p className="quick-pick-card__sale">
+                                                                            {money(
+                                                                                p.price
+                                                                            )}{" "}
+                                                                            <span>
+                                                                                {
+                                                                                    p.off
+                                                                                }
+                                                                            </span>
+                                                                        </p>
+                                                                        {p.was && (
+                                                                            <p className="quick-pick-card__original">
+                                                                                {money(
+                                                                                    p.was
+                                                                                )}
+                                                                            </p>
+                                                                        )}
+                                                                    </div>
+                                                                    <AddToBag
+                                                                        className="quick-pick-card__cta"
+                                                                        innerRef={
+                                                                            isTarget
+                                                                                ? pickRef
+                                                                                : undefined
+                                                                        }
+                                                                        phase={
+                                                                            isTarget
+                                                                                ? pickPhase
+                                                                                : inBag
+                                                                                  ? "added"
+                                                                                  : "idle"
+                                                                        }
+                                                                    />
+                                                                </div>
+                                                            </article>
+                                                        )
+                                                    })}
+                                                </div>
+                                                <div
+                                                    className="quick-picks__fade quick-picks__fade--left"
+                                                    aria-hidden="true"
+                                                />
+                                                <div
+                                                    className="quick-picks__fade quick-picks__fade--right"
+                                                    aria-hidden="true"
+                                                />
+                                            </div>
+                                            <button
+                                                type="button"
+                                                tabIndex={-1}
+                                                className="quick-picks__nav quick-picks__nav--prev"
+                                            >
+                                                <Chevron dir="left" />
+                                            </button>
+                                            <button
+                                                ref={nextRef}
+                                                type="button"
+                                                tabIndex={-1}
+                                                className="quick-picks__nav quick-picks__nav--next"
+                                            >
+                                                <Chevron dir="right" />
+                                            </button>
+                                        </div>
+                                    </section>
+
+                                    <section className="exclusive-discount">
+                                        <h2>Your exclusive discount</h2>
+                                        <div
+                                            className={`exclusive-card${unlocked ? " exclusive-card--unlocked" : ""}`}
+                                        >
+                                            <div className="exclusive-card__image-wrap">
+                                                <img
+                                                    src={EXCLUSIVE.image}
+                                                    alt=""
+                                                />
+                                                <div className="exclusive-card__badge">
+                                                    <Lock />
+                                                    <span>50% OFF</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p className="exclusive-card__brand">
+                                                    {EXCLUSIVE.brand}
+                                                </p>
+                                                <p className="exclusive-card__name">
+                                                    {EXCLUSIVE.name}
+                                                </p>
+                                                <div className="exclusive-card__meta">
+                                                    <p>Size: 15.5 34/35</p>
+                                                    <p>Color: Blue</p>
+                                                </div>
+                                                <div className="exclusive-card__pricing">
+                                                    <p className="exclusive-card__sale">
+                                                        {money(
+                                                            EXCLUSIVE.price
+                                                        )}{" "}
+                                                        <span>
+                                                            {EXCLUSIVE.off}
+                                                        </span>
+                                                    </p>
+                                                    <p className="exclusive-card__original">
+                                                        {money(EXCLUSIVE.was!)}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <AddToBag
+                                                innerRef={exclusiveRef}
+                                                phase={exclusivePhase}
+                                                locked={!unlocked}
+                                                label="Add to Bag"
+                                            />
+                                        </div>
+                                    </section>
+
+                                    <section className="rewards-strip">
+                                        <div className="rewards-strip__progress">
+                                            <span />
+                                            <span />
+                                            <span />
+                                            <span />
+                                        </div>
+                                        <div className="rewards-strip__content">
+                                            <p className="rewards-strip__title">
+                                                ★ STAR REWARDS
+                                            </p>
+                                            <p>
+                                                Want free shipping?{" "}
+                                                <span className="text-link">
+                                                    Join Star Rewards
+                                                </span>{" "}
+                                                or{" "}
+                                                <span className="text-link">
+                                                    Sign in
+                                                </span>{" "}
+                                                to get free shipping at $39+.
+                                            </p>
+                                        </div>
+                                    </section>
+                                </section>
+
+                                <aside className="order-summary">
+                                    <section className="order-summary__promo">
+                                        <div className="order-summary__promo-heading">
+                                            <h2>Enter promo code</h2>
+                                            <span>Limit 1 offer per order</span>
+                                        </div>
+                                        <div className="promo-input">
+                                            <input
+                                                readOnly
+                                                tabIndex={-1}
+                                                placeholder="Enter promo code"
+                                            />
+                                            <button type="button" tabIndex={-1}>
+                                                Apply
+                                            </button>
+                                        </div>
+                                        <span className="text-link order-summary__sign-in">
+                                            Sign in to see if you have other
+                                            offers.
+                                        </span>
+                                    </section>
+
+                                    <section className="order-summary__totals">
+                                        <div className="total-row">
+                                            <span>subtotal</span>
+                                            <span>{money(subtotal)}</span>
+                                        </div>
+                                        {savings > 0 && (
+                                            <div className="total-row">
+                                                <span>discounts</span>
+                                                <span className="total-row__discount">
+                                                    -{money(savings)}
+                                                </span>
+                                            </div>
+                                        )}
+                                        <div className="total-row">
+                                            <span>shipping</span>
+                                            <span>{money(SHIPPING)}</span>
+                                        </div>
+                                        <div className="total-row total-row--emphasis">
+                                            <span>pre-tax order total</span>
+                                            <span>{money(total)}</span>
+                                        </div>
+                                    </section>
+
+                                    <section className="order-summary__checkout">
+                                        <button
+                                            type="button"
+                                            tabIndex={-1}
+                                            className="checkout-button"
+                                        >
+                                            Proceed to checkout
+                                        </button>
+                                        <div className="alt-payments">
+                                            <button type="button" tabIndex={-1} className="alt-payment">
+                                                PayPal
+                                            </button>
+                                            <button type="button" tabIndex={-1} className="alt-payment">
+                                                Klarna
+                                            </button>
+                                        </div>
+                                        <span className="text-link order-summary__continue">
+                                            Continue shopping
+                                        </span>
+                                    </section>
+
+                                    <section className="order-summary__card-offer">
+                                        <div>
+                                            <p className="card-offer__headline">
+                                                Open a card &amp; get 30% off
+                                                macys.com today.
+                                            </p>
+                                            <p className="card-offer__fine-print">
+                                                Store discount varies. Save up
+                                                to $100. Subject to credit
+                                                approval. Exclusions &amp;
+                                                details
+                                            </p>
+                                        </div>
+                                        <div className="card-offer__cta">
+                                            <div
+                                                className="card-offer__cards"
+                                                aria-hidden="true"
+                                            >
+                                                <span />
+                                                <span />
+                                            </div>
+                                            <span className="text-link">
+                                                See if I prequalify
+                                            </span>
+                                            <p>No impact to credit score.</p>
+                                        </div>
+                                    </section>
+                                </aside>
+                            </main>
+
+                            {/* The pointer. Horizontal travel, vertical travel
+                                and the press dip are three nested elements, so
+                                each runs on its own curve. */}
+                            {!reduced && (
+                                <span
+                                    aria-hidden="true"
+                                    style={{
+                                        position: "absolute",
+                                        left: 0,
+                                        top: 0,
+                                        transform: `translate3d(${cursor.x}px, 0, 0)`,
+                                        transition: `transform ${moveMs}ms ${ARCS[arc].x}`,
+                                        pointerEvents: "none",
+                                        zIndex: 5,
+                                    }}
+                                >
+                                    <span
+                                        style={{
+                                            display: "block",
+                                            transform: `translate3d(0, ${cursor.y}px, 0)`,
+                                            transition: `transform ${moveMs}ms ${ARCS[arc].y}`,
+                                        }}
+                                    >
+                                        <span
+                                            style={{
+                                                display: "block",
+                                                transform: `scale(${pressing ? 0.86 : 1})`,
+                                                // The shared cursor puts its
+                                                // tip at the origin, so the
+                                                // press pivots on the tip.
+                                                transformOrigin: "0 0",
+                                                transition: `transform ${PRESS_MS / 2}ms ${PRESS_EASE}`,
+                                            }}
+                                        >
+                                            <Cursor size={38} />
+                                        </span>
+                                    </span>
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    )
+}

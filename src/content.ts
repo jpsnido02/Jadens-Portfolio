@@ -84,8 +84,10 @@ export const projects: ProjectData[] = [
             src: "/projects/macys-bag-laptop.webp",
             alt: "The Macy's bag page on a laptop",
         },
-        imageFit: "contain",
-        imageMobile: "/projects/macys-bag-laptop-mobile.webp",
+        // The hero replays the prototype itself: a suggested item goes in the
+        // bag and the exclusive discount below it comes up out of grey.
+        mediaType: "component",
+        component: "macys-bag",
         thumb: {
             src: "/projects/icon-macys.svg",
             alt: "Macy's",

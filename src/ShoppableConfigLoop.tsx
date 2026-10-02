@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import Cursor from "./Cursor"
 import { RoktWordmark } from "./icons"
 import ShoppablePhone, { FRAME_H, FRAME_W, type Stage } from "./ShoppablePhone"
 
@@ -760,30 +761,20 @@ export default function ShoppableConfigLoop({ alt }: { alt?: string }) {
                                         style={{
                                             display: "block",
                                             transform: `scale(${pressing ? 0.86 : 1})`,
-                                            transformOrigin: "2px 2px",
+                                            // The shared cursor puts its tip
+                                            // at the origin, so the press
+                                            // pivots on the tip.
+                                            transformOrigin: "0 0",
                                             transition: `transform ${PRESS_MS / 2}ms ${PRESS_EASE}`,
                                         }}
                                     >
-                                        <svg
-                                            width="17"
-                                            height="22"
-                                            viewBox="0 0 17 22"
-                                            style={{ display: "block" }}
-                                        >
-                                            <path
-                                                d="M1 1l14.5 8.4-6.3 1.2 3.4 7-2.6 1.2-3.4-7-4.6 4.4z"
-                                                fill={INK}
-                                                stroke="#FFFFFF"
-                                                strokeWidth="1.4"
-                                                strokeLinejoin="round"
-                                            />
-                                        </svg>
+                                        <Cursor size={22} />
                                         {pressing && (
                                             <span
                                                 className="uber-tap"
                                                 style={{
-                                                    left: 2,
-                                                    top: 2,
+                                                    left: 0,
+                                                    top: 0,
                                                     width: 26,
                                                     height: 26,
                                                     marginLeft: -13,

@@ -16,6 +16,7 @@ import BrandedLayoutsLoop from "./BrandedLayoutsLoop"
 import PartnerTile from "./PartnerTile"
 import PartnerAgentLoop from "./PartnerAgentLoop"
 import UberAdsLoop from "./UberAdsLoop"
+import MacysBagLoop from "./MacysBagLoop"
 
 export interface ProjectData {
     title: string
@@ -48,6 +49,7 @@ export interface ProjectData {
         | "shoppable-config"
         | "branded-shuffle"
         | "partner-agent"
+        | "macys-bag"
     /** Fills the card's thumbnail square. Left empty it stays a plain plate. */
     thumb?: { src: string; alt: string }
     /**
@@ -1184,7 +1186,9 @@ export default function PortfolioScroll({
                                         padding: isMobile ? 16 : 32,
                                     }}
                                 >
-                                    {data.component === "partner-agent" ? (
+                                    {data.component === "macys-bag" ? (
+                                        <MacysBagLoop />
+                                    ) : data.component === "partner-agent" ? (
                                         <PartnerAgentLoop />
                                     ) : data.component === "branded-shuffle" ? (
                                         <BrandedLayoutsLoop />
