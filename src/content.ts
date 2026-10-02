@@ -58,7 +58,7 @@ export const projects: ProjectData[] = [
         category: "Ad formats",
         year: "2026",
         description:
-            "Design that understands your order, and what to do while you wait.",
+            "Ad formats inside Uber Eats order tracking, chosen to match what you ordered and how long the wait is.",
         tags: [],
         link: "work/uber-ads/",
     },
@@ -82,7 +82,7 @@ export const projects: ProjectData[] = [
         comingSoon: true,
         year: "2026",
         description:
-            "A paid order, a few spare seconds, and an offer worth making an account for.",
+            "An offer on the McDonald's self-order kiosk, shown once you've paid. Scanning it signs you up for rewards and opens the deal in their app.",
         tags: [],
         link: "work/mcdonalds-kiosk/",
     },
@@ -102,7 +102,8 @@ export const projects: ProjectData[] = [
         },
         category: "Conversion",
         year: "2026",
-        description: "Three variants, two of which lost.",
+        description:
+            "A placement on Macy's bag page that unlocks a discount once a suggested item goes in the bag. Three variants ran live; two lost.",
         tags: [],
         link: "work/macys-bag-page/",
     },
@@ -123,7 +124,7 @@ export const projects: ProjectData[] = [
         category: "Internal tools",
         year: "2026",
         description:
-            "Onboarding a partner meant hand-building a mockup for every ad format. An agent does it from one prompt.",
+            "An internal tool that builds a new partner's mockups in every ad format from one prompt. They used to be designed by hand, one format at a time.",
         tags: [],
         // TODO: still points at the shoppable case study. Needs its own page.
         link: "work/shoppable-pitching-platform/",
@@ -140,7 +141,7 @@ export const projects: ProjectData[] = [
         partnerRotation: true,
         year: "2026",
         description:
-            "A placement that inherits a partner's brand automatically.",
+            "One placement template that picks up each partner's colours, type and buttons on its own, so it looks like part of their own site.",
         tags: [],
         link: "work/branded-layouts/",
     },
@@ -158,7 +159,8 @@ export const projects: ProjectData[] = [
         component: "shoppable-config",
         category: "Internal tools",
         year: "2026",
-        description: "Hand-built demos took a week. This one took minutes.",
+        description:
+            "An internal tool for assembling a demo placement from a few settings and sharing it as a link. Building one by hand took a week.",
         tags: [],
         link: "work/shoppable-config/",
     },
@@ -179,7 +181,7 @@ export const projects: ProjectData[] = [
         category: "Marketplace",
         year: "2026",
         description:
-            "Whether a traveller should be able to tell whose offer it is.",
+            "Expedia's own offers and other companies' offers in the same booking confirmation, and how clearly a traveller should be able to tell them apart.",
         tags: [],
         link: "work/expedia-1p-3p/",
     },
