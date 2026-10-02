@@ -63,7 +63,7 @@ export const projects: ProjectData[] = [
         link: "work/uber-ads/",
     },
     {
-        title: "McDonald's kiosk rewards",
+        title: "McDonald's Kiosk Rewards",
         image: {
             src: "/projects/mcdonalds-kiosk-pair.webp",
             alt: "A customer at a McDonald's kiosk showing a Disney+ offer to scan, beside the notification that follows on their phone",
@@ -87,7 +87,7 @@ export const projects: ProjectData[] = [
         link: "work/mcdonalds-kiosk/",
     },
     {
-        title: "Macy's Bag page",
+        title: "Macy's Bag Page",
         image: {
             src: "/projects/macys-bag-laptop.webp",
             alt: "The Macy's bag page on a laptop",
@@ -108,7 +108,7 @@ export const projects: ProjectData[] = [
         link: "work/macys-bag-page/",
     },
     {
-        title: "Agents that build partner mockups",
+        title: "Agents That Build Partner Mockups",
         image: {
             src: "/projects/project-04.jpg",
             alt: "Agents that build partner mockups",
@@ -146,7 +146,7 @@ export const projects: ProjectData[] = [
         link: "work/branded-layouts/",
     },
     {
-        title: "Rapid prototyping tool (config hero)",
+        title: "Rapid Prototyping Tool",
         image: {
             src: "/projects/project-04.jpg",
             alt: "Rapid prototyping tool",
@@ -165,7 +165,7 @@ export const projects: ProjectData[] = [
         link: "work/shoppable-config/",
     },
     {
-        title: "Expedia 1P / 3P",
+        title: "Expedia Upsells",
         image: {
             src: "/projects/expedia-offer.webp",
             alt: "The Expedia offer experience on a laptop and a phone",

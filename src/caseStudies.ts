@@ -637,7 +637,7 @@ export const caseStudies: CaseStudy[] = [
     // ---------------------------------------------------------------- 6 of 6
     {
         slug: "expedia-1p-3p",
-        title: "Expedia 1P / 3P offer experience",
+        title: "Expedia Upsell Experience",
         client: "Expedia",
         year: "2026",
         role: "Product Designer",
