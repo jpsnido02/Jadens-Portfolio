@@ -293,18 +293,15 @@ export default function PortfolioScroll({
     const heroRef = useRef<HTMLDivElement>(null)
 
     /**
-     * Sized to the content now that the footer is gone.
+     * The slot a card sits in, not the card's own height — the card hugs its
+     * content and this is only the step the stack advances by. Sized to the
+     * tallest card, which is a two-line title over a four-line description.
      *
-     * Measured off the laid-out card: the tallest description reaches 247px
-     * from the card's top, and the content box wants 20px under it, so 267.
-     * At 253 the two longest cards were down to 6px of bottom padding against
-     * 20 at the top, which read as cramped.
-     *
-     * One height for every card, because the scroll engine steps the stack by
-     * this number and keys the minimap off it; a card that hugged its own
-     * content would have to replace that step with cumulative offsets.
+     * It stays one number because the scroll engine steps by it and keys the
+     * minimap off it; giving each card its own slot would mean replacing that
+     * step with cumulative offsets.
      */
-    const cardHeight = isMobile ? 218 : 267
+    const cardHeight = isMobile ? 222 : 270
     const taglineSize = isMobile ? 16 : 18
     // Sized against the tagline, so it keeps its ratio if the type changes.
     // Sized to the cap height of the sentence it sits in.
@@ -1490,7 +1487,18 @@ export default function PortfolioScroll({
                                         position: "relative",
                                         overflow: "hidden",
                                         width: "100%",
-                                        height: "100%",
+                                        // The card hugs its own content rather
+                                        // than filling the slot. With the
+                                        // footer gone, a card whose title fits
+                                        // one line and whose description runs
+                                        // short was holding its old full
+                                        // height as empty space under the
+                                        // text. The slot stays a fixed height,
+                                        // because the scroll engine steps the
+                                        // stack by that and keys the minimap
+                                        // off it; what changes is that the
+                                        // card no longer stretches to meet it.
+                                        height: "auto",
                                         borderRadius: cardRadius,
                                         ...({
                                             cornerShape: CONFIG.CORNER_SHAPE,
