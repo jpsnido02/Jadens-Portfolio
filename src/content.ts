@@ -63,7 +63,7 @@ export const projects: ProjectData[] = [
         link: "work/uber-ads/",
     },
     {
-        title: "McDonald's kiosk",
+        title: "McDonald's kiosk rewards",
         image: {
             src: "/projects/mcdonalds-kiosk-pair.webp",
             alt: "A customer at a McDonald's kiosk showing a Disney+ offer to scan, beside the notification that follows on their phone",
@@ -82,7 +82,7 @@ export const projects: ProjectData[] = [
         comingSoon: true,
         year: "2026",
         description:
-            "A placement on a screen you don't own, in a room full of people.",
+            "A paid order, a few spare seconds, and an offer worth making an account for.",
         tags: [],
         link: "work/mcdonalds-kiosk/",
     },
