@@ -1,3 +1,4 @@
+import UberOfferCard, { OFFERS } from "./UberOfferCard"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 
 /**
@@ -52,16 +53,6 @@ const CHROME_BOTTOM_H = 121
 const BASE = "../../projects/uber"
 // The frame itself is shared with the Shoppable hero, so it sits a level up.
 
-interface Offer {
-    src: string
-    height: number
-    /** "Not now" in screen coordinates; the tap indicator lands here. */
-    notNow: { x: number; y: number }
-    /** The claim button, which is where the App Store transition originates. */
-    claim: { x: number; y: number }
-    label: string
-}
-
 const BTN_W = 120
 const BTN_H = 40
 
@@ -70,36 +61,6 @@ const BTN_H = 40
  * at different heights because the creatives above them differ, so these are
  * per-offer rather than shared.
  */
-const OFFERS: Offer[] = [
-    {
-        src: `${BASE}/offer-1.webp`,
-        height: 223,
-        claim: { x: 32, y: 614 },
-        notNow: { x: 160, y: 614 },
-        label: "Spotify Premium",
-    },
-    {
-        src: `${BASE}/offer-2.webp`,
-        height: 238,
-        claim: { x: 32, y: 629 },
-        notNow: { x: 160, y: 629 },
-        label: "The Farmer's Dog",
-    },
-    {
-        src: `${BASE}/offer-3.webp`,
-        height: 221,
-        claim: { x: 32, y: 612 },
-        notNow: { x: 160, y: 612 },
-        label: "Starbucks",
-    },
-    {
-        src: `${BASE}/offer-4.webp`,
-        height: 282,
-        claim: { x: 33, y: 672 },
-        notNow: { x: 161, y: 672 },
-        label: "Disney+",
-    },
-]
 
 /**
  * The window is held at the tallest card rather than animating to each card's
@@ -111,26 +72,8 @@ const OFFERS: Offer[] = [
  */
 const MAX_CARD_H = Math.max(...OFFERS.map((o) => o.height))
 
-/**
- * The pager dots, lifted out of the artwork so they can animate.
- *
- * They were baked into each card, which meant they could only cross-fade with
- * everything around them — and a pager is the one part of this that should
- * read as responding rather than being replaced. Painted out of the exports
- * and drawn here instead, at the positions they occupied: 8px across, 16px
- * apart, the first centred 20px in, and the row sitting 20px up from whichever
- * card's bottom edge.
- */
-const DOT_D = 8
-const DOT_GAP = 16
-const DOT_X = 20
-const DOT_UP = 20
-const DOT_ON = "#030303"
-const DOT_OFF = "#E3E3E3"
-
 /** The track carries a fifth card — a copy of the first — so the wrap forward
  *  slides in the same direction as every other advance instead of rewinding. */
-const TRACK = [...OFFERS, OFFERS[0]]
 
 /**
  * Apple's presentation curve. This is the one iOS uses for app opens and sheet
@@ -374,7 +317,7 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
         return () => window.clearTimeout(id)
     }, [step, visible, reduced])
 
-    const offer = TRACK[index] ?? TRACK[0]
+    const offer = OFFERS[index % OFFERS.length]
     const cardH = offer.height
     const tapTarget = tap === "claim" ? offer.claim : offer.notNow
     // Each surface morphs to and from its own icon on the home screen, not
@@ -585,78 +528,23 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                                         overflow: "hidden",
                                     }}
                                 >
-                                    {/* The offers change in place rather than
-                                        sliding. A pager that swipes says the
-                                        card moved; what actually happens is
-                                        the content inside it being replaced,
-                                        so one fades down to the card's own
-                                        white and the next comes up out of it.
-                                        Sequential rather than overlapping,
-                                        because these four are different
-                                        layouts and a true dissolve ghosts one
-                                        headline through another. */}
-                                    {TRACK.map((card, i) => (
-                                        <img
-                                            key={i}
-                                            src={card.src}
-                                            alt=""
-                                            loading={i > 1 ? "lazy" : "eager"}
-                                            style={{
-                                                position: "absolute",
-                                                left: 0,
-                                                top: 0,
-                                                width: px(CARD_W),
-                                                height: px(card.height),
-                                                display: "block",
-                                                opacity: i === index ? 1 : 0,
-                                                transition: animate
-                                                    ? i === index
-                                                        ? `opacity ${Math.round(PAGE_MS * 0.45)}ms linear ${Math.round(PAGE_MS * 0.45)}ms`
-                                                        : `opacity ${Math.round(PAGE_MS * 0.4)}ms linear`
-                                                    : "none",
-                                            }}
-                                        />
-                                    ))}
-
-                                    {/* The pager. It sits against the current
-                                        card's bottom, so it travels with the
-                                        height as the card changes. */}
-                                    {OFFERS.map((_, i) => {
-                                        const on = i === index % OFFERS.length
-                                        return (
-                                            <span
-                                                key={i}
-                                                style={{
-                                                    position: "absolute",
-                                                    left: px(
-                                                        DOT_X +
-                                                            i * DOT_GAP -
-                                                            DOT_D / 2,
-                                                    ),
-                                                    top: px(
-                                                        cardH -
-                                                            DOT_UP -
-                                                            DOT_D / 2,
-                                                    ),
-                                                    width: px(DOT_D),
-                                                    height: px(DOT_D),
-                                                    borderRadius: "50%",
-                                                    background: on
-                                                        ? DOT_ON
-                                                        : DOT_OFF,
-                                                    transition: animate
-                                                        ? [
-                                                              // Lands with the
-                                                              // new offer, not
-                                                              // ahead of it.
-                                                              `background-color ${Math.round(PAGE_MS * 0.3)}ms linear ${Math.round(PAGE_MS * 0.45)}ms`,
-                                                              `top ${PAGE_MS}ms ${PAGE_EASE}`,
-                                                          ].join(", ")
-                                                        : "none",
-                                                }}
-                                            />
-                                        )
-                                    })}
+                                    {/* The offer, assembled from its
+                                        parts so the pieces inside it can
+                                        change independently: the headline and
+                                        body cross-fade their text, the media
+                                        swaps whether it sits beside the
+                                        headline or runs across the top, the
+                                        primary button travels to the width of
+                                        its own label, and the pager hands
+                                        over. The container itself only ever
+                                        changes height. */}
+                                    <UberOfferCard
+                                        offer={offer}
+                                        index={index % OFFERS.length}
+                                        px={px}
+                                        swapMs={PAGE_MS}
+                                        animate={animate}
+                                    />
                                 </div>
 
                                 <img

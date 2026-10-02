@@ -1205,3 +1205,71 @@ dl {
         }
     }
 }
+
+/* ---------------------------------------------------------------------------
+ * Uber Move, for the Uber Eats hero.
+ *
+ * Uber's own faces, supplied by Jaden. Two families, as the app uses them:
+ * Text for interface copy, the display cut for anything large. Shipped as TTF
+ * and OTF rather than woff2 because there is no converter on this machine and
+ * each file is only about 50kB; worth revisiting if the hero grows.
+ *
+ * These are Uber's property. They are here because Jaden asked for the card to
+ * carry the real typeface and provided the files.
+ * ------------------------------------------------------------------------ */
+@font-face {
+    font-family: "Uber Move Text";
+    src: url("/fonts/UberMoveTextRegular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: "Uber Move Text";
+    src: url("/fonts/UberMoveTextMedium.ttf") format("truetype");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: "Uber Move Text";
+    src: url("/fonts/UberMoveTextBold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: "Uber Move";
+    src: url("/fonts/UberMoveMedium.otf") format("opentype");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: "Uber Move";
+    src: url("/fonts/UberMoveBold.otf") format("opentype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* A piece of the offer arriving: the media and the badge, which are replaced
+   outright rather than having their text change. */
+@keyframes uber-offer-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    @keyframes uber-offer-in {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+}
