@@ -103,7 +103,7 @@ export const projects: ProjectData[] = [
         category: "Conversion",
         year: "2026",
         description:
-            "Three variants of a bag-page discount: instant unlock, or spend threshold.",
+            "In the bag: add cufflinks, unlock the same shirt in blue at half price.",
         tags: [],
         link: "work/macys-bag-page/",
     },
@@ -124,7 +124,7 @@ export const projects: ProjectData[] = [
         category: "Internal tools",
         year: "2026",
         description:
-            "One prompt builds a partner's mockups in every ad format, instead of by hand.",
+            "Agents draft 80% of a partner's mockups; designers drive the last 20%.",
         tags: [],
         // TODO: still points at the shoppable case study. Needs its own page.
         link: "work/shoppable-pitching-platform/",
@@ -141,7 +141,7 @@ export const projects: ProjectData[] = [
         partnerRotation: true,
         year: "2026",
         description:
-            "One template takes a partner's colours, so it reads as their site, not an ad.",
+            "One template wears 50 clients' brands, so the offer fits the moment.",
         tags: [],
         link: "work/branded-layouts/",
     },
@@ -160,7 +160,7 @@ export const projects: ProjectData[] = [
         category: "Internal tools",
         year: "2026",
         description:
-            "Build a demo placement from a few settings. Made for a sales call, not a week.",
+            "A platform so sales ship a live demo within an hour of the first call.",
         tags: [],
         link: "work/shoppable-config/",
     },
@@ -181,7 +181,7 @@ export const projects: ProjectData[] = [
         category: "Marketplace",
         year: "2026",
         description:
-            "Expedia's offers beside other companies'. How plainly to say whose is whose.",
+            "Upsells that close the trip: a hotel for the flight, a ride from the airport.",
         tags: [],
         link: "work/expedia-1p-3p/",
     },
