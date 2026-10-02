@@ -141,7 +141,7 @@ export const projects: ProjectData[] = [
         partnerRotation: true,
         year: "2026",
         description:
-            "One template instantly turned on across our top 50 clients' brands, automatically driving a 20% revenue increase across our network.",
+            "One template instantly turned on across our top 50 clients' brands, automatically driving 20% more value per transaction across our network.",
         tags: [],
         link: "work/branded-layouts/",
     },
