@@ -48,8 +48,7 @@ export const intro = {
 
 export const projects: ProjectData[] = [
     // Order matters twice over: it indexes the card palette, and it is the
-    // reading order of the case studies. See docs/case-studies/README.md for
-    // why these six sit in this sequence — no story shape repeats adjacently.
+    // reading order of the case studies.
     {
         title: "Uber Eats Contextual Advertising",
         image: { src: "/projects/project-02.jpg", alt: "Uber Eats" },
@@ -66,30 +65,6 @@ export const projects: ProjectData[] = [
             "Ad formats inside Uber Eats order tracking, chosen for what you ordered and how long you are waiting for it.",
         tags: [],
         link: "work/uber-ads/",
-    },
-    {
-        title: "McDonald's Kiosk Rewards",
-        image: {
-            src: "/projects/mcdonalds-kiosk-pair.webp",
-            alt: "A customer at a McDonald's kiosk showing a Disney+ offer to scan, beside the notification that follows on their phone",
-        },
-        // Both halves of it, so neither is cropped away.
-        imageFit: "contain",
-        // The kiosk's own screen is the point, and it is unreadable at phone
-        // width across the full photo, so narrow screens get a crop in on it.
-        imageMobile: "/projects/mcdonalds-kiosk-pair-mobile.webp",
-        thumb: {
-            src: "/projects/icon-mcdonalds.svg",
-            alt: "McDonald's",
-        },
-        category: "In-person",
-        // Still in progress, so the card says so.
-        comingSoon: true,
-        year: "2026",
-        description:
-            "A special offer catered to enjoy after your meal. The kiosk was the surface; our network identified what the customer wanted to do after.",
-        tags: [],
-        link: "work/mcdonalds-kiosk/",
     },
     {
         title: "Macy's Bag Page",
@@ -168,6 +143,30 @@ export const projects: ProjectData[] = [
             "A prototyping platform shipped so sales can turn an introductory call into a live demo the customer can interact with as if it were real.",
         tags: [],
         link: "work/shoppable-config/",
+    },
+    {
+        title: "McDonald's Kiosk Rewards",
+        image: {
+            src: "/projects/mcdonalds-kiosk-pair.webp",
+            alt: "A customer at a McDonald's kiosk showing a Disney+ offer to scan, beside the notification that follows on their phone",
+        },
+        // Both halves of it, so neither is cropped away.
+        imageFit: "contain",
+        // The kiosk's own screen is the point, and it is unreadable at phone
+        // width across the full photo, so narrow screens get a crop in on it.
+        imageMobile: "/projects/mcdonalds-kiosk-pair-mobile.webp",
+        thumb: {
+            src: "/projects/icon-mcdonalds.svg",
+            alt: "McDonald's",
+        },
+        category: "In-person",
+        // Still in progress, so the card says so.
+        comingSoon: true,
+        year: "2026",
+        description:
+            "A special offer catered to enjoy after your meal. The kiosk was the surface; our network identified what the customer wanted to do after.",
+        tags: [],
+        link: "work/mcdonalds-kiosk/",
     },
     {
         title: "Expedia Upsells",
