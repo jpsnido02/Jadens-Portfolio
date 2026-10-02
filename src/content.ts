@@ -34,13 +34,15 @@ export const intro = {
     // instagram, github, dribbble, behance, or a globe for anything else.
     // Add `icon: "github"` to a link to force a specific one.
     links: [
-        // TODO: Instagram is still the placeholder.
         { label: "Email", url: "mailto:jadenpsnyder02@gmail.com" },
         {
             label: "LinkedIn",
             url: "https://www.linkedin.com/in/jaden-p-snyder/",
         },
-        { label: "Instagram", url: "https://www.instagram.com" },
+        {
+            label: "Instagram",
+            url: "https://www.instagram.com/_jaden.snyder/",
+        },
     ] satisfies IntroLink[],
 }
 
