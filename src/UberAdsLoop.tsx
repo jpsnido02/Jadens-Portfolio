@@ -61,8 +61,17 @@ const CARD_W = 358
  * past — without it the content ran straight into the bar with nothing
  * between them.
  */
-const BAR_H = 124
+const BAR_H = 99
 const PAGE_TOP = 99
+/**
+ * White under the bar, which fades in with the scroll.
+ *
+ * A fixed band of it pushed the header down at the start, where the app has
+ * the content sitting right under the bar. The band is only needed once
+ * something is travelling past, which is what the app does too: the bar picks
+ * up a ground when you scroll and has none before that.
+ */
+const BAR_PAD = 26
 /** The delivery-time pill, which floats rather than scrolls. */
 const PILL_X = 254
 const PILL_Y = 427
@@ -715,6 +724,23 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                                             />
                                         </div>
                                     </div>
+
+                                    {/* The bar's ground, once the page is
+                                        moving under it. */}
+                                    <div
+                                        style={{
+                                            position: "absolute",
+                                            left: 0,
+                                            top: px(BAR_H),
+                                            width: px(SCREEN_W),
+                                            height: px(BAR_PAD),
+                                            background: "#FFFFFF",
+                                            opacity: scrollY > 0 ? 1 : 0,
+                                            transition: animate
+                                                ? `opacity ${Math.round(SCROLL_MS * 0.4)}ms linear`
+                                                : "none",
+                                        }}
+                                    />
 
                                     {/* The delivery-time pill. It is sticky
                                         in the app — it holds its place on

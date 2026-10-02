@@ -142,18 +142,19 @@ const MUTED = "#9A9A9A"
 const DOT_D = 8
 const DOT_GAP = 16
 const DOT_X = 20
-const DOT_UP = 20
+const DOT_UP = 15
 const DOT_ON = "#030303"
 const DOT_OFF = "#E3E3E3"
 /**
  * What the content column leaves clear at the bottom for the pager.
  *
  * The dots are positioned against the card's own bottom edge rather than
- * flowing after the footer, so the column has to stop short of them or the
- * disclaimer lands on top of the dots. Measured off the export: the
- * disclaimer's baseline sits 37 units up from the card's bottom.
+ * flowing after the footer, so the column has to stop short of them. The
+ * export left 13 units between the disclaimer and the dots, which reads as
+ * them touching; this is 24, with the dots themselves sitting a little nearer
+ * the edge to buy the difference without squeezing the copy above.
  */
-const FOOT_CLEAR = DOT_UP + DOT_D + 9
+const FOOT_CLEAR = DOT_UP + DOT_D + 26
 
 const EASE = "cubic-bezier(0.33, 1, 0.68, 1)"
 
