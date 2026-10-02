@@ -30,13 +30,12 @@ import Cursor from "./Cursor"
  * ---------------------------------------------------------------------- */
 const VIEW_W = 1500
 /**
- * Tall enough for the page at its fullest — the shirt, the suggestion that
- * goes in, and the exclusive discount, all three lines in the bag. Sized to
- * the end state rather than the start so nothing ever has to scroll; the hero
- * pane is portrait, so the extra height costs nothing in scale and the page
- * simply grows down into white it already owned.
+ * A screen's worth of page, at the proportions a laptop shows it in. The bag
+ * grows past this as things go into it; the camera below is what deals with
+ * that, rather than the frame stretching to hold the tallest state and
+ * spending most of the loop looking at white.
  */
-const VIEW_H = 1700
+const VIEW_H = 1150
 export const FRAME_W = VIEW_W
 export const FRAME_H = VIEW_H
 /** Breathing room above the page, inside the frame. Rendered pixels. */
@@ -146,55 +145,118 @@ const savingsOf = (p: Product) => (p.was && p.was > p.price ? p.was - p.price : 
  * add-to-bag spinner, 320ms on the bag badge — so the hero runs at the speed
  * the thing actually ran at.
  * ---------------------------------------------------------------------- */
-const LOADING_MS = 800
-const PULSE_MS = 320
-const PRESS_MS = 300
-const DWELL_MS = 260
-const UNLOCK_MS = 420
-const CAROUSEL_MS = 280
-const HOLD_MS = 3400
+/**
+ * Timing. The prototype's own durations where it has them — 800ms on the
+ * add-to-bag spinner, 320ms on the bag badge — stretched by PACE, because a
+ * hero is watched rather than used and the real speeds read as a flicker.
+ */
+const PACE = 1.45
+const ms = (v: number) => Math.round(v * PACE)
 
-/** Travel is timed by distance, as elsewhere on the site, so a long reach
- *  across the page takes longer than a nudge to the next control. */
-const MOVE_MIN = 520
-const MOVE_MAX = 1400
-const MS_PER_PX = 0.9
+const LOADING_MS = ms(800)
+const PULSE_MS = ms(320)
+const PRESS_MS = ms(300)
+const DWELL_MS = ms(320)
+const UNLOCK_MS = ms(420)
+const CAROUSEL_MS = ms(280)
+/** How long a new line takes to open out in the bag. */
+const ROW_IN_MS = ms(1100)
 
-type Target = "next" | "pick" | "exclusive"
+/**
+ * Pointer travel is timed by distance, so a long reach across the page takes
+ * longer than a nudge to the next control. The camera is given this same
+ * number whenever the two move together, which is what keeps it feeling like
+ * the view is following the hand rather than cutting to wherever it landed.
+ */
+const MOVE_MIN = ms(620)
+const MOVE_MAX = ms(1500)
+const MS_PER_PX = 1.25
+
+/* -------------------------------------------------------------------------
+ * The camera.
+ *
+ * A whole retail page shrunk into a hero pane is legible as a shape and not
+ * much else, so rather than show all of it all the time the frame moves: it
+ * opens on the full page, goes in on the suggestion being added, crosses to
+ * the bag to watch the line arrive, then to the discount as it unlocks, and
+ * pulls back at the end for the totals.
+ *
+ * Every move is tied to a pointer move and runs for exactly as long, so the
+ * two travel together. Each shot is measured off the laid-out page rather
+ * than written down, so it stays right as the bag grows and everything below
+ * it shifts down.
+ * ---------------------------------------------------------------------- */
+const SHOTS = {
+    page: null,
+    suggest: ".quick-picks",
+    bag: ".bag-items",
+    unlock: ".exclusive-discount",
+} as const
+type ShotName = keyof typeof SHOTS
+
+/** Room left around a shot's subject, in page pixels. */
+const SHOT_PAD = 70
+
+type Camera = { x: number; y: number; w: number }
+const WIDE: Camera = { x: 0, y: 0, w: VIEW_W }
+
+/** Where the pointer can go. Found in the page, not written down. */
+const TARGETS = {
+    next: ".quick-picks__nav--next",
+    pick: ".quick-picks__track > :nth-child(2) .add-to-bag",
+    exclusive: ".exclusive-card .add-to-bag",
+    bag: ".bag-items",
+    totals: ".order-summary__totals",
+} as const
+type Target = keyof typeof TARGETS
 
 type Step =
-    /** `ms` is filled in at runtime from how far the pointer has to travel. */
-    | { kind: "move"; to: Target; ms: number }
+    /**
+     * A pointer move, and the camera move that goes with it. `ms` is filled
+     * in at runtime from how far the pointer has to travel, and the camera
+     * borrows it.
+     */
+    | { kind: "move"; to: Target; shot: ShotName; ms: number }
     | { kind: "press"; to: Target; ms: number }
     | { kind: "load"; who: "pick" | "exclusive"; ms: number }
+    /** The control settles green, before anything else moves. */
+    | { kind: "cta"; who: "pick" | "exclusive"; ms: number }
+    /** The line opens out in the bag, and the totals follow it. */
     | { kind: "add"; who: "pick" | "exclusive"; ms: number }
+    | { kind: "unlock"; ms: number }
     | { kind: "hold"; ms: number }
     | { kind: "reset"; ms: number }
 
 const SCRIPT: Step[] = [
-    { kind: "hold", ms: 1200 },
-    // The carousel first, so it reads as something you can work through rather
-    // than a row of three.
-    { kind: "move", to: "next", ms: 0 },
+    // Open wide, on the page as a whole.
+    { kind: "hold", ms: ms(1700) },
+    // In on the suggestions, pointer first.
+    { kind: "move", to: "next", shot: "suggest", ms: 0 },
     { kind: "hold", ms: DWELL_MS },
     { kind: "press", to: "next", ms: PRESS_MS },
-    { kind: "hold", ms: CAROUSEL_MS + 320 },
-    { kind: "press", to: "next", ms: PRESS_MS },
-    { kind: "hold", ms: CAROUSEL_MS + 460 },
-    // Then the add that unlocks the discount.
-    { kind: "move", to: "pick", ms: 0 },
+    { kind: "hold", ms: CAROUSEL_MS + ms(520) },
+    { kind: "move", to: "pick", shot: "suggest", ms: 0 },
     { kind: "hold", ms: DWELL_MS },
     { kind: "press", to: "pick", ms: PRESS_MS },
     { kind: "load", who: "pick", ms: LOADING_MS },
-    { kind: "add", who: "pick", ms: PULSE_MS },
-    // Long enough to watch the exclusive card come up out of grey.
-    { kind: "hold", ms: UNLOCK_MS + 900 },
-    { kind: "move", to: "exclusive", ms: 0 },
+    { kind: "cta", who: "pick", ms: ms(780) },
+    // Up to the bag, and only then does the line arrive — the point of going
+    // there is to watch it happen, not to find it already there.
+    { kind: "move", to: "bag", shot: "bag", ms: 0 },
+    { kind: "hold", ms: ms(260) },
+    { kind: "add", who: "pick", ms: ROW_IN_MS },
+    { kind: "hold", ms: ms(1200) },
+    // Down to the discount, which comes up out of grey once we are on it.
+    { kind: "move", to: "exclusive", shot: "unlock", ms: 0 },
     { kind: "hold", ms: DWELL_MS },
+    { kind: "unlock", ms: UNLOCK_MS + ms(620) },
     { kind: "press", to: "exclusive", ms: PRESS_MS },
     { kind: "load", who: "exclusive", ms: LOADING_MS },
-    { kind: "add", who: "exclusive", ms: PULSE_MS },
-    { kind: "hold", ms: HOLD_MS },
+    { kind: "cta", who: "exclusive", ms: ms(700) },
+    { kind: "add", who: "exclusive", ms: ms(160) },
+    // Pull back for the result: three lines in the bag and the totals.
+    { kind: "move", to: "totals", shot: "page", ms: 0 },
+    { kind: "hold", ms: ms(3000) },
     { kind: "reset", ms: 60 },
 ]
 
@@ -372,13 +434,11 @@ function AddToBag({
     locked,
     label = "Add to bag",
     className = "",
-    innerRef,
 }: {
     phase: CtaPhase
     locked?: boolean
     label?: string
     className?: string
-    innerRef?: React.Ref<HTMLButtonElement>
 }) {
     const state =
         phase === "loading"
@@ -390,7 +450,6 @@ function AddToBag({
                 : ""
     return (
         <button
-            ref={innerRef}
             type="button"
             tabIndex={-1}
             className={`add-to-bag ${state} ${className}`.trim()}
@@ -410,9 +469,6 @@ function AddToBag({
 export default function MacysBagLoop({ alt }: { alt?: string }) {
     const wrapRef = useRef<HTMLDivElement>(null)
     const pageRef = useRef<HTMLDivElement>(null)
-    const nextRef = useRef<HTMLButtonElement>(null)
-    const pickRef = useRef<HTMLButtonElement>(null)
-    const exclusiveRef = useRef<HTMLButtonElement>(null)
 
     const [box, setBox] = useState({ w: 0, h: 0 })
     const [step, setStep] = useState(0)
@@ -430,6 +486,12 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
     const [arc, setArc] = useState(0)
     const [cursor, setCursor] = useState({ x: VIEW_W * 0.62, y: VIEW_H * 0.78 })
     const cursorRef = useRef(cursor)
+    /** The slice of the page the frame is looking at, in page pixels. */
+    const [camera, setCamera] = useState<Camera>(WIDE)
+    const [shotMs, setShotMs] = useState(MOVE_MIN)
+    /** Explicit rather than derived from the bag: the discount is shown
+     *  coming alive once the camera is on it, not while it is elsewhere. */
+    const [unlocked, setUnlocked] = useState(false)
 
     useLayoutEffect(() => {
         const el = wrapRef.current
@@ -471,6 +533,36 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
     }, [])
 
     /**
+     * A shot, measured off the laid-out page and widened to the frame's own
+     * proportions so the subject sits inside it with room to spare. Clamped
+     * to the page, so the camera never runs off the edge.
+     */
+    const measureShot = (name: ShotName): Camera => {
+        const page = pageRef.current
+        const sel = SHOTS[name]
+        if (!page || !sel) return WIDE
+        const el = page.querySelector(sel)
+        if (!el) return WIDE
+        const pr = page.getBoundingClientRect()
+        const k = pr.width / VIEW_W || 1
+        const pageH = Math.max(VIEW_H, page.scrollHeight)
+        const r = el.getBoundingClientRect()
+        const left = (r.left - pr.left) / k - SHOT_PAD
+        const top = (r.top - pr.top) / k - SHOT_PAD
+        const w0 = r.width / k + SHOT_PAD * 2
+        const h0 = r.height / k + SHOT_PAD * 2
+        const aspect = VIEW_W / VIEW_H
+        const w = Math.min(VIEW_W, Math.max(w0, h0 * aspect))
+        const h = w / aspect
+        const clamp = (v: number, hi: number) => Math.max(0, Math.min(hi, v))
+        return {
+            x: clamp(left + w0 / 2 - w / 2, VIEW_W - w),
+            y: clamp(top + h0 / 2 - h / 2, Math.max(0, pageH - h)),
+            w,
+        }
+    }
+
+    /**
      * Where a control sits, read off the laid-out page rather than written
      * down. The page is inside a scaled container, so the measured offset is
      * divided back out to the page's own coordinates — the ones the cursor
@@ -478,12 +570,7 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
      */
     const locate = (target: Target) => {
         const page = pageRef.current
-        const el =
-            target === "next"
-                ? nextRef.current
-                : target === "pick"
-                  ? pickRef.current
-                  : exclusiveRef.current
+        const el = page?.querySelector(TARGETS[target])
         if (!page || !el) return cursorRef.current
         const pr = page.getBoundingClientRect()
         const r = el.getBoundingClientRect()
@@ -497,7 +584,7 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
     useEffect(() => {
         if (!visible || reduced || box.w === 0) return
         const current = SCRIPT[step]
-        let ms = current.ms
+        let dur = current.ms
 
         switch (current.kind) {
             case "move": {
@@ -506,12 +593,15 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
                 const dist = Math.hypot(to.x - from.x, to.y - from.y)
                 cursorRef.current = to
                 setCursor(to)
-                ms = Math.min(
+                dur = Math.min(
                     MOVE_MAX,
                     Math.max(MOVE_MIN, Math.round(dist * MS_PER_PX))
                 )
-                setMoveMs(ms)
+                setMoveMs(dur)
                 setArc((a) => 1 - a)
+                // The camera leaves with the pointer and arrives with it.
+                setShotMs(dur)
+                setCamera(measureShot(current.shot))
                 setPressing(false)
                 break
             }
@@ -524,21 +614,30 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
             case "load":
                 setPressing(false)
                 break
+            case "cta":
+                setPressing(false)
+                if (current.who === "pick") setPickPhase("added")
+                else setExclusivePhase("added")
+                break
+            case "unlock":
+                setUnlocked(true)
+                break
             case "add":
-                // The control settles, the bag badge takes the hit, and the
-                // order summary moves — all off the one event, as it did.
-                if (current.who === "pick") {
-                    setPickPhase("added")
-                    setAdded((a) => [...a, PICKS[(rotation + 1) % PICKS.length]])
-                } else {
-                    setExclusivePhase("added")
-                    setAdded((a) => [...a, EXCLUSIVE])
-                }
+                // The line opens out in the bag, and the badge and the order
+                // summary move with it — one event, as it was.
+                setAdded((a) => [
+                    ...a,
+                    current.who === "pick"
+                        ? PICKS[(rotation + 1) % PICKS.length]
+                        : EXCLUSIVE,
+                ])
                 setPulsing(true)
                 break
             case "reset":
                 setRotation(0)
                 setAdded([])
+                setUnlocked(false)
+                setCamera(WIDE)
                 setPickPhase("idle")
                 setExclusivePhase("idle")
                 setPulsing(false)
@@ -554,7 +653,7 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
         const id = window.setTimeout(() => {
             if (current.kind === "add") setPulsing(false)
             setStep((s) => (s + 1) % SCRIPT.length)
-        }, Math.max(60, ms))
+        }, Math.max(60, dur))
         return () => window.clearTimeout(id)
         // `rotation` is read when a pick is added, so the step this depends on
         // has to re-run if it changes.
@@ -566,14 +665,16 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
     const availW = Math.max(0, box.w - pad * 2)
     const availH = Math.max(0, box.h - pad * 2 - FRAME_PAD_TOP)
     const width = Math.max(0, Math.min(availW, availH * (FRAME_W / FRAME_H)))
-    const scale = width / FRAME_W
+    /** The camera's slice of the page, filling the frame. */
+    const scale = width / camera.w
+    /** How far in we are, for anything that should not grow with the zoom. */
+    const zoom = camera.w / VIEW_W
     // Half the hero pane's own corner, by the same rule it uses, so the frame
     // nests inside it rather than echoing it.
     const frameRadius =
         (box.w < 640 ? 13 : Math.min(26, Math.max(17, box.w * 0.09))) / 2
 
     /* ---- derived page state ---------------------------------------------- */
-    const unlocked = added.some((p) => p.id !== EXCLUSIVE.id)
     const bagCount = 1 + added.length
     const items = [SHIRT, ...added]
     const subtotal = items.reduce((t, p) => t + p.price, 0)
@@ -630,8 +731,14 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
                             className="macys-page"
                             style={{
                                 width: VIEW_W,
-                                transform: `scale(${scale})`,
+                                // Translate first in page pixels, then scale,
+                                // so the camera's x/y stay in the page's own
+                                // coordinates whatever the zoom.
+                                transform: `scale(${scale}) translate(${-camera.x}px, ${-camera.y}px)`,
                                 transformOrigin: "top left",
+                                transition: reduced
+                                    ? "none"
+                                    : `transform ${shotMs}ms cubic-bezier(0.4, 0, 0.2, 1)`,
                                 position: "relative",
                             }}
                         >
@@ -709,10 +816,22 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
 
                                     <div className="bag-items">
                                         {items.map((product, i) => (
-                                            <BagRow
+                                            <div
                                                 key={`${product.id}-${i}`}
-                                                product={product}
-                                            />
+                                                // Everything after the first
+                                                // line arrived during the
+                                                // loop, so it opens out
+                                                // rather than appearing.
+                                                className={
+                                                    i === 0
+                                                        ? undefined
+                                                        : "bag-item-enter"
+                                                }
+                                            >
+                                                <div>
+                                                    <BagRow product={product} />
+                                                </div>
+                                            </div>
                                         ))}
                                     </div>
 
@@ -783,11 +902,6 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
                                                                     </div>
                                                                     <AddToBag
                                                                         className="quick-pick-card__cta"
-                                                                        innerRef={
-                                                                            isTarget
-                                                                                ? pickRef
-                                                                                : undefined
-                                                                        }
                                                                         phase={
                                                                             isTarget
                                                                                 ? pickPhase
@@ -818,7 +932,6 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
                                                 <Chevron dir="left" />
                                             </button>
                                             <button
-                                                ref={nextRef}
                                                 type="button"
                                                 tabIndex={-1}
                                                 className="quick-picks__nav quick-picks__nav--next"
@@ -869,7 +982,6 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
                                                 </div>
                                             </div>
                                             <AddToBag
-                                                innerRef={exclusiveRef}
                                                 phase={exclusivePhase}
                                                 locked={!unlocked}
                                                 label="Add to Bag"
@@ -1033,7 +1145,23 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
                                                 transition: `transform ${PRESS_MS / 2}ms ${PRESS_EASE}`,
                                             }}
                                         >
-                                            <Cursor size={38} />
+                                            {/* Counter-scaled, so the
+                                                pointer stays one size on
+                                                screen instead of swelling
+                                                every time the camera goes
+                                                in. */}
+                                            <span
+                                                style={{
+                                                    display: "block",
+                                                    transform: `scale(${zoom})`,
+                                                    transformOrigin: "0 0",
+                                                    transition: reduced
+                                                        ? "none"
+                                                        : `transform ${shotMs}ms cubic-bezier(0.4, 0, 0.2, 1)`,
+                                                }}
+                                            >
+                                                <Cursor size={38} />
+                                            </span>
                                         </span>
                                     </span>
                                 </span>

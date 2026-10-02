@@ -1082,3 +1082,36 @@ dl {
         0 18px 44px rgba(0, 0, 0, 0.45),
         0 2px 8px rgba(0, 0, 0, 0.3);
 }
+
+/* A line arriving in the bag. It opens out from nothing rather than appearing
+   at full height, which made everything below it jump. The row track is what
+   carries the height — 0fr to 1fr is the one way to animate to an intrinsic
+   height — and the inner box clips the content while it is shorter than the
+   content wants to be. Where the browser will not interpolate the track, the
+   row still fades and slides; it simply arrives at its height at once. */
+.macys-page .bag-item-enter {
+    display: grid;
+    grid-template-rows: 1fr;
+    animation: macys-bag-in 1100ms cubic-bezier(0.33, 1, 0.68, 1) both;
+}
+.macys-page .bag-item-enter > div {
+    overflow: hidden;
+    min-height: 0;
+}
+@keyframes macys-bag-in {
+    from {
+        grid-template-rows: 0fr;
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        grid-template-rows: 1fr;
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .macys-page .bag-item-enter {
+        animation: none;
+    }
+}
