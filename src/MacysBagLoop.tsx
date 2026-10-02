@@ -228,8 +228,10 @@ type Step =
     | { kind: "reset"; ms: number }
 
 const SCRIPT: Step[] = [
-    // Open wide, on the page as a whole.
-    { kind: "hold", ms: ms(1700) },
+    // Open wide, on the page as a whole — but only briefly. Long enough to
+    // read the page as a page, short enough that nobody scrolls past a still
+    // image waiting for it to do something.
+    { kind: "hold", ms: ms(850) },
     // In on the suggestions, pointer first.
     { kind: "move", to: "next", shot: "suggest", ms: 0 },
     { kind: "hold", ms: DWELL_MS },
@@ -531,6 +533,19 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
         io.observe(el)
         return () => io.disconnect()
     }, [])
+
+    /**
+     * Scrolled past and come back to, a hero starts again rather than picking
+     * up wherever it was paused. Jumping to the script's last step — its own
+     * reset — is what clears the state, and the step after it is the first.
+     *
+     * `visible` starts true so a suspended IntersectionObserver cannot leave
+     * the hero frozen, which means this does nothing on mount beyond a reset
+     * of state that is already clear.
+     */
+    useEffect(() => {
+        if (visible) setStep(SCRIPT.length - 1)
+    }, [visible])
 
     /**
      * A shot, measured off the laid-out page and widened to the frame's own

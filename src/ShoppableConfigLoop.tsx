@@ -265,6 +265,19 @@ export default function ShoppableConfigLoop({ alt }: { alt?: string }) {
         return () => io.disconnect()
     }, [])
 
+    /**
+     * Scrolled past and come back to, a hero starts again rather than picking
+     * up wherever it was paused. Jumping to the script's last step — its own
+     * reset — is what clears the state, and the step after it is the first.
+     *
+     * `visible` starts true so a suspended IntersectionObserver cannot leave
+     * the hero frozen, which means this does nothing on mount beyond a reset
+     * of state that is already clear.
+     */
+    useEffect(() => {
+        if (visible) setStep(SCRIPT.length - 1)
+    }, [visible])
+
     useEffect(() => {
         if (!visible || reduced) return
         const current = SCRIPT[step]

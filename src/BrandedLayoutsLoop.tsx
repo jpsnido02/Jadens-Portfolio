@@ -24,7 +24,13 @@ import {
 } from "react"
 import { FRAME_H, FRAME_W, PhoneShell } from "./ShoppablePhone"
 import { FONT_FAMILY } from "./tokens"
-import { currentPartner, PARTNERS, SCREEN, subscribe } from "./partners"
+import {
+    currentPartner,
+    PARTNERS,
+    SCREEN,
+    subscribe,
+    watchVisibility,
+} from "./partners"
 
 const SLIDE_MS = 980
 /** Apple's presentation curve: decisive away, long settle in. */
@@ -68,6 +74,10 @@ export default function BrandedLayoutsLoop({ alt }: { alt?: string }) {
             ro?.disconnect()
         }
     }, [])
+
+    // The rotation's clock runs only while something showing it is on screen,
+    // so scrolling to the hero gives a full hold before the first slide.
+    useEffect(() => watchVisibility(wrapRef.current), [])
 
     // The phone leaving is whichever one the rotation just moved off.
     useEffect(() => {

@@ -15,7 +15,13 @@
  */
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react"
-import { currentPartner, ICON, PARTNERS, subscribe } from "./partners"
+import {
+    currentPartner,
+    ICON,
+    PARTNERS,
+    subscribe,
+    watchVisibility,
+} from "./partners"
 
 /** Shorter than the hero's slide: the tile is small, so it settles sooner. */
 const SLIDE_MS = 700
@@ -37,6 +43,10 @@ export default function PartnerTile({
     const [outgoing, setOutgoing] = useState<number | null>(null)
     const previous = useRef(current)
     const wrapRef = useRef<HTMLDivElement>(null)
+
+    // Same clock as the hero, and the same rule: it only runs while one of
+    // them is on screen.
+    useEffect(() => watchVisibility(wrapRef.current), [])
 
     // The icon leaving is whichever one the rotation just moved off.
     useEffect(() => {
