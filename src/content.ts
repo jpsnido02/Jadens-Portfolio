@@ -34,9 +34,12 @@ export const intro = {
     // instagram, github, dribbble, behance, or a globe for anything else.
     // Add `icon: "github"` to a link to force a specific one.
     links: [
-        // TODO: replace with the accounts you want publicly listed.
-        { label: "Email", url: "mailto:hello@example.com" },
-        { label: "LinkedIn", url: "https://www.linkedin.com" },
+        // TODO: Instagram is still the placeholder.
+        { label: "Email", url: "mailto:jadenpsnyder02@gmail.com" },
+        {
+            label: "LinkedIn",
+            url: "https://www.linkedin.com/in/jaden-p-snyder/",
+        },
         { label: "Instagram", url: "https://www.instagram.com" },
     ] satisfies IntroLink[],
 }
