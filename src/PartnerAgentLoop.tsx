@@ -221,7 +221,9 @@ const pace = (v: number) => Math.round(v * PACE)
 const PROMPT_CHAR_MS = pace(38)
 const SEND_MS = pace(400)
 /** Long enough to read the agent picking the job up before the file moves. */
-const AGENT_MS = pace(1400)
+/** Long enough that the page has finished arriving before the file
+ *  starts being written underneath it. */
+const AGENT_MS = pace(1500)
 const CHAR_MS = pace(36)
 /** The preview greying over and spinning while the format is rendered. */
 const LOADING_MS = pace(1400)
@@ -242,7 +244,14 @@ const VEIL_MS = pace(300)
  * through PACE together, so that relationship holds at any pace.
  */
 const SHEET_MS = pace(1050)
-const PAGE_MS = pace(620)
+/**
+ * The partner's page arriving. It paints down from the top and resolves out of
+ * blur rather than cross-fading, so it reads as a page loading rather than a
+ * picture appearing — see .agent-page-in. The fade is only the fallback for
+ * browsers without masks, so it is the shorter of the two.
+ */
+const PAGE_IN_MS = pace(1350)
+const PAGE_FADE_MS = pace(560)
 
 /**
  * Every step carries the round it belongs to, so what the file holds can be
@@ -948,6 +957,13 @@ export default function PartnerAgentLoop({ alt }: { alt?: string }) {
                                         src={`${BASE}/page.jpg`}
                                         alt=""
                                         loading="eager"
+                                        // The class is what carries the
+                                        // arrival, and it is only on while the
+                                        // page is. Taking it off at the reset
+                                        // is what lets it play again next loop.
+                                        className={
+                                            pageOn ? "agent-page-in" : undefined
+                                        }
                                         style={{
                                             position: "absolute",
                                             inset: 0,
@@ -956,7 +972,8 @@ export default function PartnerAgentLoop({ alt }: { alt?: string }) {
                                             display: "block",
                                             objectFit: "cover",
                                             opacity: pageOn ? 1 : 0,
-                                            transition: `opacity ${PAGE_MS}ms ${EASE}`,
+                                            transition: `opacity ${PAGE_FADE_MS}ms ${EASE}`,
+                                            animationDuration: `${PAGE_IN_MS}ms`,
                                         }}
                                     />
 

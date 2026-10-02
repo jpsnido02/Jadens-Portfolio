@@ -1115,3 +1115,69 @@ dl {
         animation: none;
     }
 }
+
+/* The partner's page arriving in the agent hero's phone.
+ *
+ * It used to cross-fade in, which read as a slide appearing rather than a page
+ * loading. Now it paints down from the top behind a soft edge and resolves out
+ * of blur, which is what a page actually does: content lands in document order
+ * and the imagery sharpens last. No spinner — the page itself is the progress.
+ *
+ * The mask is 250% of the element, opaque over its first stretch and
+ * transparent over its last. Percentage mask positions resolve against
+ * (element - mask), so 100% parks the element against the mask's transparent
+ * end and 0% against its opaque end; travelling from 100% to 0% walks the soft
+ * edge down the page from the top. The other direction, with the gradient the
+ * other way up, peels the page in from the bottom, which is not how anything
+ * loads.
+ *
+ * The element covers 1/2.5 = 40% of the mask, so it sits at 60-100% at the
+ * start and 0-40% at the end. The fade has to live strictly between those two
+ * windows or the ends are not clean — hence 41% and 59%, which leaves a soft
+ * edge half the page tall and still reaches fully hidden and fully shown.
+ *
+ * Where masks are unsupported the image still fades and sharpens; it simply
+ * arrives all at once rather than top-first. */
+.agent-page-in {
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        #000 0 41%,
+        transparent 59% 100%
+    );
+    mask-image: linear-gradient(to bottom, #000 0 41%, transparent 59% 100%);
+    -webkit-mask-size: 100% 250%;
+    mask-size: 100% 250%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    animation-name: agent-page-in;
+    /* Deliberately not the site's usual decelerating curve. That one puts
+       four fifths of the travel in the first two fifths of the time, so the
+       edge snapped down the page and then crawled — which is what made this
+       read as fast however long it ran. A page paints at a steadier rate than
+       that, so this curve is close to even, with only a little ease at each
+       end. */
+    animation-timing-function: cubic-bezier(0.5, 0.12, 0.42, 0.92);
+    animation-fill-mode: both;
+}
+@keyframes agent-page-in {
+    0% {
+        -webkit-mask-position: 0% 100%;
+        mask-position: 0% 100%;
+        filter: blur(14px) saturate(0.86);
+    }
+    58% {
+        filter: blur(3px) saturate(0.96);
+    }
+    100% {
+        -webkit-mask-position: 0% 0%;
+        mask-position: 0% 0%;
+        filter: blur(0) saturate(1);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .agent-page-in {
+        animation: none;
+        -webkit-mask-image: none;
+        mask-image: none;
+    }
+}

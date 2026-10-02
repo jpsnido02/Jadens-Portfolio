@@ -123,6 +123,17 @@ const UBER_SLOT = { x: 28.5, y: 577 }
 const STORE_SLOT = { x: 119.5, y: 577 }
 
 const APPLE_EASE = "cubic-bezier(0.32, 0.72, 0, 1)"
+/**
+ * How far the home screen is pushed back while an app is over it.
+ *
+ * On iOS the home screen is not a backdrop the app happens to cover — it
+ * moves. Opening an app zooms the home screen in and fades it out behind the
+ * window growing out of the icon; closing one brings it back from slightly
+ * over-size and settles it. That counter-motion is most of what makes the
+ * transition read as depth rather than as a sprite being scaled, and holding
+ * the home screen still was why this did not feel like the real thing.
+ */
+const HOME_ZOOM = 1.12
 const PAGE_EASE = "cubic-bezier(0.33, 1, 0.68, 1)"
 
 const OPEN_MS = 620
@@ -280,8 +291,13 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
     // Each surface morphs to and from its own icon on the home screen, not
     // from the button that was pressed.
     const appAway = stage !== "app"
+    /** The home screen is only at rest when nothing is over it. */
+    const atHome = stage === "home"
     const storeOpen = stage === "store"
-    const MORPH_MS = stage === "store" ? OPEN_MS : CLOSE_MS
+    // Opening an app and closing one are not the same length on iOS, and the
+    // stage being entered is what says which this is: anything but the home
+    // screen is a window growing out of an icon.
+    const MORPH_MS = atHome ? CLOSE_MS : OPEN_MS
 
     /** Every measured Figma unit goes through this to reach its real size. */
     const px = (v: number) => v * scale
@@ -366,6 +382,19 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                                 width: px(SCREEN_W),
                                 height: px(SCREEN_H),
                                 display: "block",
+                                // Pushed back and faded while an app is over
+                                // it, settling to rest when the app leaves.
+                                // Zoomed from the centre, as the icons spread
+                                // from the centre on the real thing.
+                                transformOrigin: "50% 50%",
+                                transform: atHome
+                                    ? "scale(1)"
+                                    : `scale(${HOME_ZOOM})`,
+                                opacity: atHome ? 1 : 0,
+                                transition: [
+                                    `transform ${MORPH_MS}ms ${APPLE_EASE}`,
+                                    `opacity ${Math.round(MORPH_MS * 0.6)}ms linear`,
+                                ].join(", "),
                             }}
                         />
 
@@ -390,9 +419,16 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
                                 transform: appAway
                                     ? `translate3d(${px(UBER_SLOT.x)}px, ${px(UBER_SLOT.y)}px, 0) scale(${ICON / SCREEN_W})`
                                     : "translate3d(0, 0, 0) scale(1)",
+                                // The display's own radius at rest, morphing
+                                // to the icon's. Pre-divided by the scale it
+                                // is about to be given, so what lands is
+                                // ICON_R and not a thirteenth of it. Starting
+                                // from 0 left the window square-cornered for
+                                // the first part of the shrink, which the real
+                                // one never is.
                                 borderRadius: appAway
                                     ? px(ICON_R / (ICON / SCREEN_W))
-                                    : 0,
+                                    : px(SCREEN_R),
                                 overflow: "hidden",
                                 opacity: appAway ? 0 : 1,
                                 transition: [
