@@ -292,15 +292,7 @@ export default function PortfolioScroll({
     const cardsViewportRef = useRef<HTMLDivElement>(null)
     const heroRef = useRef<HTMLDivElement>(null)
 
-    /**
-     * Tall enough for a third line of description.
-     *
-     * At two lines the focused card gave about 68 characters, which is enough
-     * to allude to a project and not enough to say what it was and what it
-     * was tuned for. A line is 23px on desktop and 18 on a phone; the card
-     * grows by exactly that and nothing else moves.
-     */
-    const cardHeight = isMobile ? 208 : 253
+    const cardHeight = isMobile ? 190 : 230
     const taglineSize = isMobile ? 16 : 18
     // Sized against the tagline, so it keeps its ratio if the type changes.
     // Sized to the cap height of the sentence it sits in.
@@ -1691,7 +1683,7 @@ export default function PortfolioScroll({
                                                 fontWeight: 500,
                                                 fontFamily: FONT_FAMILY,
                                                 display: "-webkit-box",
-                                                WebkitLineClamp: 3,
+                                                WebkitLineClamp: 2,
                                                 WebkitBoxOrient: "vertical",
                                                 overflow: "hidden",
                                             }}

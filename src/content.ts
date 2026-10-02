@@ -58,7 +58,7 @@ export const projects: ProjectData[] = [
         category: "Ad formats",
         year: "2026",
         description:
-            "Ad formats inside Uber Eats order tracking, tuned to the order you placed and the wait you're in.",
+            "Ad formats in Uber Eats order tracking, tuned to your order and your wait.",
         tags: [],
         link: "work/uber-ads/",
     },
@@ -82,7 +82,7 @@ export const projects: ProjectData[] = [
         comingSoon: true,
         year: "2026",
         description:
-            "A kiosk offer after you pay. The kiosk only earns the scan; the rewards sign-up finishes on your own phone.",
+            "A kiosk offer after you pay. The sign-up finishes on your own phone.",
         tags: [],
         link: "work/mcdonalds-kiosk/",
     },
@@ -103,7 +103,7 @@ export const projects: ProjectData[] = [
         category: "Conversion",
         year: "2026",
         description:
-            "A bag-page discount that unlocks on an add-on. Three variants: unlock it instantly, or earn it at a spend threshold.",
+            "Three variants of a bag-page discount: instant unlock, or spend threshold.",
         tags: [],
         link: "work/macys-bag-page/",
     },
@@ -124,7 +124,7 @@ export const projects: ProjectData[] = [
         category: "Internal tools",
         year: "2026",
         description:
-            "One prompt builds a partner's mockups in every ad format. It replaced drawing each one by hand.",
+            "One prompt builds a partner's mockups in every ad format, instead of by hand.",
         tags: [],
         // TODO: still points at the shoppable case study. Needs its own page.
         link: "work/shoppable-pitching-platform/",
@@ -141,7 +141,7 @@ export const projects: ProjectData[] = [
         partnerRotation: true,
         year: "2026",
         description:
-            "One template that takes on a partner's colours and type, so it reads as their site rather than an ad.",
+            "One template takes a partner's colours, so it reads as their site, not an ad.",
         tags: [],
         link: "work/branded-layouts/",
     },
@@ -160,7 +160,7 @@ export const projects: ProjectData[] = [
         category: "Internal tools",
         year: "2026",
         description:
-            "Build a demo placement from a few settings and send it as a link. Made for a sales call, not a week.",
+            "Build a demo placement from a few settings. Made for a sales call, not a week.",
         tags: [],
         link: "work/shoppable-config/",
     },
@@ -181,7 +181,7 @@ export const projects: ProjectData[] = [
         category: "Marketplace",
         year: "2026",
         description:
-            "Expedia's offers beside other companies' in one confirmation. How plainly to say whose is whose.",
+            "Expedia's offers beside other companies'. How plainly to say whose is whose.",
         tags: [],
         link: "work/expedia-1p-3p/",
     },
