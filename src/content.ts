@@ -121,7 +121,7 @@ export const projects: ProjectData[] = [
         partnerRotation: true,
         year: "2026",
         description:
-            "Two partners proved the lift. A template and an agent workflow scaled it across our top 50 clients' brands, automatically driving 20% more value per transaction.",
+            "Offers restyled to the brand showing them. Two partners proved it, then a template and an agent workflow built all 50, driving 20% more value per transaction.",
         tags: [],
         link: "work/branded-layouts/",
     },
@@ -140,7 +140,7 @@ export const projects: ProjectData[] = [
         category: "Internal tools",
         year: "2026",
         description:
-            "We shipped a prototyping platform so sales can turn an introductory call into a live demo the customer can interact with as if it were real.",
+            "My prototyping platform allows our sales team to turn an introductory call into a live demo the customer can interact with as if it were real.",
         tags: [],
         link: "work/shoppable-config/",
     },
