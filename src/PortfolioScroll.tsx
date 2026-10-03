@@ -111,6 +111,11 @@ const CONFIG = {
     HOVER_HEADROOM: 8,
     /** Room around the focused card on mobile, shown as a neighbour peek. */
     CARD_PEEK: 40,
+    /**
+     * The same peek on a phone, where the hero is competing for the screen
+     * and a neighbour only has to be legible as one, not read.
+     */
+    CARD_PEEK_MOBILE: 28,
     /** How long each intro verb holds before the next slides up. */
     VERB_INTERVAL: 2200,
     /** How long one verb takes to travel. */
@@ -240,6 +245,12 @@ export default function PortfolioScroll({
     })
 
     const [isMobile, setIsMobile] = useState(false)
+    /**
+     * A small phone, by either measure. At 320x568 the card's title wraps to
+     * two lines and the intro, the card and the pager together leave the hero
+     * less than a third of the screen, so both ends give up a little more.
+     */
+    const [isTight, setIsTight] = useState(false)
     const [hoveredCard, setHoveredCard] = useState<number | null>(null)
     const [hoveredIntroIcon, setHoveredIntroIcon] = useState<number | null>(
         null,
@@ -301,8 +312,8 @@ export default function PortfolioScroll({
      * minimap off it; giving each card its own slot would mean replacing that
      * step with cumulative offsets.
      */
-    const cardHeight = isMobile ? 222 : 270
-    const taglineSize = isMobile ? 16 : 18
+    const cardHeight = isMobile ? (isTight ? 188 : 176) : 270
+    const taglineSize = isMobile ? 14 : 18
     // Sized against the tagline, so it keeps its ratio if the type changes.
     // Sized to the cap height of the sentence it sits in.
     const ctaSize = Math.round(taglineSize * 0.75)
@@ -347,7 +358,11 @@ export default function PortfolioScroll({
 
         const checkMobile = () => {
             const width = containerEl.clientWidth
-            startTransition(() => setIsMobile(width < 768))
+            const height = containerEl.clientHeight
+            startTransition(() => {
+                setIsMobile(width < 768)
+                setIsTight(width < 360 || height < 640)
+            })
         }
         const initialCheck = setTimeout(checkMobile, 0)
 
@@ -934,20 +949,28 @@ export default function PortfolioScroll({
             style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: isMobile ? 6 : 8,
+                gap: isMobile ? (isTight ? 2 : 4) : 8,
                 flexShrink: 0,
                 // Outside the panel on mobile, so it carries its own
                 // horizontal padding to stay aligned with the hero.
                 paddingLeft: isMobile ? 16 : undefined,
-                paddingRight: isMobile ? 16 : undefined,
+                // The theme toggle is fixed at the top right, 44 wide. On a
+                // small phone the tagline's rotating verb reaches far enough
+                // across to run underneath it, so the text stops short of
+                // its column there.
+                paddingRight: isMobile ? (isTight ? 60 : 16) : undefined,
                 marginBottom: 0,
                 // Viewport-relative on desktop rather than a fixed 48: on a
                 // laptop the headline sat too close to the top edge, and a
                 // constant offset that looks right at 1080 looks cramped at
                 // 768. The track below takes flex: 1, so it absorbs whatever
                 // this gives away instead of overflowing.
-                paddingTop: isMobile ? 40 : "clamp(64px, 11vh, 140px)",
-                paddingBottom: isMobile ? 10 : 24,
+                paddingTop: isMobile
+                    ? isTight
+                        ? 10
+                        : 16
+                    : "clamp(64px, 11vh, 140px)",
+                paddingBottom: isMobile ? (isTight ? 4 : 6) : 24,
             }}
         >
             {introAvatar && (
@@ -970,7 +993,7 @@ export default function PortfolioScroll({
             <h1
                 style={{
                     ...titleFont,
-                    fontSize: isMobile ? 24 : 36,
+                    fontSize: isMobile ? 22 : 36,
                     color: palette.text,
                     margin: 0,
                     lineHeight: 1.08,
@@ -1063,10 +1086,17 @@ export default function PortfolioScroll({
                                         display: "inline-flex",
                                         alignItems: "center",
                                         justifyContent: "center",
-                                        // No fill any more, so padding
-                                        // is the only thing keeping a
-                                        // tap target around the glyph.
-                                        padding: isMobile ? 9 : 6,
+                                        // The visual inset only. The 44px
+                                        // target comes from .hit44::after,
+                                        // which has its own min-size and is
+                                        // unaffected by this — so a small
+                                        // phone can tighten the row without
+                                        // shrinking anything to aim at.
+                                        padding: isMobile
+                                            ? isTight
+                                                ? 5
+                                                : 9
+                                            : 6,
                                         color: isHovered
                                             ? palette.text
                                             : palette.textMuted,
@@ -1153,7 +1183,7 @@ export default function PortfolioScroll({
                     flex: isMobile ? "1 1 auto" : undefined,
                     minHeight: isMobile ? 160 : undefined,
                     padding: isMobile
-                        ? "8px max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left))"
+                        ? "6px max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left))"
                         : "16px",
                     boxSizing: "border-box",
                     backgroundColor: palette.background,
@@ -1206,7 +1236,12 @@ export default function PortfolioScroll({
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "center",
-                                        padding: isMobile ? 16 : 32,
+                                        // Nothing on mobile: each loop sets
+                                        // its own pad off its measured box,
+                                        // so a wrapper inset here was a
+                                        // second one, and 32 of the 408 the
+                                        // pane has to give.
+                                        padding: isMobile ? 0 : 32,
                                     }}
                                 >
                                     {data.component === "macys-bag" ? (
@@ -1261,7 +1296,15 @@ export default function PortfolioScroll({
                                         boxSizing: "border-box",
                                     }}
                                 >
-                                    <picture>
+                                    {/* display: contents, so the img is the
+                                        flex item. As a box of its own the
+                                        picture took its height from the
+                                        image, and the image's max-height
+                                        then resolved against that — which is
+                                        itself, so it never constrained
+                                        anything and a tall crop ran out of
+                                        the pane at both ends. */}
+                                    <picture style={{ display: "contents" }}>
                                         {data.imageMobile && (
                                             <source
                                                 media="(max-width: 640px)"
@@ -1370,11 +1413,11 @@ export default function PortfolioScroll({
                     flexShrink: 0,
                     backgroundColor: palette.panel,
                     padding: isMobile
-                        ? "12px 16px calc(12px + env(safe-area-inset-bottom)) 16px"
+                        ? "8px 16px calc(8px + env(safe-area-inset-bottom)) 16px"
                         : "20px 20px 16px 20px",
                     display: "flex",
                     flexDirection: "column",
-                    gap: isMobile ? 10 : 14,
+                    gap: isMobile ? 8 : 14,
                     overflow: isMobile ? "hidden" : "visible",
                     zIndex: isMobile ? "auto" : 2,
                 }}
@@ -1390,7 +1433,8 @@ export default function PortfolioScroll({
                         // plus CARD_PEEK, so the neighbours show as a
                         // deliberate peek and can never clip the focused card.
                         height: isMobile
-                            ? cardHeight + CONFIG.CARD_PEEK
+                            ? cardHeight +
+                              (isTight ? 18 : CONFIG.CARD_PEEK_MOBILE)
                             : undefined,
                         flex: isMobile ? "0 0 auto" : 1,
                         minHeight: 0,
@@ -1558,14 +1602,18 @@ export default function PortfolioScroll({
                                                 display: "flex",
                                                 justifyContent: "space-between",
                                                 alignItems: "flex-start",
-                                                marginBottom: isMobile
-                                                    ? 10
-                                                    : 14,
+                                                marginBottom: isMobile ? 8 : 14,
                                             }}
                                         >
                                             {data.partnerRotation ? (
                                                 <PartnerTile
-                                                    size={isMobile ? 56 : 68}
+                                                    size={
+                                                        isMobile
+                                                            ? isTight
+                                                                ? 40
+                                                                : 46
+                                                            : 68
+                                                    }
                                                     radius={thumbRadius}
                                                     cornerShape={
                                                         CONFIG.CORNER_SHAPE
@@ -1576,10 +1624,14 @@ export default function PortfolioScroll({
                                                 <div
                                                     style={{
                                                         width: isMobile
-                                                            ? 56
+                                                            ? isTight
+                                                                ? 40
+                                                                : 46
                                                             : 68,
                                                         height: isMobile
-                                                            ? 56
+                                                            ? isTight
+                                                                ? 40
+                                                                : 46
                                                             : 68,
                                                         borderRadius:
                                                             thumbRadius,
@@ -1679,7 +1731,11 @@ export default function PortfolioScroll({
                                         <h2
                                             style={{
                                                 ...titleFont,
-                                                fontSize: isMobile ? 17 : 20,
+                                                fontSize: isMobile
+                                                    ? isTight
+                                                        ? 15
+                                                        : 17
+                                                    : 20,
                                                 color: cardInk,
                                                 marginTop: 0,
                                                 marginRight: 0,
