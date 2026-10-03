@@ -121,7 +121,7 @@ export const projects: ProjectData[] = [
         partnerRotation: true,
         year: "2026",
         description:
-            "Offers restyled to the brand showing them. A two-partner test won, so I wrote a template and an agent workflow for the other 48. Value per transaction rose 20%.",
+            "Offers restyled to the brand showing them. A two-partner test won, so I built an agentic pipeline to scale it across our network. Value per transaction rose 20%.",
         tags: [],
         link: "work/branded-layouts/",
     },
