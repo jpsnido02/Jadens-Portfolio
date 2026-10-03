@@ -113,9 +113,11 @@ const CONFIG = {
     CARD_PEEK: 40,
     /**
      * The same peek on a phone, where the hero is competing for the screen
-     * and a neighbour only has to be legible as one, not read.
+     * and a neighbour only has to be legible as one, not read. Half of it
+     * sits above the focused card, since the card is centred in the track —
+     * so this is also half the gap between the hero and the card.
      */
-    CARD_PEEK_MOBILE: 28,
+    CARD_PEEK_MOBILE: 16,
     /** How long each intro verb holds before the next slides up. */
     VERB_INTERVAL: 2200,
     /** How long one verb takes to travel. */
@@ -410,7 +412,7 @@ export default function PortfolioScroll({
                     relativeIndex * pitch -
                     tighten +
                     centeredOffsetY +
-                    CONFIG.HOVER_HEADROOM
+                    (isMobile ? 0 : CONFIG.HOVER_HEADROOM)
                 const scale = Math.max(0.66, 1 - absRelative * 0.21)
                 const baseOpacity = Math.max(0.12, 1 - absRelative * 0.68)
                 const opacity =
@@ -1413,7 +1415,7 @@ export default function PortfolioScroll({
                     flexShrink: 0,
                     backgroundColor: palette.panel,
                     padding: isMobile
-                        ? "8px 16px calc(8px + env(safe-area-inset-bottom)) 16px"
+                        ? "6px 16px calc(6px + env(safe-area-inset-bottom)) 16px"
                         : "20px 20px 16px 20px",
                     display: "flex",
                     flexDirection: "column",
@@ -1434,7 +1436,7 @@ export default function PortfolioScroll({
                         // deliberate peek and can never clip the focused card.
                         height: isMobile
                             ? cardHeight +
-                              (isTight ? 18 : CONFIG.CARD_PEEK_MOBILE)
+                              (isTight ? 12 : CONFIG.CARD_PEEK_MOBILE)
                             : undefined,
                         flex: isMobile ? "0 0 auto" : 1,
                         minHeight: 0,
