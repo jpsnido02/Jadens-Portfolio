@@ -17,6 +17,7 @@ export type IntroIconName =
     | "github"
     | "dribbble"
     | "behance"
+    | "resume"
 
 const LINE_ICONS: Partial<Record<IntroIconName, ReactNode>> = {
     mail: (
@@ -56,6 +57,14 @@ const LINE_ICONS: Partial<Record<IntroIconName, ReactNode>> = {
             <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
         </>
     ),
+    resume: (
+        <>
+            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z" />
+            <path d="M14 2v5h5" />
+            <path d="M9 13h6" />
+            <path d="M9 17h6" />
+        </>
+    ),
     dribbble: (
         <>
             <circle cx="12" cy="12" r="10" />
@@ -85,15 +94,14 @@ const LABEL_MATCHES: [string, IntroIconName][] = [
     ["behance", "behance"],
     ["twitter", "twitter"],
     ["github", "github"],
+    ["resume", "resume"],
+    [".pdf", "resume"],
     ["email", "mail"],
     ["mail", "mail"],
     ["x.com", "x"],
 ]
 
-export const resolveIntroIcon = (
-    label: string,
-    url: string
-): IntroIconName => {
+export const resolveIntroIcon = (label: string, url: string): IntroIconName => {
     const haystack = `${label} ${url}`.toLowerCase()
     for (const [needle, name] of LABEL_MATCHES) {
         if (haystack.includes(needle)) return name
