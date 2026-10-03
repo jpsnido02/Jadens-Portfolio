@@ -43,10 +43,10 @@ export const intro = {
             label: "Instagram",
             url: "https://www.instagram.com/_jaden.snyder/",
         },
-        // TODO: the icon is here, the file is not. Drop the PDF at
-        // public/resume.pdf and this link starts working; until then it
-        // 404s.
-        { label: "Resume", url: "/resume.pdf" },
+        {
+            label: "Resume",
+            url: "https://drive.google.com/file/d/1BKS9y3tWwDEDJAqMwWHIVlTnvgGkKXTQ/view",
+        },
     ] satisfies IntroLink[],
 }
 
