@@ -62,7 +62,7 @@ export const projects: ProjectData[] = [
         category: "Ad formats",
         year: "2026",
         description:
-            "Ad formats inside Uber Eats order tracking, chosen for what you ordered and how long you are waiting for it.",
+            "Ad formats inside Uber Eats order tracking. The offer follows what you ordered and how long you have left to wait.",
         tags: [],
         link: "work/uber-ads/",
     },
@@ -121,7 +121,7 @@ export const projects: ProjectData[] = [
         partnerRotation: true,
         year: "2026",
         description:
-            "One template instantly turned on across our top 50 clients' brands, automatically driving 20% more value per transaction across our network.",
+            "Two partners proved the lift. A template and an agent workflow scaled it across our top 50 clients' brands, automatically driving 20% more value per transaction.",
         tags: [],
         link: "work/branded-layouts/",
     },
@@ -140,7 +140,7 @@ export const projects: ProjectData[] = [
         category: "Internal tools",
         year: "2026",
         description:
-            "A prototyping platform shipped so sales can turn an introductory call into a live demo the customer can interact with as if it were real.",
+            "We shipped a prototyping platform so sales can turn an introductory call into a live demo the customer can interact with as if it were real.",
         tags: [],
         link: "work/shoppable-config/",
     },
@@ -164,7 +164,7 @@ export const projects: ProjectData[] = [
         comingSoon: true,
         year: "2026",
         description:
-            "A special offer catered to enjoy after your meal. The kiosk was the surface; our network identified what the customer wanted to do after.",
+            "The kiosk takes the order. Our network works out what that customer wants after the meal, and puts that offer on the screen.",
         tags: [],
         link: "work/mcdonalds-kiosk/",
     },
