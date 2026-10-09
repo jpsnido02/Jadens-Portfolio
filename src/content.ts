@@ -108,7 +108,7 @@ export const projects: ProjectData[] = [
         category: "Internal tools",
         year: "2026",
         description:
-            "100 client asset requests a week, queued behind three designers. My skill automates production 80%, so they fine-tune the details that matter.",
+            "100 client asset requests a week, queued behind three designers. The agentic tool I built automates production 80%, so they fine-tune the details that matter.",
         tags: [],
         // TODO: still points at the shoppable case study. Needs its own page.
         link: "work/shoppable-pitching-platform/",
