@@ -28,7 +28,8 @@ export const SCREEN = (id: string) => `../../projects/branded/${id}.jpg`
 export const ICON = (id: string) => `/projects/partners/${id}-app.jpg`
 /**
  * The partner's full wordmark, as a transparent monochrome mark on a common
- * 420x150 canvas.
+ * 840x300 canvas (twice the size it renders at, so a
+ * high-density display downsamples it).
  *
  * Taken from the partner's own screen — the site header for the three that
  * show one, the placement header for the three that do not — rather than from
@@ -40,8 +41,8 @@ export const ICON = (id: string) => `/projects/partners/${id}-app.jpg`
  */
 export const MARK = (id: string) => `/projects/partners/${id}-mark.png`
 /** That canvas, so a caller can give the box the right shape. */
-export const MARK_W = 420
-export const MARK_H = 150
+export const MARK_W = 840
+export const MARK_H = 300
 
 /** How long each partner holds. The slide itself is each component's own. */
 export const HOLD_MS = 3200

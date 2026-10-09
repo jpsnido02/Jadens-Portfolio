@@ -197,7 +197,7 @@ export default function BrandedLayoutsLoop({
                                 // Nudged down by half the name's room, so the
                                 // name and the phone together sit centred in
                                 // the pane rather than the phone alone.
-                                top: `calc(50% - ${barRoom / 2}px)`,
+                                top: `calc(50% + ${barRoom / 2}px)`,
                                 transform: `translate3d(calc(-50% + ${x}px), -50%, 0)`,
                                 // Only the two phones in motion carry a
                                 // transition, so returning the departed one to
@@ -231,9 +231,8 @@ export default function BrandedLayoutsLoop({
                     )
                 })}
 
-            {/* Every partner at once, and how far through the current one is.
-                Sits under the phone rather than over it, so it reads as a
-                caption to the carousel and not as chrome on the device. */}
+            {/* Every partner at once, and how far through the current one
+                is. */}
             {width > 0 && (
                 <div
                     aria-hidden="true"
@@ -241,7 +240,12 @@ export default function BrandedLayoutsLoop({
                         position: "absolute",
                         left: pad,
                         right: pad,
-                        bottom: pad,
+                        // At the head of the pane, where every other hero
+                        // puts its indicator. At the foot this one read as a
+                        // caption to the carousel while the other four read
+                        // as state, and two conventions for the same thing
+                        // is one too many.
+                        top: pad,
                         display: "grid",
                         gridTemplateColumns: `repeat(${cols}, 1fr)`,
                         rowGap: ROW_GAP,
