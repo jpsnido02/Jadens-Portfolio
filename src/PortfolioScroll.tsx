@@ -1257,6 +1257,7 @@ export default function PortfolioScroll({
                                             // its ink has to come from the
                                             // palette rather than be picked
                                             // to survive both.
+                                            ink={palette.text}
                                             muted={palette.textMuted}
                                             accent={palette.accent}
                                         />

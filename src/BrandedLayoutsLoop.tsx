@@ -34,7 +34,9 @@ import { FONT_FAMILY } from "./tokens"
 import {
     currentPartner,
     HOLD_MS,
-    ICON,
+    MARK,
+    MARK_H,
+    MARK_W,
     PARTNERS,
     SCREEN,
     subscribe,
@@ -55,12 +57,8 @@ const SHADOW_ROOM = 60
 /** The bar's track, and the gap between its segments. */
 const TRACK_H = 3
 const SEG_GAP = 8
-/** Track to logo. */
-const NAME_GAP = 10
-/** The logo tiles, which carry the brands better than their names did. */
-const LOGO_R = 6
-/** One row of segments: track, gap, logo. */
-const ROW_H = 41
+/** Track to mark. */
+const MARK_GAP = 10
 /** Between the two rows, when there are two. */
 const ROW_GAP = 10
 /**
@@ -70,17 +68,20 @@ const ROW_GAP = 10
  * legible enough to be worth the space it takes.
  */
 const ONE_ROW_MIN_W = 420
-/** The logo's side, between these, as the segment allows. */
-const LOGO_MIN = 22
-const LOGO_MAX = 30
+/** The mark's width, between these, as the segment allows. */
+const MARK_MIN = 44
+const MARK_MAX = 84
 
 export default function BrandedLayoutsLoop({
     alt,
+    ink = "#E2E8F0",
     muted = "#94A3B8",
     accent = "#53B1FD",
 }: {
     alt?: string
-    /** The track the fill runs over, and the logos' dimmed state. */
+    /** The mark of the partner being shown. */
+    ink?: string
+    /** The track, and the five marks that are not current. */
     muted?: string
     /** The elapsed part of the bar. */
     accent?: string
@@ -141,7 +142,10 @@ export default function BrandedLayoutsLoop({
     const availW = Math.max(0, box.w - pad * 2)
     const cols = box.w < ONE_ROW_MIN_W ? 3 : PARTNERS.length
     const rows = Math.ceil(PARTNERS.length / cols)
-    const barRoom = ROW_H * rows + ROW_GAP * (rows - 1)
+    const segW = (availW - SEG_GAP * (cols - 1)) / cols
+    const markW = Math.round(Math.max(MARK_MIN, Math.min(MARK_MAX, segW * 0.8)))
+    const markH = Math.round(markW * (MARK_H / MARK_W))
+    const barRoom = (TRACK_H + MARK_GAP + markH) * rows + ROW_GAP * (rows - 1)
     const availH = Math.max(0, box.h - pad * 2 - barRoom)
     const width = Math.max(
         0,
@@ -155,8 +159,6 @@ export default function BrandedLayoutsLoop({
      * sit inside it. Measured against "FANATICS", the widest of the six, which
      * needs about 6.2px of width per point of size at this tracking.
      */
-    const segW = (availW - SEG_GAP * (cols - 1)) / cols
-    const logo = Math.round(Math.max(LOGO_MIN, Math.min(LOGO_MAX, segW * 0.42)))
 
     return (
         <div
@@ -287,27 +289,31 @@ export default function BrandedLayoutsLoop({
                                     brands the work shipped against, and a
                                     logo is recognised where eight uppercase
                                     characters at 10px are only read — if
-                                    they are read at all. Each one is the
-                                    partner's own app icon, already in the
-                                    repo for the tile on this card. */}
-                                <img
-                                    src={ICON(p.id)}
-                                    alt=""
-                                    loading="eager"
+                                    they are read at all.
+
+                                    Drawn as a mask rather than placed as an
+                                    image, so one file is white on the dark
+                                    theme and near-black on the light one.
+                                    Their own colours would have put six
+                                    competing grounds in a row underneath a
+                                    phone already wearing one of them. */}
+                                <div
                                     style={{
-                                        display: "block",
-                                        margin: `${NAME_GAP}px auto 0`,
-                                        width: logo,
-                                        height: logo,
-                                        borderRadius: LOGO_R,
-                                        objectFit: "cover",
-                                        // The five that are not current keep
-                                        // their colour — the point of the row
-                                        // is that all six are recognisable at
-                                        // once — but drop back far enough
-                                        // that the current one leads.
-                                        opacity: active ? 1 : 0.6,
-                                        transition: "opacity 320ms linear",
+                                        width: markW,
+                                        height: markH,
+                                        margin: `${MARK_GAP}px auto 0`,
+                                        backgroundColor: active ? ink : muted,
+                                        opacity: active ? 1 : 0.55,
+                                        maskImage: `url(${MARK(p.id)})`,
+                                        WebkitMaskImage: `url(${MARK(p.id)})`,
+                                        maskSize: "contain",
+                                        WebkitMaskSize: "contain",
+                                        maskRepeat: "no-repeat",
+                                        WebkitMaskRepeat: "no-repeat",
+                                        maskPosition: "center",
+                                        WebkitMaskPosition: "center",
+                                        transition:
+                                            "background-color 320ms linear, opacity 320ms linear",
                                     }}
                                 />
                             </div>

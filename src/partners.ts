@@ -26,6 +26,18 @@ export const PARTNERS: { id: string; name: string }[] = [
 
 export const SCREEN = (id: string) => `../../projects/branded/${id}.jpg`
 export const ICON = (id: string) => `/projects/partners/${id}-app.jpg`
+/**
+ * The same brand, as a transparent monochrome mark on a common 320x150
+ * canvas. Keyed off the app icon above and scaled to equal ink area, so six
+ * logos of six different shapes carry the same optical weight in a row
+ * without six hand-tuned sizes in the component. Used as a CSS mask, which is
+ * what lets one file be white on the dark theme and near-black on the light
+ * one.
+ */
+export const MARK = (id: string) => `/projects/partners/${id}-mark.png`
+/** That canvas, so a caller can give the box the right shape. */
+export const MARK_W = 320
+export const MARK_H = 150
 
 /** How long each partner holds. The slide itself is each component's own. */
 export const HOLD_MS = 3200
