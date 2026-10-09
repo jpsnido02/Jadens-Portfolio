@@ -1233,16 +1233,20 @@ export default function PortfolioScroll({
                                         // own.
                                         backgroundColor: heroSurface,
                                         display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        // The loop indicator hangs off this.
+                                        // A column: the loop indicator takes
+                                        // its strip off the top, the hero
+                                        // centres in the rest.
+                                        flexDirection: "column",
                                         position: "relative",
-                                        // Nothing on mobile: each loop sets
-                                        // its own pad off its measured box,
-                                        // so a wrapper inset here was a
-                                        // second one, and 32 of the 408 the
-                                        // pane has to give.
-                                        padding: isMobile ? 0 : 32,
+                                        // Nothing at the sides on mobile:
+                                        // each loop sets its own pad off its
+                                        // measured box, so a wrapper inset
+                                        // there was a second one, and 32 of
+                                        // the 408 the pane has to give. The
+                                        // top is the one exception, because
+                                        // the indicator's strip starts there
+                                        // and has to clear the pane's corner.
+                                        padding: isMobile ? "12px 0 0" : 32,
                                     }}
                                 >
                                     <HeroStage

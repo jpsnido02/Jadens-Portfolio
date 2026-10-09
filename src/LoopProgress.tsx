@@ -30,6 +30,8 @@ export type LoopReporter = (cycleMs: number, pass: number) => void
 
 /** Thick enough to read against artwork; thin enough not to be furniture. */
 const TRACK_H = 3
+/** Track to hero. */
+const ROW_GAP = 11
 
 export default function LoopProgress({
     cycleMs,
@@ -51,19 +53,24 @@ export default function LoopProgress({
         <div
             aria-hidden="true"
             style={{
-                position: "absolute",
-                left: inset,
-                right: inset,
-                // At the head of the pane, where a thing that is playing puts
-                // its progress. At the foot it read as a caption to the hero;
-                // here it reads as the hero's own state.
-                top: inset,
+                // A strip of its own at the head of the pane, not an overlay
+                // on the hero. Laid over the top it was legible on three of
+                // the four and not on the fourth: Uber's camera pushes the
+                // whole phone to 1.3, which fills the pane, so the line came
+                // down across the status bar and read as a scratch on the
+                // device rather than as a bar. Thirteen pixels of height is
+                // the price of it never landing on anything.
+                flex: "0 0 auto",
+                marginLeft: inset,
+                marginRight: inset,
+                marginBottom: ROW_GAP,
                 height: TRACK_H,
                 borderRadius: TRACK_H,
                 overflow: "hidden",
-                // Over the hero, not beside it. Reserving a strip would have
-                // cost every one of these heroes the height they were just
-                // given, to say something a hairline says.
+                // Above whatever is below it: a scaled hero paints outside
+                // its layout box, so reserving the strip is not on its own
+                // enough to keep the two apart.
+                position: "relative",
                 zIndex: 2,
                 pointerEvents: "none",
             }}
@@ -133,7 +140,6 @@ export function HeroStage({
     )
     return (
         <>
-            {children(report)}
             {indicate && (
                 <LoopProgress
                     cycleMs={at.cycleMs}
@@ -143,6 +149,29 @@ export function HeroStage({
                     accent={accent}
                 />
             )}
+            {/* Whatever is left, with the hero centred in it. The pane used
+                to do this centring itself; it cannot now, because the strip
+                above has to come out of the height first.
+
+                Clipped, because a transform paints outside its layout box:
+                Uber's camera pushes the whole phone to 1.3 and the device
+                then reached up into the strip however much height was
+                reserved for it. The pane already trims that overflow — this
+                trims it thirteen pixels sooner, which is what keeps the line
+                on the pane's own ground instead of across a status bar. */}
+            <div
+                style={{
+                    flex: "1 1 auto",
+                    minHeight: 0,
+                    width: "100%",
+                    overflow: "hidden",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                }}
+            >
+                {children(report)}
+            </div>
         </>
     )
 }
