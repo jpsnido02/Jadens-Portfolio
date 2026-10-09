@@ -68,9 +68,14 @@ const ROW_GAP = 10
  * legible enough to be worth the space it takes.
  */
 const ONE_ROW_MIN_W = 420
-/** The mark's width, between these, as the segment allows. */
-const MARK_MIN = 44
-const MARK_MAX = 104
+/**
+ * The mark's width, between these, as the segment allows. It runs the
+ * segment's full width rather than a fraction of it, so the mark and the
+ * track above it share an edge — and the canvas already carries its own
+ * margin, so the glyph still has air around it.
+ */
+const MARK_MIN = 52
+const MARK_MAX = 130
 
 export default function BrandedLayoutsLoop({
     alt,
@@ -143,7 +148,7 @@ export default function BrandedLayoutsLoop({
     const cols = box.w < ONE_ROW_MIN_W ? 3 : PARTNERS.length
     const rows = Math.ceil(PARTNERS.length / cols)
     const segW = (availW - SEG_GAP * (cols - 1)) / cols
-    const markW = Math.round(Math.max(MARK_MIN, Math.min(MARK_MAX, segW * 0.8)))
+    const markW = Math.round(Math.max(MARK_MIN, Math.min(MARK_MAX, segW)))
     const markH = Math.round(markW * (MARK_H / MARK_W))
     const barRoom = (TRACK_H + MARK_GAP + markH) * rows + ROW_GAP * (rows - 1)
     const availH = Math.max(0, box.h - pad * 2 - barRoom)
