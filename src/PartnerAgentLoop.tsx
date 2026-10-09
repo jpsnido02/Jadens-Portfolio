@@ -15,6 +15,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { FRAME_H, FRAME_W, PhoneShell } from "./ShoppablePhone"
 import { FONT_FAMILY } from "./tokens"
+import { cycleProgress, type LoopReporter } from "./LoopProgress"
 
 const BASE = "../../projects/partner-agent"
 
@@ -334,6 +335,9 @@ const SCRIPT: Step[] = (() => {
     return steps
 })()
 
+/** Where each step of the script sits in the whole cycle. */
+const CYCLE = cycleProgress(SCRIPT.map((s) => s.ms))
+
 const AGENT_STEP = SCRIPT.findIndex((s) => s.kind === "agent")
 const PACKAGE_STEP = SCRIPT.findIndex((s) => s.kind === "package")
 const LOAD_STEPS = SCRIPT.reduce<number[]>(
@@ -364,7 +368,13 @@ const SHEET_EASE = "cubic-bezier(0.32, 0.72, 0, 1)"
 
 /* ----------------------------------------------------------------- render */
 
-export default function PartnerAgentLoop({ alt }: { alt?: string }) {
+export default function PartnerAgentLoop({
+    alt,
+    onProgress,
+}: {
+    alt?: string
+    onProgress?: LoopReporter
+}) {
     const wrapRef = useRef<HTMLDivElement>(null)
     const [box, setBox] = useState({ w: 0, h: 0 })
     const [visible, setVisible] = useState(true)
@@ -393,6 +403,18 @@ export default function PartnerAgentLoop({ alt }: { alt?: string }) {
             ro?.disconnect()
         }
     }, [])
+
+    /**
+     * The loop indicator's readout. Each step hands over the fraction of the
+     * cycle it ends at and how long it runs for, so the bar advances in
+     * lockstep with the script rather than on a clock of its own — and the
+     * reset snaps it back to nothing, which is the restart made visible.
+     */
+    useEffect(() => {
+        const s = SCRIPT[step]
+        if (s.kind === "reset") onProgress?.(0, 0)
+        else onProgress?.(CYCLE[step].value, CYCLE[step].ms)
+    }, [step, onProgress])
 
     useEffect(() => {
         const mq = window.matchMedia("(prefers-reduced-motion: reduce)")

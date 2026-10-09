@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import Cursor from "./Cursor"
 import { RoktWordmark } from "./icons"
 import ShoppablePhone, { FRAME_H, FRAME_W, type Stage } from "./ShoppablePhone"
+import { cycleProgress, type LoopReporter } from "./LoopProgress"
 
 /**
  * The second hero variant: a cursor works the demo platform's configuration
@@ -172,6 +173,9 @@ const SCRIPT: Step[] = (() => {
     return steps
 })()
 
+/** Where each step of the script sits in the whole cycle. */
+const CYCLE = cycleProgress(SCRIPT.map((s) => s.ms))
+
 /** Where the pointer sits for a control, or for the share button at -1. */
 function cursorTarget(ci: number, panelW: number) {
     if (ci < 0) return { x: panelW / 2, y: PANEL_H - PAD_Y - BTN_H / 2 }
@@ -208,7 +212,13 @@ const ARCS = [
 /** The press dip is its own beat, not part of the travel. */
 const PRESS_EASE = "cubic-bezier(0.33, 1, 0.68, 1)"
 
-export default function ShoppableConfigLoop({ alt }: { alt?: string }) {
+export default function ShoppableConfigLoop({
+    alt,
+    onProgress,
+}: {
+    alt?: string
+    onProgress?: LoopReporter
+}) {
     const wrapRef = useRef<HTMLDivElement>(null)
     const [box, setBox] = useState({ w: 0, h: 0 })
     const [step, setStep] = useState(0)
@@ -246,6 +256,18 @@ export default function ShoppableConfigLoop({ alt }: { alt?: string }) {
         }
     }, [])
 
+    /**
+     * The loop indicator's readout. Each step hands over the fraction of the
+     * cycle it ends at and how long it runs for, so the bar advances in
+     * lockstep with the script rather than on a clock of its own — and the
+     * reset snaps it back to nothing, which is the restart made visible.
+     */
+    useEffect(() => {
+        const s = SCRIPT[step]
+        if (s.kind === "reset") onProgress?.(0, 0)
+        else onProgress?.(CYCLE[step].value, CYCLE[step].ms)
+    }, [step, onProgress])
+
     useEffect(() => {
         const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
         const sync = () => setReduced(mq.matches)
@@ -259,7 +281,7 @@ export default function ShoppableConfigLoop({ alt }: { alt?: string }) {
         if (!el) return
         const io = new IntersectionObserver(
             ([e]) => setVisible(e.isIntersecting),
-            { threshold: 0.15 }
+            { threshold: 0.15 },
         )
         io.observe(el)
         return () => io.disconnect()
@@ -305,7 +327,7 @@ export default function ShoppableConfigLoop({ alt }: { alt?: string }) {
             cursorPos.current = to
             const dur = Math.min(
                 MOVE_MAX,
-                Math.max(MOVE_MIN, Math.round(dist * MS_PER_PX))
+                Math.max(MOVE_MIN, Math.round(dist * MS_PER_PX)),
             )
             setMoveMs(dur)
             setArc((a) => 1 - a)
@@ -339,7 +361,7 @@ export default function ShoppableConfigLoop({ alt }: { alt?: string }) {
                         ...prev,
                         [current.c]: Math.min(
                             c.value.length,
-                            Math.floor((performance.now() - start) / CHAR_MS)
+                            Math.floor((performance.now() - start) / CHAR_MS),
                         ),
                     }))
                 }, 33)
@@ -407,7 +429,7 @@ export default function ShoppableConfigLoop({ alt }: { alt?: string }) {
     const activeRow = atFooter ? -1 : CONTROLS[cursorAt].row
     const { x: cursorX, y: cursorY } = cursorTarget(
         atFooter ? -1 : cursorAt,
-        panelW
+        panelW,
     )
 
     return (
@@ -535,7 +557,7 @@ export default function ShoppableConfigLoop({ alt }: { alt?: string }) {
                                 }
 
                                 const ci = CONTROLS.findIndex(
-                                    (c) => c.row === i
+                                    (c) => c.row === i,
                                 )
                                 const isOn = on.includes(r.stages[0])
                                 const focused =
@@ -668,7 +690,7 @@ export default function ShoppableConfigLoop({ alt }: { alt?: string }) {
                                             >
                                                 {r.value.slice(
                                                     0,
-                                                    typed[ci] ?? 0
+                                                    typed[ci] ?? 0,
                                                 )}
                                                 {cursorAt === ci &&
                                                     (typed[ci] ?? 0) <

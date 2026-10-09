@@ -1,3 +1,5 @@
+import { useCallback, useState, type ReactNode } from "react"
+
 /**
  * The loop indicator: where an animated hero is in its cycle, and where it
  * starts over.
@@ -15,6 +17,12 @@
  * it stops dead whenever the loop does, because a loop that is not stepping
  * sends nothing to move to.
  */
+
+/**
+ * What a loop calls to say where it is: the fraction of the cycle the step it
+ * just entered ends at, and how long that step runs for.
+ */
+export type LoopReporter = (value: number, ms: number) => void
 
 /** Thick enough to read against artwork; thin enough not to be furniture. */
 const TRACK_H = 3
@@ -79,7 +87,7 @@ export default function LoopProgress({
  * once rather than four times.
  */
 export function cycleProgress(
-    durations: number[]
+    durations: number[],
 ): { value: number; ms: number }[] {
     const total = durations.reduce((n, d) => n + d, 0) || 1
     let run = 0
@@ -87,4 +95,46 @@ export function cycleProgress(
         run += d
         return { value: run / total, ms: d }
     })
+}
+
+/**
+ * A hero and its indicator, with the reading between them.
+ *
+ * The state lives here rather than in the page so that a hero stepping
+ * through its script — thirty or so times a cycle — re-renders itself and a
+ * three-pixel line, and nothing else on the page.
+ */
+export function HeroStage({
+    children,
+    indicate,
+    muted,
+    accent,
+    inset,
+}: {
+    children: (report: LoopReporter) => ReactNode
+    /** False for a still, and for a hero that already draws its own. */
+    indicate: boolean
+    muted: string
+    accent: string
+    inset: number
+}) {
+    const [at, setAt] = useState({ value: 0, ms: 0 })
+    const report = useCallback<LoopReporter>(
+        (value, ms) => setAt({ value, ms }),
+        [],
+    )
+    return (
+        <>
+            {children(report)}
+            {indicate && (
+                <LoopProgress
+                    value={at.value}
+                    ms={at.ms}
+                    inset={inset}
+                    muted={muted}
+                    accent={accent}
+                />
+            )}
+        </>
+    )
 }

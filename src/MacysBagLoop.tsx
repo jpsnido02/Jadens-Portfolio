@@ -20,6 +20,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import Cursor from "./Cursor"
+import { cycleProgress, type LoopReporter } from "./LoopProgress"
 
 /* -------------------------------------------------------------------------
  * The frame. A plain bordered rectangle rather than a device: the page is
@@ -138,7 +139,8 @@ const PICKS: Product[] = [
 ]
 
 const money = (n: number) => `$${n.toFixed(2)}`
-const savingsOf = (p: Product) => (p.was && p.was > p.price ? p.was - p.price : 0)
+const savingsOf = (p: Product) =>
+    p.was && p.was > p.price ? p.was - p.price : 0
 
 /* -------------------------------------------------------------------------
  * Timing. The prototype's own durations where it has them — 800ms on the
@@ -262,6 +264,9 @@ const SCRIPT: Step[] = [
     { kind: "reset", ms: 60 },
 ]
 
+/** Where each step of the script sits in the whole cycle. */
+const CYCLE = cycleProgress(SCRIPT.map((s) => s.ms))
+
 /**
  * The pointer's two axes run on curves that disagree, so the path bows instead
  * of running straight between controls. Same technique as the other heroes
@@ -333,7 +338,14 @@ function Lock() {
                 stroke="currentColor"
                 strokeWidth="1.2"
             />
-            <rect x="2.4" y="5.4" width="7.2" height="5.6" rx="1" fill="currentColor" />
+            <rect
+                x="2.4"
+                y="5.4"
+                width="7.2"
+                height="5.6"
+                rx="1"
+                fill="currentColor"
+            />
         </svg>
     )
 }
@@ -468,7 +480,13 @@ function AddToBag({
     )
 }
 
-export default function MacysBagLoop({ alt }: { alt?: string }) {
+export default function MacysBagLoop({
+    alt,
+    onProgress,
+}: {
+    alt?: string
+    onProgress?: LoopReporter
+}) {
     const wrapRef = useRef<HTMLDivElement>(null)
     const pageRef = useRef<HTMLDivElement>(null)
 
@@ -515,6 +533,18 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
         }
     }, [])
 
+    /**
+     * The loop indicator's readout. Each step hands over the fraction of the
+     * cycle it ends at and how long it runs for, so the bar advances in
+     * lockstep with the script rather than on a clock of its own — and the
+     * reset snaps it back to nothing, which is the restart made visible.
+     */
+    useEffect(() => {
+        const s = SCRIPT[step]
+        if (s.kind === "reset") onProgress?.(0, 0)
+        else onProgress?.(CYCLE[step].value, CYCLE[step].ms)
+    }, [step, onProgress])
+
     useEffect(() => {
         const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
         const sync = () => setReduced(mq.matches)
@@ -528,7 +558,7 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
         if (!el) return
         const io = new IntersectionObserver(
             ([e]) => setVisible(e.isIntersecting),
-            { threshold: 0.15 }
+            { threshold: 0.15 },
         )
         io.observe(el)
         return () => io.disconnect()
@@ -610,7 +640,7 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
                 setCursor(to)
                 dur = Math.min(
                     MOVE_MAX,
-                    Math.max(MOVE_MIN, Math.round(dist * MS_PER_PX))
+                    Math.max(MOVE_MIN, Math.round(dist * MS_PER_PX)),
                 )
                 setMoveMs(dur)
                 setArc((a) => 1 - a)
@@ -665,10 +695,13 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
                 break
         }
 
-        const id = window.setTimeout(() => {
-            if (current.kind === "add") setPulsing(false)
-            setStep((s) => (s + 1) % SCRIPT.length)
-        }, Math.max(60, dur))
+        const id = window.setTimeout(
+            () => {
+                if (current.kind === "add") setPulsing(false)
+                setStep((s) => (s + 1) % SCRIPT.length)
+            },
+            Math.max(60, dur),
+        )
         return () => window.clearTimeout(id)
         // `rotation` is read when a pick is added, so the step this depends on
         // has to re-run if it changes.
@@ -870,7 +903,7 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
                                                             added.some(
                                                                 (a) =>
                                                                     a.id ===
-                                                                    p.id
+                                                                    p.id,
                                                             )
                                                         return (
                                                             <article
@@ -899,7 +932,7 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
                                                                         </p>
                                                                         <p className="quick-pick-card__sale">
                                                                             {money(
-                                                                                p.price
+                                                                                p.price,
                                                                             )}{" "}
                                                                             <span>
                                                                                 {
@@ -910,7 +943,7 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
                                                                         {p.was && (
                                                                             <p className="quick-pick-card__original">
                                                                                 {money(
-                                                                                    p.was
+                                                                                    p.was,
                                                                                 )}
                                                                             </p>
                                                                         )}
@@ -984,9 +1017,7 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
                                                 </div>
                                                 <div className="exclusive-card__pricing">
                                                     <p className="exclusive-card__sale">
-                                                        {money(
-                                                            EXCLUSIVE.price
-                                                        )}{" "}
+                                                        {money(EXCLUSIVE.price)}{" "}
                                                         <span>
                                                             {EXCLUSIVE.off}
                                                         </span>
@@ -1084,10 +1115,18 @@ export default function MacysBagLoop({ alt }: { alt?: string }) {
                                             Proceed to checkout
                                         </button>
                                         <div className="alt-payments">
-                                            <button type="button" tabIndex={-1} className="alt-payment">
+                                            <button
+                                                type="button"
+                                                tabIndex={-1}
+                                                className="alt-payment"
+                                            >
                                                 PayPal
                                             </button>
-                                            <button type="button" tabIndex={-1} className="alt-payment">
+                                            <button
+                                                type="button"
+                                                tabIndex={-1}
+                                                className="alt-payment"
+                                            >
                                                 Klarna
                                             </button>
                                         </div>

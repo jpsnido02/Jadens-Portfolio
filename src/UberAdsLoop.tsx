@@ -1,5 +1,6 @@
 import UberOfferCard, { OFFERS } from "./UberOfferCard"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { cycleProgress, type LoopReporter } from "./LoopProgress"
 
 /**
  * The Uber Ads hero: the Rokt placement cycling through four offers, then the
@@ -248,8 +249,13 @@ const SCRIPT: Step[] = [
     { kind: "reset", ms: 60 },
 ]
 
+/** Where each step of the script sits in the whole cycle. */
+const CYCLE = cycleProgress(SCRIPT.map((s) => s.ms))
+
 interface UberAdsLoopProps {
     alt?: string
+    /** Reports where the script is, for the hero's loop indicator. */
+    onProgress?: LoopReporter
     /**
      * "width" caps the phone near life size for an inline figure. "contain"
      * fits it to the parent's height and centres it, for the home page's hero
@@ -258,7 +264,11 @@ interface UberAdsLoopProps {
     fit?: "width" | "contain"
 }
 
-export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
+export default function UberAdsLoop({
+    alt,
+    fit = "width",
+    onProgress,
+}: UberAdsLoopProps) {
     const wrapRef = useRef<HTMLDivElement>(null)
     // Starts at 1 rather than 0: the first measurement happens synchronously
     // below, and if it ever fails the component still renders at full size
@@ -308,6 +318,18 @@ export default function UberAdsLoop({ alt, fit = "width" }: UberAdsLoopProps) {
             ro?.disconnect()
         }
     }, [])
+
+    /**
+     * The loop indicator's readout. Each step hands over the fraction of the
+     * cycle it ends at and how long it runs for, so the bar advances in
+     * lockstep with the script rather than on a clock of its own — and the
+     * reset snaps it back to nothing, which is the restart made visible.
+     */
+    useEffect(() => {
+        const s = SCRIPT[step]
+        if (s.kind === "reset") onProgress?.(0, 0)
+        else onProgress?.(CYCLE[step].value, CYCLE[step].ms)
+    }, [step, onProgress])
 
     useEffect(() => {
         const mq = window.matchMedia("(prefers-reduced-motion: reduce)")

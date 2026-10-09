@@ -10,9 +10,9 @@ import {
 import { IntroIcon, resolveIntroIcon, type IntroIconName } from "./icons"
 import { PALETTES, type Palette } from "./theme"
 import { CONTENT_MAX_WIDTH, FONT_FAMILY } from "./tokens"
-import ShoppableBuildLoop from "./ShoppableBuildLoop"
 import ShoppableConfigLoop from "./ShoppableConfigLoop"
 import BrandedLayoutsLoop from "./BrandedLayoutsLoop"
+import { HeroStage } from "./LoopProgress"
 import PartnerAgentLoop from "./PartnerAgentLoop"
 import UberAdsLoop from "./UberAdsLoop"
 import MacysBagLoop from "./MacysBagLoop"
@@ -44,7 +44,6 @@ export interface ProjectData {
     /** Renders a live component in the hero pane instead of artwork. */
     component?:
         | "uber-loop"
-        | "shoppable-build"
         | "shoppable-config"
         | "branded-shuffle"
         | "partner-agent"
@@ -1236,6 +1235,8 @@ export default function PortfolioScroll({
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "center",
+                                        // The loop indicator hangs off this.
+                                        position: "relative",
                                         // Nothing on mobile: each loop sets
                                         // its own pad off its measured box,
                                         // so a wrapper inset here was a
@@ -1244,31 +1245,57 @@ export default function PortfolioScroll({
                                         padding: isMobile ? 0 : 32,
                                     }}
                                 >
-                                    {data.component === "macys-bag" ? (
-                                        <MacysBagLoop />
-                                    ) : data.component === "partner-agent" ? (
-                                        <PartnerAgentLoop />
-                                    ) : data.component === "branded-shuffle" ? (
-                                        <BrandedLayoutsLoop
-                                            // The hero's brand bar sits on
-                                            // the card's own surface, which
-                                            // is white in one theme and
-                                            // near-black in the other, so
-                                            // its ink has to come from the
-                                            // palette rather than be picked
-                                            // to survive both.
-                                            ink={palette.text}
-                                            muted={palette.textMuted}
-                                            accent={palette.accent}
-                                        />
-                                    ) : data.component ===
-                                      "shoppable-config" ? (
-                                        <ShoppableConfigLoop />
-                                    ) : data.component === "shoppable-build" ? (
-                                        <ShoppableBuildLoop />
-                                    ) : (
-                                        <UberAdsLoop fit="contain" />
-                                    )}
+                                    <HeroStage
+                                        // Branded Layouts draws its own, with
+                                        // a segment per partner; the stills
+                                        // get none, which is the point — a
+                                        // hero with no line is a picture.
+                                        indicate={
+                                            data.component !== "branded-shuffle"
+                                        }
+                                        muted={palette.textMuted}
+                                        accent={palette.accent}
+                                        inset={isMobile ? 12 : 18}
+                                    >
+                                        {(report) =>
+                                            data.component === "macys-bag" ? (
+                                                <MacysBagLoop
+                                                    onProgress={report}
+                                                />
+                                            ) : data.component ===
+                                              "partner-agent" ? (
+                                                <PartnerAgentLoop
+                                                    onProgress={report}
+                                                />
+                                            ) : data.component ===
+                                              "branded-shuffle" ? (
+                                                <BrandedLayoutsLoop
+                                                    // The hero's brand bar
+                                                    // sits on the card's own
+                                                    // surface, which is white
+                                                    // in one theme and
+                                                    // near-black in the
+                                                    // other, so its ink has
+                                                    // to come from the
+                                                    // palette rather than be
+                                                    // picked to survive both.
+                                                    ink={palette.text}
+                                                    muted={palette.textMuted}
+                                                    accent={palette.accent}
+                                                />
+                                            ) : data.component ===
+                                              "shoppable-config" ? (
+                                                <ShoppableConfigLoop
+                                                    onProgress={report}
+                                                />
+                                            ) : (
+                                                <UberAdsLoop
+                                                    fit="contain"
+                                                    onProgress={report}
+                                                />
+                                            )
+                                        }
+                                    </HeroStage>
                                 </div>
                             ) : isVideo ? (
                                 <video
