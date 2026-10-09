@@ -92,23 +92,23 @@ export const projects: ProjectData[] = [
         link: "work/macys-bag-page/",
     },
     {
-        title: "Agents That Build Partner Mockups",
+        title: "Agents That Build Client Mockups",
         image: {
             src: "/projects/project-04.jpg",
-            alt: "Agents that build partner mockups",
+            alt: "Agents that build client mockups",
         },
         thumb: {
             src: "/projects/icon-agent.svg",
             alt: "Generated mockups",
         },
-        // The hero pane takes a prompt naming a new partner, then writes out
+        // The hero pane takes a prompt naming a new client, then writes out
         // the format library while the phone renders each format in turn.
         mediaType: "component",
         component: "partner-agent",
         category: "Internal tools",
         year: "2026",
         description:
-            "100 asset requests a week, against a small design team. A skill templatizes production 80% of the way, so designers can fine-tune for the real details.",
+            "Solving for 100 client asset requests a week against a small design team. My skill automates production 80%, so designers fine-tune the details that matter.",
         tags: [],
         // TODO: still points at the shoppable case study. Needs its own page.
         link: "work/shoppable-pitching-platform/",
@@ -126,7 +126,7 @@ export const projects: ProjectData[] = [
         },
         year: "2026",
         description:
-            "Offers restyled to the brand showing them. A two-partner test won, so I built an agentic pipeline to scale it across our network. Value per transaction rose 20%.",
+            "Offers restyled to the brand showing them. A two-client test won, so I built an agentic pipeline to scale it across our network. Value per transaction rose 20%.",
         tags: [],
         link: "work/branded-layouts/",
     },
