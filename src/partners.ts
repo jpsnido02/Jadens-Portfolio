@@ -7,9 +7,11 @@
  * means they can never disagree: a single interval advances a single index, and
  * both components render whatever it points at.
  *
- * Keeping the shuffle here rather than dropping it is what lets the two agree
- * and still arrive in a different order each pass — they are reading the same
- * shuffled queue, not two of their own.
+ * The order used to be reshuffled every pass, for variety. It runs in a fixed
+ * order now, because the hero draws the rotation as a progress bar: a bar that
+ * jumps about is not showing progress, and a viewer who sees the sweep reach
+ * the end knows they have been shown every partner rather than wondering how
+ * many more there were.
  */
 
 /** One entry per partner. The screen and the icon are named from the id. */
@@ -28,24 +30,7 @@ export const ICON = (id: string) => `/projects/partners/${id}-app.jpg`
 /** How long each partner holds. The slide itself is each component's own. */
 export const HOLD_MS = 3200
 
-/**
- * A pass through every partner in random order, never opening on `avoid` so a
- * reshuffle cannot show the same partner twice across the seam.
- */
-function shuffle(avoid?: number): number[] {
-    const order = PARTNERS.map((_, i) => i)
-    for (let i = order.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1))
-        ;[order[i], order[j]] = [order[j], order[i]]
-    }
-    if (avoid !== undefined && order[0] === avoid) {
-        ;[order[0], order[1]] = [order[1], order[0]]
-    }
-    return order
-}
-
-let queue = shuffle()
-let index = queue.shift() as number
+let index = 0
 const listeners = new Set<() => void>()
 /**
  * The viewers that are currently on screen.
@@ -65,8 +50,7 @@ const onScreen = new Set<object>()
 let timer: number | undefined
 
 function advance() {
-    if (queue.length === 0) queue = shuffle(index)
-    index = queue.shift() as number
+    index = (index + 1) % PARTNERS.length
     listeners.forEach((fn) => fn())
 }
 
@@ -79,8 +63,7 @@ function reducedMotion() {
 
 /** Start or stop the clock to match whether anyone is watching. */
 function sync() {
-    const wanted =
-        listeners.size > 0 && onScreen.size > 0 && !reducedMotion()
+    const wanted = listeners.size > 0 && onScreen.size > 0 && !reducedMotion()
     if (wanted && timer === undefined) {
         timer = window.setInterval(advance, HOLD_MS)
     } else if (!wanted && timer !== undefined) {
@@ -112,11 +95,20 @@ export function currentPartner() {
  * carousel stopped for good. The observer's first callback arrives within a
  * frame or two, long inside the first hold, so nothing is seen moving that
  * should not be.
+ *
+ * `onChange` hands the same answer back to the caller, so a viewer drawing the
+ * hold as it elapses can stop drawing it when the clock stops. Without that
+ * the hero's progress fill would run on off screen and be most of the way
+ * across by the time anyone saw the partner it belongs to.
  */
-export function watchVisibility(el: HTMLElement | null) {
+export function watchVisibility(
+    el: HTMLElement | null,
+    onChange?: (visible: boolean) => void,
+) {
     const token = {}
     onScreen.add(token)
     sync()
+    onChange?.(true)
 
     let io: IntersectionObserver | undefined
     if (el && typeof IntersectionObserver !== "undefined") {
@@ -125,8 +117,9 @@ export function watchVisibility(el: HTMLElement | null) {
                 if (entry.isIntersecting) onScreen.add(token)
                 else onScreen.delete(token)
                 sync()
+                onChange?.(entry.isIntersecting)
             },
-            { threshold: 0.15 }
+            { threshold: 0.15 },
         )
         io.observe(el)
     }

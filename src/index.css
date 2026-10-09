@@ -1294,3 +1294,15 @@ dl {
         }
     }
 }
+
+/* The Branded Layouts bar: one segment's hold, elapsing. Driven as a
+   transform rather than a width so it runs on the compositor, and left as a
+   plain animation so pausing it is one property when the hero scrolls away. */
+@keyframes brand-fill {
+    from {
+        transform: scaleX(0);
+    }
+    to {
+        transform: scaleX(1);
+    }
+}

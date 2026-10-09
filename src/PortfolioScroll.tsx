@@ -1251,7 +1251,18 @@ export default function PortfolioScroll({
                                     ) : data.component === "partner-agent" ? (
                                         <PartnerAgentLoop />
                                     ) : data.component === "branded-shuffle" ? (
-                                        <BrandedLayoutsLoop />
+                                        <BrandedLayoutsLoop
+                                            // The hero's brand bar sits on
+                                            // the card's own surface, which
+                                            // is white in one theme and
+                                            // near-black in the other, so
+                                            // its ink has to come from the
+                                            // palette rather than be picked
+                                            // to survive both.
+                                            ink={palette.text}
+                                            muted={palette.textMuted}
+                                            accent={palette.accent}
+                                        />
                                     ) : data.component ===
                                       "shoppable-config" ? (
                                         <ShoppableConfigLoop />

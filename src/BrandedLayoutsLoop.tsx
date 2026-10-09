@@ -13,6 +13,13 @@
  * Each screen is the partner's own confirmation page with the placement over
  * it, exported from the design file and cropped to the screen's 393x852. The
  * frame is PhoneShell, the same one the other two phone heroes use.
+ *
+ * Under the phone, every partner is named at once in a progress bar. The hero
+ * used to name only the partner it was showing, which meant the list of brands
+ * this has shipped against — the most persuasive thing on the card — was only
+ * ever legible one sixth at a time, and only to someone who waited out three
+ * minutes of rotation. Naming all six and filling each segment as its turn
+ * elapses says who the partners are at a glance, and says how much is left.
  */
 
 import {
@@ -26,6 +33,7 @@ import { FRAME_H, FRAME_W, PhoneShell } from "./ShoppablePhone"
 import { FONT_FAMILY } from "./tokens"
 import {
     currentPartner,
+    HOLD_MS,
     PARTNERS,
     SCREEN,
     subscribe,
@@ -43,13 +51,37 @@ const SLIDE_MS = 1280
 const SLIDE_EASE = "cubic-bezier(0.32, 0.72, 0, 1)"
 /** Clearance past the edge, so a phone's shadow leaves with it. */
 const SHADOW_ROOM = 60
+/** The bar's track, and the gap between its segments. */
+const TRACK_H = 2
+const SEG_GAP = 8
+/** Track to name. */
+const NAME_GAP = 9
+/** One row of segments: track, gap, name. */
+const ROW_H = 30
+/** Between the two rows, when there are two. */
+const ROW_GAP = 10
 /**
- * Height set aside above the phone for its partner's name, so the name is
- * never clipped by the pane when the phone is as tall as it can be.
+ * Below this the six names cannot be set large enough to read across a single
+ * row, so the bar takes two rows of three instead. Six across a phone works
+ * out at 47px a segment, which puts "FANATICS" at 7px — present, but not
+ * legible enough to be worth the space it takes.
  */
-const LABEL_ROOM = 26
+const ONE_ROW_MIN_W = 420
 
-export default function BrandedLayoutsLoop({ alt }: { alt?: string }) {
+export default function BrandedLayoutsLoop({
+    alt,
+    ink = "#E2E8F0",
+    muted = "#94A3B8",
+    accent = "#53B1FD",
+}: {
+    alt?: string
+    /** The name of the partner being shown. */
+    ink?: string
+    /** The five that are not. */
+    muted?: string
+    /** The elapsed part of the bar. */
+    accent?: string
+}) {
     const wrapRef = useRef<HTMLDivElement>(null)
     const [box, setBox] = useState({ w: 0, h: 0 })
 
@@ -60,6 +92,8 @@ export default function BrandedLayoutsLoop({ alt }: { alt?: string }) {
     const current = useSyncExternalStore(subscribe, currentPartner, () => 0)
     const [outgoing, setOutgoing] = useState<number | null>(null)
     const previous = useRef(current)
+    /** The fill runs on the rotation's clock, so it stops when that does. */
+    const [watching, setWatching] = useState(true)
 
     useLayoutEffect(() => {
         const el = wrapRef.current
@@ -83,7 +117,7 @@ export default function BrandedLayoutsLoop({ alt }: { alt?: string }) {
 
     // The rotation's clock runs only while something showing it is on screen,
     // so scrolling to the hero gives a full hold before the first slide.
-    useEffect(() => watchVisibility(wrapRef.current), [])
+    useEffect(() => watchVisibility(wrapRef.current, setWatching), [])
 
     // The phone leaving is whichever one the rotation just moved off.
     useEffect(() => {
@@ -102,13 +136,24 @@ export default function BrandedLayoutsLoop({ alt }: { alt?: string }) {
 
     const pad = box.w < 480 ? 12 : 24
     const availW = Math.max(0, box.w - pad * 2)
-    const availH = Math.max(0, box.h - pad * 2 - LABEL_ROOM)
+    const cols = box.w < ONE_ROW_MIN_W ? 3 : PARTNERS.length
+    const rows = Math.ceil(PARTNERS.length / cols)
+    const barRoom = ROW_H * rows + ROW_GAP * (rows - 1)
+    const availH = Math.max(0, box.h - pad * 2 - barRoom)
     const width = Math.max(
         0,
-        Math.min(availW, availH * (FRAME_W / FRAME_H), 440)
+        Math.min(availW, availH * (FRAME_W / FRAME_H), 440),
     )
     /** Far enough that a phone is wholly outside the clip, shadow included. */
     const off = box.w / 2 + width / 2 + SHADOW_ROOM
+    /**
+     * Six names across is what sets this, not taste: the segment is whatever
+     * is left after the pane's inset and the gaps, and the longest name has to
+     * sit inside it. Measured against "FANATICS", the widest of the six, which
+     * needs about 6.2px of width per point of size at this tracking.
+     */
+    const segW = (availW - SEG_GAP * (cols - 1)) / cols
+    const nameSize = Math.max(8, Math.min(10, segW / 6.2))
 
     return (
         <div
@@ -142,7 +187,7 @@ export default function BrandedLayoutsLoop({ alt }: { alt?: string }) {
                                 // Nudged down by half the name's room, so the
                                 // name and the phone together sit centred in
                                 // the pane rather than the phone alone.
-                                top: `calc(50% + ${LABEL_ROOM / 2}px)`,
+                                top: `calc(50% - ${barRoom / 2}px)`,
                                 transform: `translate3d(calc(-50% + ${x}px), -50%, 0)`,
                                 // Only the two phones in motion carry a
                                 // transition, so returning the departed one to
@@ -153,36 +198,6 @@ export default function BrandedLayoutsLoop({ alt }: { alt?: string }) {
                                         : "none",
                             }}
                         >
-                            {/* The partner's name, on the phone it belongs
-                                to rather than on the pane. Centred once for
-                                the whole hero, it snapped to the incoming
-                                partner while that phone was still most of a
-                                screen away, so for the first half of every
-                                slide the name sat over the phone leaving.
-                                Riding its own phone, it cannot. The set of
-                                logos here is not available as artwork — only
-                                SeatGeek is in any icon library — and naming
-                                them scales to however many partners there
-                                are, where a row of marks does not. */}
-                            <div
-                                aria-hidden="true"
-                                style={{
-                                    position: "absolute",
-                                    left: 0,
-                                    right: 0,
-                                    top: -LABEL_ROOM,
-                                    textAlign: "center",
-                                    fontFamily: FONT_FAMILY,
-                                    fontSize: 9.5,
-                                    fontWeight: 600,
-                                    letterSpacing: "0.1em",
-                                    textTransform: "uppercase",
-                                    color: "#94A3B8",
-                                }}
-                            >
-                                {p.name}
-                            </div>
-
                             <PhoneShell width={width}>
                                 {() => (
                                     <img
@@ -205,6 +220,85 @@ export default function BrandedLayoutsLoop({ alt }: { alt?: string }) {
                         </div>
                     )
                 })}
+
+            {/* Every partner at once, and how far through the current one is.
+                Sits under the phone rather than over it, so it reads as a
+                caption to the carousel and not as chrome on the device. */}
+            {width > 0 && (
+                <div
+                    aria-hidden="true"
+                    style={{
+                        position: "absolute",
+                        left: pad,
+                        right: pad,
+                        bottom: pad,
+                        display: "grid",
+                        gridTemplateColumns: `repeat(${cols}, 1fr)`,
+                        rowGap: ROW_GAP,
+                        columnGap: SEG_GAP,
+                        fontFamily: FONT_FAMILY,
+                    }}
+                >
+                    {PARTNERS.map((p, i) => {
+                        const done = i < current
+                        const active = i === current
+                        return (
+                            <div key={p.id}>
+                                <div
+                                    style={{
+                                        height: TRACK_H,
+                                        borderRadius: TRACK_H,
+                                        overflow: "hidden",
+                                        // The unelapsed track, which has to
+                                        // read as a track on white and on
+                                        // near-black both.
+                                        backgroundColor: muted,
+                                        opacity: 0.28,
+                                    }}
+                                >
+                                    <div
+                                        // Re-keyed on the partner, so the fill
+                                        // starts over rather than carrying its
+                                        // old progress into the new segment.
+                                        key={active ? current : "idle"}
+                                        style={{
+                                            height: "100%",
+                                            backgroundColor: accent,
+                                            transformOrigin: "left center",
+                                            transform: done
+                                                ? "scaleX(1)"
+                                                : "scaleX(0)",
+                                            animation: active
+                                                ? `brand-fill ${HOLD_MS}ms linear forwards`
+                                                : "none",
+                                            animationPlayState: watching
+                                                ? "running"
+                                                : "paused",
+                                        }}
+                                    />
+                                </div>
+                                <div
+                                    style={{
+                                        marginTop: NAME_GAP,
+                                        textAlign: "center",
+                                        fontSize: nameSize,
+                                        fontWeight: 600,
+                                        letterSpacing: "0.07em",
+                                        textTransform: "uppercase",
+                                        whiteSpace: "nowrap",
+                                        color: active ? ink : muted,
+                                        opacity: active ? 1 : 0.65,
+                                        transition:
+                                            "color 320ms linear, opacity 320ms linear",
+                                    }}
+                                >
+                                    {p.name}
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
+            )}
         </div>
     )
 }
