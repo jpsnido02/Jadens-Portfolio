@@ -15,7 +15,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { FRAME_H, FRAME_W, PhoneShell } from "./ShoppablePhone"
 import { FONT_FAMILY } from "./tokens"
-import { cycleProgress, type LoopReporter } from "./LoopProgress"
+import { cycleMs, type LoopReporter } from "./LoopProgress"
 
 const BASE = "../../projects/partner-agent"
 
@@ -335,8 +335,8 @@ const SCRIPT: Step[] = (() => {
     return steps
 })()
 
-/** Where each step of the script sits in the whole cycle. */
-const CYCLE = cycleProgress(SCRIPT.map((s) => s.ms))
+/** How long one pass of the script takes. */
+const CYCLE = cycleMs(SCRIPT.map((s) => s.ms))
 
 const AGENT_STEP = SCRIPT.findIndex((s) => s.kind === "agent")
 const PACKAGE_STEP = SCRIPT.findIndex((s) => s.kind === "package")
@@ -405,15 +405,15 @@ export default function PartnerAgentLoop({
     }, [])
 
     /**
-     * The loop indicator's readout. Each step hands over the fraction of the
-     * cycle it ends at and how long it runs for, so the bar advances in
-     * lockstep with the script rather than on a clock of its own — and the
-     * reset snaps it back to nothing, which is the restart made visible.
+     * The loop indicator's readout. One call a pass, carrying how long the
+     * pass takes and which pass it is, so the bar sweeps once over the whole
+     * cycle rather than stepping along with the script.
      */
+    const passes = useRef(0)
     useEffect(() => {
-        const s = SCRIPT[step]
-        if (s.kind === "reset") onProgress?.(0, 0)
-        else onProgress?.(CYCLE[step].value, CYCLE[step].ms)
+        if (step !== 0) return
+        passes.current += 1
+        onProgress?.(CYCLE, passes.current)
     }, [step, onProgress])
 
     useEffect(() => {
@@ -644,7 +644,160 @@ export default function PartnerAgentLoop({
                                 gap: 14,
                             }}
                         >
-                            {/* 1 — the file the agent writes, as a code block
+                            {/* 1 — the composer. It is the thing driving the
+                                other two, so it is built to look like a field
+                                being typed into: named, outlined, ringed while
+                                active, and set larger than the code it
+                                produces. */}
+                            <div style={{ ...card, borderRadius: 16 }}>
+                                <div
+                                    style={{
+                                        padding: "12px 15px 0",
+                                        fontFamily: FONT_FAMILY,
+                                        fontSize: 9.5,
+                                        fontWeight: 600,
+                                        letterSpacing: "0.1em",
+                                        textTransform: "uppercase",
+                                        color: MUTED,
+                                    }}
+                                >
+                                    Ask the agent
+                                </div>
+
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "flex-end",
+                                        gap: 10,
+                                        margin: "9px 12px 12px",
+                                        padding: "11px 11px 11px 14px",
+                                        borderRadius: 12,
+                                        background: "#FFFFFF",
+                                        border: `1.5px solid ${composing ? TEXT : LINE}`,
+                                        boxShadow: composing
+                                            ? "0 0 0 3px rgba(39,39,42,0.09)"
+                                            : "none",
+                                        transition: `border-color 220ms ${EASE}, box-shadow 220ms ${EASE}`,
+                                    }}
+                                >
+                                    <span
+                                        style={{
+                                            flex: 1,
+                                            // Two lines are always reserved.
+                                            // Letting the field grow with the
+                                            // text moved the whole column,
+                                            // since it is vertically centred.
+                                            height: (lineH + 5) * 2,
+                                            fontFamily: FONT_FAMILY,
+                                            fontSize: fontSize + 4,
+                                            fontWeight: 500,
+                                            lineHeight: `${lineH + 5}px`,
+                                            letterSpacing: "-0.01em",
+                                            color: TEXT,
+                                            minWidth: 0,
+                                            wordBreak: "break-word",
+                                        }}
+                                    >
+                                        {promptText.slice(
+                                            0,
+                                            reduced
+                                                ? promptText.length
+                                                : promptChars,
+                                        )}
+                                        {!reduced && composing && (
+                                            <span
+                                                className="code-caret"
+                                                style={{
+                                                    ...caretStyle,
+                                                    width: 2,
+                                                    height: fontSize + 5,
+                                                }}
+                                            />
+                                        )}
+                                    </span>
+                                    {/* Send. Struck once the prompt is done. */}
+                                    <span
+                                        style={{
+                                            flexShrink: 0,
+                                            width: 32,
+                                            height: 32,
+                                            borderRadius: 999,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            background: sent ? ACCENT : HEADER,
+                                            color: sent ? "#FFFFFF" : "#B5B0A8",
+                                            transform:
+                                                cur.kind === "send"
+                                                    ? "scale(0.86)"
+                                                    : "scale(1)",
+                                            transition: `background 200ms ${EASE}, color 200ms ${EASE}, transform 180ms ${EASE}`,
+                                        }}
+                                    >
+                                        <svg
+                                            width="15"
+                                            height="15"
+                                            viewBox="0 0 16 16"
+                                            fill="none"
+                                        >
+                                            <path
+                                                d="M8 13V3.5M8 3.5L4 7.5M8 3.5l4 4"
+                                                stroke="currentColor"
+                                                strokeWidth="1.9"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            />
+                                        </svg>
+                                    </span>
+                                </div>
+
+                                {/* What the agent is doing, or how far it got. */}
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 7,
+                                        height: lineH + 16,
+                                        padding: "0 13px",
+                                        borderTop: `1px solid ${RULE}`,
+                                        background: SURFACE,
+                                        fontFamily: FONT_FAMILY,
+                                        fontSize: fontSize - 0.5,
+                                        color: working ? MUTED : "#3F7A54",
+                                        opacity: working || built > 0 ? 1 : 0,
+                                        transition: `opacity 240ms ${EASE}, color 240ms ${EASE}`,
+                                    }}
+                                >
+                                    {working ? (
+                                        <>
+                                            <span
+                                                className="agent-spin"
+                                                style={{
+                                                    width: 11,
+                                                    height: 11,
+                                                    borderRadius: 999,
+                                                    border: `1.6px solid ${LINE}`,
+                                                    borderTopColor: ACCENT,
+                                                    display: "block",
+                                                }}
+                                            />
+                                            <span>
+                                                Running full build as agent
+                                            </span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span>✓</span>
+                                            <span>
+                                                {packaged
+                                                    ? `Approved — ${FORMATS.length} files ready`
+                                                    : `${built} of ${FORMATS.length} formats built`}
+                                            </span>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                            {/* 2 — the file the agent writes, as a code block
                                 in the conversation. */}
                             <div
                                 style={{
@@ -960,160 +1113,6 @@ export default function PartnerAgentLoop({
                                         </div>
                                     </div>
                                 )}
-                            </div>
-
-                            {/* 2 — the composer. It is the thing driving the
-                                other two, so it is built to look like a field
-                                being typed into: named, outlined, ringed while
-                                active, and set larger than the code it
-                                produces. */}
-                            <div style={{ ...card, borderRadius: 16 }}>
-                                <div
-                                    style={{
-                                        padding: "12px 15px 0",
-                                        fontFamily: FONT_FAMILY,
-                                        fontSize: 9.5,
-                                        fontWeight: 600,
-                                        letterSpacing: "0.1em",
-                                        textTransform: "uppercase",
-                                        color: MUTED,
-                                    }}
-                                >
-                                    Ask the agent
-                                </div>
-
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "flex-end",
-                                        gap: 10,
-                                        margin: "9px 12px 12px",
-                                        padding: "11px 11px 11px 14px",
-                                        borderRadius: 12,
-                                        background: "#FFFFFF",
-                                        border: `1.5px solid ${composing ? TEXT : LINE}`,
-                                        boxShadow: composing
-                                            ? "0 0 0 3px rgba(39,39,42,0.09)"
-                                            : "none",
-                                        transition: `border-color 220ms ${EASE}, box-shadow 220ms ${EASE}`,
-                                    }}
-                                >
-                                    <span
-                                        style={{
-                                            flex: 1,
-                                            // Two lines are always reserved.
-                                            // Letting the field grow with the
-                                            // text moved the whole column,
-                                            // since it is vertically centred.
-                                            height: (lineH + 5) * 2,
-                                            fontFamily: FONT_FAMILY,
-                                            fontSize: fontSize + 4,
-                                            fontWeight: 500,
-                                            lineHeight: `${lineH + 5}px`,
-                                            letterSpacing: "-0.01em",
-                                            color: TEXT,
-                                            minWidth: 0,
-                                            wordBreak: "break-word",
-                                        }}
-                                    >
-                                        {promptText.slice(
-                                            0,
-                                            reduced
-                                                ? promptText.length
-                                                : promptChars,
-                                        )}
-                                        {!reduced && composing && (
-                                            <span
-                                                className="code-caret"
-                                                style={{
-                                                    ...caretStyle,
-                                                    width: 2,
-                                                    height: fontSize + 5,
-                                                }}
-                                            />
-                                        )}
-                                    </span>
-                                    {/* Send. Struck once the prompt is done. */}
-                                    <span
-                                        style={{
-                                            flexShrink: 0,
-                                            width: 32,
-                                            height: 32,
-                                            borderRadius: 999,
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            background: sent ? ACCENT : HEADER,
-                                            color: sent ? "#FFFFFF" : "#B5B0A8",
-                                            transform:
-                                                cur.kind === "send"
-                                                    ? "scale(0.86)"
-                                                    : "scale(1)",
-                                            transition: `background 200ms ${EASE}, color 200ms ${EASE}, transform 180ms ${EASE}`,
-                                        }}
-                                    >
-                                        <svg
-                                            width="15"
-                                            height="15"
-                                            viewBox="0 0 16 16"
-                                            fill="none"
-                                        >
-                                            <path
-                                                d="M8 13V3.5M8 3.5L4 7.5M8 3.5l4 4"
-                                                stroke="currentColor"
-                                                strokeWidth="1.9"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            />
-                                        </svg>
-                                    </span>
-                                </div>
-
-                                {/* What the agent is doing, or how far it got. */}
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: 7,
-                                        height: lineH + 16,
-                                        padding: "0 13px",
-                                        borderTop: `1px solid ${RULE}`,
-                                        background: SURFACE,
-                                        fontFamily: FONT_FAMILY,
-                                        fontSize: fontSize - 0.5,
-                                        color: working ? MUTED : "#3F7A54",
-                                        opacity: working || built > 0 ? 1 : 0,
-                                        transition: `opacity 240ms ${EASE}, color 240ms ${EASE}`,
-                                    }}
-                                >
-                                    {working ? (
-                                        <>
-                                            <span
-                                                className="agent-spin"
-                                                style={{
-                                                    width: 11,
-                                                    height: 11,
-                                                    borderRadius: 999,
-                                                    border: `1.6px solid ${LINE}`,
-                                                    borderTopColor: ACCENT,
-                                                    display: "block",
-                                                }}
-                                            />
-                                            <span>
-                                                Running full build as agent
-                                            </span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <span>✓</span>
-                                            <span>
-                                                {packaged
-                                                    ? `Approved — ${FORMATS.length} files ready`
-                                                    : `${built} of ${FORMATS.length} formats built`}
-                                            </span>
-                                        </>
-                                    )}
-                                </div>
                             </div>
                         </div>
                     )}

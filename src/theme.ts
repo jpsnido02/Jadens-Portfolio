@@ -27,6 +27,13 @@ export interface Palette {
         shadowPressed: string
     }
     accent: string
+    /**
+     * The loop indicator's fill. Not `accent`: at a hairline's height the
+     * bright CTA blue read as a pale smear, and this wants to sit closer to
+     * the ink. It cannot be one value, because the pane it crosses is white
+     * in one theme and near-black in the other.
+     */
+    loopBar: string
     /** Hover fill — one step along the same ramp, toward more contrast. */
     accentBase: string
     /** Fill once the press has been confirmed. */
@@ -93,6 +100,7 @@ export const PALETTES: Record<ThemeName, Palette> = {
             shadowPressed: "rgba(0,0,0,0.06) 0 2px 4px",
         },
         accent: "#175CD3",
+        loopBar: "#0E1A38",
         accentBase: "#1849A9",
         // Teal 700 — the blue-green the success state was asked for, and the
         // only colour the key ever shows. 5.6:1 under white, 5.4:1 against the
@@ -192,6 +200,7 @@ export const PALETTES: Record<ThemeName, Palette> = {
             shadowPressed: "rgba(0,0,0,0.5) 0 2px 4px",
         },
         accent: "#53B1FD",
+        loopBar: "#9FB8E8",
         accentBase: "#84CAFF",
         // Unchanged: on a near-black page the lime is 16.3:1 and already
         // matches the light-blue resting fill's weight. Only light mode broke.

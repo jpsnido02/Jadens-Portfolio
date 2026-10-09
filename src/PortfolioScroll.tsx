@@ -1254,7 +1254,7 @@ export default function PortfolioScroll({
                                             data.component !== "branded-shuffle"
                                         }
                                         muted={palette.textMuted}
-                                        accent={palette.accent}
+                                        accent={palette.loopBar}
                                         inset={isMobile ? 12 : 18}
                                     >
                                         {(report) =>
@@ -1281,7 +1281,7 @@ export default function PortfolioScroll({
                                                     // picked to survive both.
                                                     ink={palette.text}
                                                     muted={palette.textMuted}
-                                                    accent={palette.accent}
+                                                    accent={palette.loopBar}
                                                 />
                                             ) : data.component ===
                                               "shoppable-config" ? (

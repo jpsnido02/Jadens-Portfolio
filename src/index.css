@@ -1295,10 +1295,11 @@ dl {
     }
 }
 
-/* The Branded Layouts bar: one segment's hold, elapsing. Driven as a
-   transform rather than a width so it runs on the compositor, and left as a
-   plain animation so pausing it is one property when the hero scrolls away. */
-@keyframes brand-fill {
+/* Time elapsing, as a bar: the Branded Layouts segments, and the loop
+   indicator on every animated hero. Driven as a transform rather than a width
+   so it runs on the compositor, and left as a plain animation so pausing it is
+   one property when the hero scrolls away. */
+@keyframes loop-sweep {
     from {
         transform: scaleX(0);
     }

@@ -10,34 +10,38 @@ import { useCallback, useState, type ReactNode } from "react"
  * carries one is running; a hero with none is a picture, and the absence says
  * so without a word of copy.
  *
- * It is a readout of the script rather than a second clock. Each loop hands
- * over the fraction its current step ends at and how long that step runs for,
- * and the fill transitions to exactly that over exactly that — so the bar
- * cannot drift from the animation it is describing, however long it runs, and
- * it stops dead whenever the loop does, because a loop that is not stepping
- * sends nothing to move to.
+ * One sweep, start to finish, over the cycle's whole length. It was a
+ * transition per script step, which was exact but visibly stop-and-go: a step
+ * whose transition landed before its successor fired left the fill sitting
+ * still, and a step of no duration jumped it. A single linear animation over
+ * the total reads as the one continuous thing it is describing.
+ *
+ * Each loop says how long its cycle runs and counts its passes; the count is
+ * the key, so the animation starts over on each pass rather than drifting
+ * further from the loop with every lap. These heroes all restart their script
+ * when they are scrolled back to, so the two cannot stay out of step either.
  */
 
 /**
  * What a loop calls to say where it is: the fraction of the cycle the step it
  * just entered ends at, and how long that step runs for.
  */
-export type LoopReporter = (value: number, ms: number) => void
+export type LoopReporter = (cycleMs: number, pass: number) => void
 
 /** Thick enough to read against artwork; thin enough not to be furniture. */
 const TRACK_H = 3
 
 export default function LoopProgress({
-    value,
-    ms,
+    cycleMs,
+    pass,
     inset,
     muted,
     accent,
 }: {
-    /** How far through the cycle the current step ends, 0 to 1. */
-    value: number
-    /** How long that step takes, which is how long the fill has to get there. */
-    ms: number
+    /** How long one pass of the hero's script takes. */
+    cycleMs: number
+    /** Which pass this is, so each one starts the sweep over. */
+    pass: number
     /** Clear of the pane's own rounded corners. */
     inset: number
     muted: string
@@ -50,12 +54,13 @@ export default function LoopProgress({
                 position: "absolute",
                 left: inset,
                 right: inset,
-                bottom: inset,
+                // At the head of the pane, where a thing that is playing puts
+                // its progress. At the foot it read as a caption to the hero;
+                // here it reads as the hero's own state.
+                top: inset,
                 height: TRACK_H,
                 borderRadius: TRACK_H,
                 overflow: "hidden",
-                backgroundColor: muted,
-                opacity: 0.45,
                 // Over the hero, not beside it. Reserving a strip would have
                 // cost every one of these heroes the height they were just
                 // given, to say something a hairline says.
@@ -63,38 +68,41 @@ export default function LoopProgress({
                 pointerEvents: "none",
             }}
         >
+            {/* The unelapsed track, dimmed on a layer of its own. Putting the
+                opacity on the parent dimmed the fill with it — CSS opacity
+                composites the whole subtree — so the accent was arriving at
+                45% and reading as a pale smear rather than a bar. */}
             <div
                 style={{
+                    position: "absolute",
+                    inset: 0,
+                    backgroundColor: muted,
+                    opacity: 0.45,
+                }}
+            />
+            <div
+                key={pass}
+                style={{
+                    position: "relative",
                     height: "100%",
                     backgroundColor: accent,
                     transformOrigin: "left center",
-                    transform: `scaleX(${value})`,
+                    transform: "scaleX(0)",
                     // Linear, because it is reporting elapsed time and an
                     // eased readout of elapsed time is a lie.
-                    transition: ms > 0 ? `transform ${ms}ms linear` : "none",
+                    animation:
+                        cycleMs > 0
+                            ? `loop-sweep ${cycleMs}ms linear forwards`
+                            : "none",
                 }}
             />
         </div>
     )
 }
 
-/**
- * The cumulative fraction each step of a script ends at, and its duration.
- *
- * Every one of these heroes is driven by the same shape — an array of steps
- * each carrying `ms`, ending in a reset — so the mapping from "which step" to
- * "how far through" is the same arithmetic in all of them, and lives here
- * once rather than four times.
- */
-export function cycleProgress(
-    durations: number[],
-): { value: number; ms: number }[] {
-    const total = durations.reduce((n, d) => n + d, 0) || 1
-    let run = 0
-    return durations.map((d) => {
-        run += d
-        return { value: run / total, ms: d }
-    })
+/** How long one pass of a script takes, for the indicator to sweep over. */
+export function cycleMs(durations: number[]) {
+    return durations.reduce((n, d) => n + d, 0)
 }
 
 /**
@@ -118,9 +126,9 @@ export function HeroStage({
     accent: string
     inset: number
 }) {
-    const [at, setAt] = useState({ value: 0, ms: 0 })
+    const [at, setAt] = useState({ cycleMs: 0, pass: 0 })
     const report = useCallback<LoopReporter>(
-        (value, ms) => setAt({ value, ms }),
+        (cycleMs, pass) => setAt({ cycleMs, pass }),
         [],
     )
     return (
@@ -128,8 +136,8 @@ export function HeroStage({
             {children(report)}
             {indicate && (
                 <LoopProgress
-                    value={at.value}
-                    ms={at.ms}
+                    cycleMs={at.cycleMs}
+                    pass={at.pass}
                     inset={inset}
                     muted={muted}
                     accent={accent}

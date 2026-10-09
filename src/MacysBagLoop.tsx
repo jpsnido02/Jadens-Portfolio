@@ -20,7 +20,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import Cursor from "./Cursor"
-import { cycleProgress, type LoopReporter } from "./LoopProgress"
+import { cycleMs, type LoopReporter } from "./LoopProgress"
 
 /* -------------------------------------------------------------------------
  * The frame. A plain bordered rectangle rather than a device: the page is
@@ -264,8 +264,8 @@ const SCRIPT: Step[] = [
     { kind: "reset", ms: 60 },
 ]
 
-/** Where each step of the script sits in the whole cycle. */
-const CYCLE = cycleProgress(SCRIPT.map((s) => s.ms))
+/** How long one pass of the script takes. */
+const CYCLE = cycleMs(SCRIPT.map((s) => s.ms))
 
 /**
  * The pointer's two axes run on curves that disagree, so the path bows instead
@@ -534,15 +534,15 @@ export default function MacysBagLoop({
     }, [])
 
     /**
-     * The loop indicator's readout. Each step hands over the fraction of the
-     * cycle it ends at and how long it runs for, so the bar advances in
-     * lockstep with the script rather than on a clock of its own — and the
-     * reset snaps it back to nothing, which is the restart made visible.
+     * The loop indicator's readout. One call a pass, carrying how long the
+     * pass takes and which pass it is, so the bar sweeps once over the whole
+     * cycle rather than stepping along with the script.
      */
+    const passes = useRef(0)
     useEffect(() => {
-        const s = SCRIPT[step]
-        if (s.kind === "reset") onProgress?.(0, 0)
-        else onProgress?.(CYCLE[step].value, CYCLE[step].ms)
+        if (step !== 0) return
+        passes.current += 1
+        onProgress?.(CYCLE, passes.current)
     }, [step, onProgress])
 
     useEffect(() => {

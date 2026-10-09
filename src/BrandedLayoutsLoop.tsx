@@ -70,7 +70,7 @@ const ROW_GAP = 10
 const ONE_ROW_MIN_W = 420
 /** The mark's width, between these, as the segment allows. */
 const MARK_MIN = 44
-const MARK_MAX = 84
+const MARK_MAX = 104
 
 export default function BrandedLayoutsLoop({
     alt,
@@ -251,25 +251,33 @@ export default function BrandedLayoutsLoop({
                             <div key={p.id}>
                                 <div
                                     style={{
+                                        position: "relative",
                                         height: TRACK_H,
                                         borderRadius: TRACK_H,
                                         overflow: "hidden",
-                                        // The unelapsed track. At a quarter
-                                        // alpha over two pixels this was
-                                        // invisible against both grounds —
-                                        // the bar looked like it had no
-                                        // track at all and the fill like a
-                                        // stray rule.
-                                        backgroundColor: muted,
-                                        opacity: 0.5,
                                     }}
                                 >
+                                    {/* The unelapsed track, dimmed on a
+                                        layer of its own: opacity on the
+                                        parent composites the whole subtree,
+                                        so the fill was arriving at half
+                                        strength and reading as a pale
+                                        smear rather than a bar. */}
+                                    <div
+                                        style={{
+                                            position: "absolute",
+                                            inset: 0,
+                                            backgroundColor: muted,
+                                            opacity: 0.5,
+                                        }}
+                                    />
                                     <div
                                         // Re-keyed on the partner, so the fill
                                         // starts over rather than carrying its
                                         // old progress into the new segment.
                                         key={active ? current : "idle"}
                                         style={{
+                                            position: "relative",
                                             height: "100%",
                                             backgroundColor: accent,
                                             transformOrigin: "left center",
@@ -277,7 +285,7 @@ export default function BrandedLayoutsLoop({
                                                 ? "scaleX(1)"
                                                 : "scaleX(0)",
                                             animation: active
-                                                ? `brand-fill ${HOLD_MS}ms linear forwards`
+                                                ? `loop-sweep ${HOLD_MS}ms linear forwards`
                                                 : "none",
                                             animationPlayState: watching
                                                 ? "running"
