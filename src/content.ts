@@ -120,9 +120,10 @@ export const projects: ProjectData[] = [
         mediaType: "component",
         component: "branded-shuffle",
         category: "Design systems",
-        // The card's thumbnail follows the hero's carousel: same partner,
-        // same moment, both reading the rotation in src/partners.ts.
-        partnerRotation: true,
+        thumb: {
+            src: "/projects/icon-branded.svg",
+            alt: "Branded Layouts",
+        },
         year: "2026",
         description:
             "Offers restyled to the brand showing them. A two-partner test won, so I built an agentic pipeline to scale it across our network. Value per transaction rose 20%.",

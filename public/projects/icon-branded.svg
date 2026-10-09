@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 68" width="68" height="68" role="img" aria-label="Branded Layouts">
+    <!--
+        The Branded Layouts tile: one placement, stacked. This card used to
+        carry whichever partner's app icon the hero happened to be showing,
+        which made the project look like it belonged to that partner rather
+        than to the template underneath all of them — and now that the hero
+        names every partner along its own bar, a seventh logo on the card was
+        saying the same thing twice.
+
+        Three cards offset behind one another read as variants of a thing
+        rather than three things, and the front one carries the two parts
+        every one of these placements has: a brand bar across the top and a
+        call to action at the foot. Teal because the six accents already in
+        use on these tiles are not: white on #0F766E is 4.9:1.
+    -->
+    <rect width="68" height="68" fill="#0F766E"/>
+    <rect x="15" y="11" width="30" height="38" rx="5" fill="#FFFFFF" opacity="0.32"/>
+    <rect x="19" y="15" width="30" height="38" rx="5" fill="#FFFFFF" opacity="0.55"/>
+    <rect x="23" y="19" width="30" height="38" rx="5" fill="#FFFFFF"/>
+    <!-- The brand bar, and the call to action: the two things a partner's
+         own identity lands on. -->
+    <rect x="23" y="19" width="30" height="7" rx="5" fill="#0F766E"/>
+    <rect x="23" y="22" width="30" height="4" fill="#0F766E"/>
+    <rect x="27" y="45" width="22" height="7" rx="3.5" fill="#0F766E"/>
+</svg>

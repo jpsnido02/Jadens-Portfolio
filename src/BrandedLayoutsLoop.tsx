@@ -34,6 +34,7 @@ import { FONT_FAMILY } from "./tokens"
 import {
     currentPartner,
     HOLD_MS,
+    ICON,
     PARTNERS,
     SCREEN,
     subscribe,
@@ -52,12 +53,14 @@ const SLIDE_EASE = "cubic-bezier(0.32, 0.72, 0, 1)"
 /** Clearance past the edge, so a phone's shadow leaves with it. */
 const SHADOW_ROOM = 60
 /** The bar's track, and the gap between its segments. */
-const TRACK_H = 2
+const TRACK_H = 3
 const SEG_GAP = 8
-/** Track to name. */
-const NAME_GAP = 9
-/** One row of segments: track, gap, name. */
-const ROW_H = 30
+/** Track to logo. */
+const NAME_GAP = 10
+/** The logo tiles, which carry the brands better than their names did. */
+const LOGO_R = 6
+/** One row of segments: track, gap, logo. */
+const ROW_H = 41
 /** Between the two rows, when there are two. */
 const ROW_GAP = 10
 /**
@@ -67,17 +70,17 @@ const ROW_GAP = 10
  * legible enough to be worth the space it takes.
  */
 const ONE_ROW_MIN_W = 420
+/** The logo's side, between these, as the segment allows. */
+const LOGO_MIN = 22
+const LOGO_MAX = 30
 
 export default function BrandedLayoutsLoop({
     alt,
-    ink = "#E2E8F0",
     muted = "#94A3B8",
     accent = "#53B1FD",
 }: {
     alt?: string
-    /** The name of the partner being shown. */
-    ink?: string
-    /** The five that are not. */
+    /** The track the fill runs over, and the logos' dimmed state. */
     muted?: string
     /** The elapsed part of the bar. */
     accent?: string
@@ -153,7 +156,7 @@ export default function BrandedLayoutsLoop({
      * needs about 6.2px of width per point of size at this tracking.
      */
     const segW = (availW - SEG_GAP * (cols - 1)) / cols
-    const nameSize = Math.max(8, Math.min(10, segW / 6.2))
+    const logo = Math.round(Math.max(LOGO_MIN, Math.min(LOGO_MAX, segW * 0.42)))
 
     return (
         <div
@@ -249,11 +252,14 @@ export default function BrandedLayoutsLoop({
                                         height: TRACK_H,
                                         borderRadius: TRACK_H,
                                         overflow: "hidden",
-                                        // The unelapsed track, which has to
-                                        // read as a track on white and on
-                                        // near-black both.
+                                        // The unelapsed track. At a quarter
+                                        // alpha over two pixels this was
+                                        // invisible against both grounds —
+                                        // the bar looked like it had no
+                                        // track at all and the fill like a
+                                        // stray rule.
                                         backgroundColor: muted,
-                                        opacity: 0.28,
+                                        opacity: 0.5,
                                     }}
                                 >
                                     <div
@@ -277,23 +283,33 @@ export default function BrandedLayoutsLoop({
                                         }}
                                     />
                                 </div>
-                                <div
+                                {/* The mark, not the name. These are the
+                                    brands the work shipped against, and a
+                                    logo is recognised where eight uppercase
+                                    characters at 10px are only read — if
+                                    they are read at all. Each one is the
+                                    partner's own app icon, already in the
+                                    repo for the tile on this card. */}
+                                <img
+                                    src={ICON(p.id)}
+                                    alt=""
+                                    loading="eager"
                                     style={{
-                                        marginTop: NAME_GAP,
-                                        textAlign: "center",
-                                        fontSize: nameSize,
-                                        fontWeight: 600,
-                                        letterSpacing: "0.07em",
-                                        textTransform: "uppercase",
-                                        whiteSpace: "nowrap",
-                                        color: active ? ink : muted,
-                                        opacity: active ? 1 : 0.65,
-                                        transition:
-                                            "color 320ms linear, opacity 320ms linear",
+                                        display: "block",
+                                        margin: `${NAME_GAP}px auto 0`,
+                                        width: logo,
+                                        height: logo,
+                                        borderRadius: LOGO_R,
+                                        objectFit: "cover",
+                                        // The five that are not current keep
+                                        // their colour — the point of the row
+                                        // is that all six are recognisable at
+                                        // once — but drop back far enough
+                                        // that the current one leads.
+                                        opacity: active ? 1 : 0.6,
+                                        transition: "opacity 320ms linear",
                                     }}
-                                >
-                                    {p.name}
-                                </div>
+                                />
                             </div>
                         )
                     })}

@@ -13,7 +13,6 @@ import { CONTENT_MAX_WIDTH, FONT_FAMILY } from "./tokens"
 import ShoppableBuildLoop from "./ShoppableBuildLoop"
 import ShoppableConfigLoop from "./ShoppableConfigLoop"
 import BrandedLayoutsLoop from "./BrandedLayoutsLoop"
-import PartnerTile from "./PartnerTile"
 import PartnerAgentLoop from "./PartnerAgentLoop"
 import UberAdsLoop from "./UberAdsLoop"
 import MacysBagLoop from "./MacysBagLoop"
@@ -59,7 +58,6 @@ export interface ProjectData {
      * tiring to look at, where one slot cycling says the same thing and leaves
      * the card's rhythm matching every other card.
      */
-    partnerRotation?: boolean
 }
 
 export interface IntroLink {
@@ -1259,7 +1257,6 @@ export default function PortfolioScroll({
                                             // its ink has to come from the
                                             // palette rather than be picked
                                             // to survive both.
-                                            ink={palette.text}
                                             muted={palette.textMuted}
                                             accent={palette.accent}
                                         />
@@ -1618,62 +1615,42 @@ export default function PortfolioScroll({
                                                 marginBottom: isMobile ? 8 : 14,
                                             }}
                                         >
-                                            {data.partnerRotation ? (
-                                                <PartnerTile
-                                                    size={
-                                                        isMobile
-                                                            ? isTight
-                                                                ? 40
-                                                                : 46
-                                                            : 68
-                                                    }
-                                                    radius={thumbRadius}
-                                                    cornerShape={
-                                                        CONFIG.CORNER_SHAPE
-                                                    }
-                                                    border={palette.cardBorder}
-                                                />
-                                            ) : (
-                                                <div
-                                                    style={{
-                                                        width: isMobile
-                                                            ? isTight
-                                                                ? 40
-                                                                : 46
-                                                            : 68,
-                                                        height: isMobile
-                                                            ? isTight
-                                                                ? 40
-                                                                : 46
-                                                            : 68,
-                                                        borderRadius:
-                                                            thumbRadius,
-                                                        ...({
-                                                            cornerShape:
-                                                                CONFIG.CORNER_SHAPE,
-                                                        } as object),
-                                                        overflow: "hidden",
-                                                        backgroundColor:
-                                                            palette.cardThumbBackground,
-                                                        flexShrink: 0,
-                                                    }}
-                                                >
-                                                    {data.thumb && (
-                                                        <img
-                                                            src={data.thumb.src}
-                                                            alt={data.thumb.alt}
-                                                            style={{
-                                                                width: "100%",
-                                                                height: "100%",
-                                                                objectFit:
-                                                                    "cover",
-                                                                display:
-                                                                    "block",
-                                                            }}
-                                                        />
-                                                    )}
-                                                </div>
-                                            )}
+                                            <div
+                                                style={{
+                                                    width: isMobile
+                                                        ? isTight
+                                                            ? 40
+                                                            : 46
+                                                        : 68,
+                                                    height: isMobile
+                                                        ? isTight
+                                                            ? 40
+                                                            : 46
+                                                        : 68,
+                                                    borderRadius: thumbRadius,
+                                                    ...({
+                                                        cornerShape:
+                                                            CONFIG.CORNER_SHAPE,
+                                                    } as object),
+                                                    overflow: "hidden",
+                                                    backgroundColor:
+                                                        palette.cardThumbBackground,
+                                                    flexShrink: 0,
+                                                }}
+                                            >
+                                                {data.thumb && (
+                                                    <img
+                                                        src={data.thumb.src}
+                                                        alt={data.thumb.alt}
+                                                        style={{
+                                                            width: "100%",
+                                                            height: "100%",
+                                                            objectFit: "cover",
+                                                            display: "block",
+                                                        }}
+                                                    />
+                                                )}
+                                            </div>
                                             <span
                                                 style={{
                                                     ...bodyFont,
