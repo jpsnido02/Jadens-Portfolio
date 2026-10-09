@@ -27,19 +27,21 @@ export const PARTNERS: { id: string; name: string }[] = [
 export const SCREEN = (id: string) => `../../projects/branded/${id}.jpg`
 export const ICON = (id: string) => `/projects/partners/${id}-app.jpg`
 /**
- * The partner's full wordmark, as a transparent monochrome mark on a common
- * 840x300 canvas (twice the size it renders at, so a
- * high-density display downsamples it).
+ * The partner's wordmark, as vector.
  *
- * Taken from the partner's own screen — the site header for the three that
- * show one, the placement header for the three that do not — rather than from
- * the app icon, which for half of them is a letter or a bird and not the name
- * at all. Scaled to equal ink area, so six logos of six very different
- * proportions carry the same optical weight in a row without six hand-tuned
- * sizes in the component. Used as a CSS mask, which is what lets one file be
- * white on the dark theme and near-black on the light one.
+ * These were keyed off the partners' own screens for a while, which is the
+ * only reason the row ever looked soft: a 786px JPEG has no more detail to
+ * give, and two of the six were an 88px logotype sitting on a page rule.
+ * They are the official files now, from Wikimedia Commons, wrapped onto one
+ * 840x300 canvas and scaled to a common height so six logos of six very
+ * different proportions sit level without six hand-tuned sizes in the
+ * component.
+ *
+ * Used as a CSS mask, which is what lets one file be white on the dark theme
+ * and near-black on the light one — and as vector, it is exact at any size
+ * rather than merely large enough.
  */
-export const MARK = (id: string) => `/projects/partners/${id}-mark.png`
+export const MARK = (id: string) => `/projects/partners/${id}-mark.svg`
 /** That canvas, so a caller can give the box the right shape. */
 export const MARK_W = 840
 export const MARK_H = 300
