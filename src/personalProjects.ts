@@ -1,0 +1,34 @@
+import type { ProjectData } from "./PortfolioScroll"
+import type { CaseStudy } from "./caseStudies"
+
+export const personalProjects: ProjectData[] = [
+    {title:"Pantry Notes",image:{src:"/projects/pantry/grocery-haul.jpg",alt:"A real Trader Joe’s grocery haul being logged in a recipe app"},category:"Interaction study",year:"2026",description:"A grocery management tool for quick and easy recipes throughout the week",mediaType:"component",component:"pantry-notes",link:"work/pantry-notes/"},
+    {title:"Thought Atlas",image:{src:"/projects/thought-atlas/network.svg",alt:"A brain-shaped web of linked personal notes"},category:"Spatial interface",year:"2026",description:"My notes are really just my thoughts, so they should resemble them",mediaType:"component",component:"thought-atlas",link:"work/thought-atlas/"},
+    {title:"LEGO Builder",image:{src:"/projects/build-view/manual.svg",alt:"A single black antenna tip attaching to BB-8’s existing rod"},category:"Motion study",year:"2026",description:"A 3D LEGO manual concept so you never miss where a piece goes",mediaType:"component",component:"build-view",link:"work/build-view/"},
+]
+export const personalMeta:Record<string,{label:string;summary:string}> = {
+    "pantry-notes":{label:"Pantry Notes",summary:"A grocery management tool for quick and easy recipes throughout the week"},
+    "thought-atlas":{label:"Thought Atlas",summary:"My notes are really just my thoughts, so they should resemble them"},
+    "build-view":{label:"LEGO Builder",summary:"A 3D LEGO manual concept so you never miss where a piece goes"},
+}
+export const personalCaseStudies:CaseStudy[] = [
+    {slug:"pantry-notes",title:"A little inspiration, already in your grocery haul",client:"Personal concept",year:"2026",role:"Interaction & visual design",duration:"Exploratory study",shape:"Gallery",paletteIndex:7,numbered:false,next:"thought-atlas",preview:"From “Capture your grocery haul” to the camera, recipe Post-its, and a full recipe card.",blocks:[
+        {kind:"abstract",text:"A phone app concept that starts with one prompt: capture your grocery haul. The familiar iPhone camera opens, the haul is photographed on the counter, and after a short loading state recipe Post-its drop onto the ingredients they use. Tap one and that same note grows into a full recipe card."},
+        {kind:"section",label:"The interaction",thesis:"From a photograph to a recipe worth keeping.",body:"“Open camera” slides up the system camera rather than a custom one, so taking the photo feels like any other photo. A flash, then the picture settles into the app while the ideas load. Three Post-its fall into place over matching ingredients. A press on the pasta note grows it into the recipe card, the Post-it staying on as its tab, before the card scrolls to the ingredients you already have and the steps."},
+        {kind:"section",label:"The material",thesis:"True black, clean white cards, and a human hand.",body:"Deep black pages and white recipe cards set in a newspaper serif give it the calm of a cooking section. The yellow Post-its, with folded corners and handwritten titles, are the warm exception: little discoveries on top of an ordinary Trader Joe’s haul."},
+        {kind:"section",label:"Concept scope",body:"A motion study of a capture prompt, the system camera, loading feedback, spatial recipe suggestions, and a Post-it-to-recipe-card transition, using a real grocery-haul photograph and sample recipes."},
+        {kind:"section",label:"Photography",body:"Real grocery-haul photograph credited to Sam, from a May 2023 Trader Joe’s Grocery Diary published by The Kitchn. Source details are included in the project’s asset credits."},
+    ]},
+    {slug:"thought-atlas",title:"A place for a beautifully messy mind",client:"Personal concept",year:"2026",role:"Spatial interaction & visual design",duration:"Exploratory study",shape:"System",paletteIndex:8,numbered:false,next:"build-view",preview:"From a zone of thought to a collection, a connection, and a note.",blocks:[
+        {kind:"abstract",text:"A personal file system imagined as a landscape of thought. Ideas, projects, reading, and other collections occupy colored regions of a brain-shaped network. Region area and node density reflect how much content each collection holds."},
+        {kind:"section",label:"The interaction",thesis:"Zoom into a thought without losing your place.",body:"The selected Ideas region brightens while the other collections recede. The camera moves into that region, connected file cards emerge, and a motion-principles note opens in a technical editor. The network remains behind the files to preserve context."},
+        {kind:"section",label:"The metaphor",body:"The brain-shaped web is a visual organizing metaphor. Each colored zone represents a collection; connections carry the structure and color helps you recognize your place."},
+        {kind:"section",label:"Concept scope",body:"A spatial-navigation motion study using 252 sample files across six collections. Individual visible nodes represent files; a 430-point structural silhouette preserves the brain shape. Crisp file cards, monospace metadata, and code distinguish this workspace from the warm recipe notes in Pantry Notes."},
+    ]},
+    {slug:"build-view",title:"A little perspective on your next brick",client:"Personal concept",year:"2026",role:"Motion & interface design",duration:"Exploratory study",shape:"Gallery",paletteIndex:9,numbered:false,next:"pantry-notes",preview:"A nearly finished BB-8, one tiny antenna tip, and one clear connection.",blocks:[
+        {kind:"abstract",text:"A building-manual concept that keeps the simplicity of a printed instruction book. The nearly finished BB-8 is recognizable from the start. A soft parts tray holds one black antenna tip, ready to fit onto the existing white rod."},
+        {kind:"section",label:"The interaction",thesis:"One piece. One place. One satisfying fit.",body:"One black antenna tip slides down onto its receiving rod. Both the tip and the exposed rod use the actual manual illustrations, including the rod’s before-insertion view. The tray checks off one individual piece. The complete assembly holds before the sequence replays."},
+        {kind:"section",label:"The reference",body:"Inspired by the clarity of LEGO’s printed manuals and LEGO Builder’s step-by-step 3D instructions. The single-part action comes from step 118 on page 81 of set 75452. The finished-droid view on page 87 supplies the wider context, so visitors can recognize BB-8 while following the small connection."},
+        {kind:"section",label:"Concept scope",body:"A looping interface concept using actual model, antenna-tip, and bare-rod illustrations from the referenced BB-8 manual. The nearly complete droid provides context for a finishing detail; the invented connector and ground shadow have been removed. The presentation and motion are an independent design study."},
+    ]},
+]

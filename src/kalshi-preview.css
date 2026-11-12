@@ -1,0 +1,55 @@
+@font-face { font-family:"Kalshi Sans"; src:url("/fonts/kalshi/KalshiSans-Regular.otf") format("opentype"); font-style:normal; font-weight:400; font-display:swap; }
+@font-face { font-family:"Kalshi Sans"; src:url("/fonts/kalshi/KalshiSans-Medium.otf") format("opentype"); font-style:normal; font-weight:500; font-display:swap; }
+@font-face { font-family:"Kalshi Sans"; src:url("/fonts/kalshi/KalshiSans-Semibold.otf") format("opentype"); font-style:normal; font-weight:600; font-display:swap; }
+@font-face { font-family:"Kalshi Sans"; src:url("/fonts/kalshi/KalshiSans-Bold.otf") format("opentype"); font-style:normal; font-weight:700; font-display:swap; }
+.kalshi-preview { position:absolute; inset:0; background:radial-gradient(ellipse at 50% 38%,#27322d 0%,#1b211e 56%,#151917 100%); font-family:"Kalshi Sans",sans-serif; color:#fff; overflow:hidden; }
+.kalshi-stage { position:absolute; left:50%; top:50%; width:1200px; height:826px; transform-origin:center; }
+.kalshi-ad { width:1200px; height:628px; position:relative; overflow:hidden; border-radius:28px; background:linear-gradient(145deg,#102b22,#081b15); border:1px solid #b3e4ca33; box-shadow:0 24px 52px -12px #0009,0 6px 16px #0005,inset 0 1px 0 #ffffff12; }
+.kalshi-sport { position:absolute; left:64px; top:60px; font-size:24px; line-height:1.2; letter-spacing:.12em; font-weight:600; color:#a8beb3; }
+.kalshi-wordmark { position:absolute; right:64px; top:36px; font-size:66px; line-height:1; letter-spacing:-.075em; font-weight:700; color:#00d49b; }
+.kalshi-event { position:absolute; left:64px; top:142px; font-size:25px; line-height:1.2; letter-spacing:.055em; font-weight:500; color:#a8beb3; }
+.kalshi-chance-label { position:absolute; right:64px; top:142px; font-size:21px; line-height:1.2; letter-spacing:.08em; font-weight:500; color:#a8beb3; }
+.kalshi-prediction { position:absolute; left:64px; right:64px; top:185px; display:flex; align-items:baseline; justify-content:space-between; gap:24px; font-size:68px; line-height:1.1; font-weight:700; letter-spacing:-.025em; }
+.kalshi-odds { display:inline-flex; align-items:baseline; font-size:88px; }
+.kalshi-odds>span:last-child { font-size:52px; margin-left:4px; }
+.kalshi-rule { position:absolute; left:64px; right:64px; top:316px; border-top:1px dashed #c7e9d626; }
+.kalshi-pay-label,.kalshi-payout-label { position:absolute; top:342px; font-size:23px; line-height:1.15; font-weight:500; letter-spacing:.08em; color:#a8beb3; }
+.kalshi-pay-label { left:64px; }.kalshi-payout-label { right:64px; }
+.kalshi-pay,.kalshi-payout { position:absolute; top:382px; line-height:1; letter-spacing:-.02em; font-weight:700; font-variant-numeric:tabular-nums; }
+.kalshi-pay { left:64px; font-size:66px; }.kalshi-payout { right:64px; top:376px; display:flex; align-items:baseline; font-size:96px; color:#00d49b; }
+.kalshi-code { position:absolute; left:64px; top:474px; padding:12px 18px; border-radius:10px; background:#00d49b; color:#04251b; font-size:21px; line-height:1.15; font-weight:700; letter-spacing:.055em; }
+.kalshi-condition { position:absolute; top:478px; right:64px; font-size:25px; line-height:1.2; color:#c3d4ca; }
+.kalshi-terms { position:absolute; left:64px; right:64px; top:554px; margin:0; color:#9aaca1; font-size:20px; line-height:1.45; }
+.kalshi-number { display:inline-flex; font-variant-numeric:tabular-nums; }
+.kalshi-digit { display:inline-block; position:relative; width:.62em; height:1em; line-height:1em; overflow:hidden; text-align:center; }
+.kalshi-digit.is-point { width:.25em; }
+.kalshi-number-track { display:block; animation:kalshi-quote-up 520ms cubic-bezier(.22,.75,.25,1) both; will-change:transform; }
+.kalshi-number-track>span { display:block; height:1em; line-height:1em; }
+.kalshi-number-track[data-direction="down"] { animation-name:kalshi-quote-down; }
+@keyframes kalshi-quote-up { from { transform:translateY(0); } to { transform:translateY(-1em); } }
+@keyframes kalshi-quote-down { from { transform:translateY(-1em); } to { transform:translateY(0); } }
+.kalshi-preview[data-playing="false"] * { animation-play-state:paused!important; }
+.tile-visual:has(.kalshi-preview) { --caption-tone:#0a3430; }
+@media(prefers-reduced-motion:reduce) { .kalshi-number-track { animation:none!important; }.kalshi-number-track[data-direction="up"] { transform:translateY(-1em); } }
+
+/* One readable cause before the ad response: a 15-yard play, then 16% → 18%. */
+.kalshi-football { width:1200px; height:174px; margin-bottom:24px; }
+.kalshi-football svg { display:block; width:100%; height:100%; }
+.kalshi-yard-number { fill:#ffffff70; font-size:24px; font-weight:600; font-family:"Kalshi Sans",sans-serif; }
+.kalshi-scrimmage { stroke:#ffffffa0; stroke-width:3; }
+.kalshi-first-down { stroke:#d7bf69; stroke-width:3; opacity:.85; }
+.kalshi-yard-progress { fill:none; stroke:#00d49b; stroke-width:34; stroke-opacity:.24; stroke-dasharray:1; stroke-dashoffset:1; }
+.kalshi-ball-marker { transform:translate(420px,104px); }
+.kalshi-football[data-play-phase="1"] .kalshi-ball-marker { animation:kalshi-fifteen-yards 2400ms cubic-bezier(.35,0,.3,1) both; }
+.kalshi-football[data-play-phase="1"] .kalshi-yard-progress { animation:kalshi-yard-progress 2400ms cubic-bezier(.35,0,.3,1) both; }
+.kalshi-football[data-play-phase="4"] .kalshi-ball-marker { animation:kalshi-fifteen-yards 1800ms cubic-bezier(.35,0,.3,1) reverse both; }
+.kalshi-football[data-play-phase="4"] .kalshi-yard-progress { animation:kalshi-yard-progress 1800ms cubic-bezier(.35,0,.3,1) reverse both; }
+.kalshi-football.is-finished .kalshi-ball-marker { transform:translate(900px,104px); }
+.kalshi-football.is-finished .kalshi-yard-progress { stroke-dashoffset:0; }
+.kalshi-run-gain { fill:#00d49b; font-family:"Kalshi Sans",sans-serif; font-size:25px; font-weight:600; letter-spacing:.03em; opacity:0; transition:opacity 200ms; }
+.kalshi-football.is-finished .kalshi-run-gain { opacity:1; }
+.kalshi-preview[data-play-phase="3"] .kalshi-odds>.kalshi-number { animation:kalshi-market-response 1100ms both; border-radius:6px; }
+@keyframes kalshi-fifteen-yards { from { transform:translate(420px,104px); } to { transform:translate(900px,104px); } }
+@keyframes kalshi-yard-progress { from { stroke-dashoffset:1; } to { stroke-dashoffset:0; } }
+@keyframes kalshi-market-response { 0%,100% { box-shadow:0 0 0 0 #00d49b00; color:#fff; } 35% { box-shadow:0 0 0 12px #00d49b16; color:#fff; } }
+@media(prefers-reduced-motion:reduce) { .kalshi-run-gain { transition:none!important; }.kalshi-preview[data-play-phase="3"] .kalshi-odds>.kalshi-number { animation:none!important; } }
