@@ -49,7 +49,7 @@ export default function KalshiPreview({ playing }: { playing: boolean }) {
     const [scale, setScale] = useState(0)
     const phase = useStudySequence(PLAY_TIMING, playing, 3)
     useEffect(() => {
-        const observer = new ResizeObserver(([entry]) => setScale(Math.max(0, Math.min((entry.contentRect.width - 30) / 1200, (entry.contentRect.height - 30) / 826))))
+        const observer = new ResizeObserver(([entry]) => setScale(Math.max(0, Math.min((entry.contentRect.width - 80) / 1200, (entry.contentRect.height - 80) / 826))))
         observer.observe(root.current!)
         return () => observer.disconnect()
     }, [])
@@ -62,8 +62,10 @@ export default function KalshiPreview({ playing }: { playing: boolean }) {
             <div className="kalshi-ad">
                 <span className="kalshi-sport">PRO FOOTBALL</span><span className="kalshi-wordmark">Kalshi</span>
                 <span className="kalshi-event">2027 PRO FOOTBALL CHAMPION</span>
-                <div className="kalshi-prediction"><span>San Francisco :</span> <RollingValue value={String(quote.probability)} previous={String(previous.probability)} revision={revision} /><span>%</span></div>
+                <span className="kalshi-chance-label">MARKET CHANCE</span>
+                <div className="kalshi-prediction"><span>San Francisco</span><span className="kalshi-odds"><RollingValue value={String(quote.probability)} previous={String(previous.probability)} revision={revision} /><span>%</span></span></div>
                 <div className="kalshi-rule" />
+                <div className="kalshi-payout-surface" aria-hidden="true" />
                 <span className="kalshi-pay-label">YOU PAY</span><strong className="kalshi-pay">$25.00</strong>
                 <span className="kalshi-payout-label">YOUR PAYOUT</span><strong className="kalshi-payout"><span>$</span><RollingValue value={quote.payout} previous={previous.payout} revision={revision} /></strong>
                 <span className="kalshi-condition">if San Francisco wins</span>
