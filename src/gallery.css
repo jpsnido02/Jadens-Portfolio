@@ -27,6 +27,8 @@ html[data-page="home"] #root { overflow:hidden; }
 .tile-visual { position:relative; aspect-ratio:1.4; overflow:hidden; border-radius:18px; background:#f3f3f3; border:1px solid var(--gallery-line); isolation:isolate; transition:border-color .3s; }
 .project-tile:hover .tile-visual { border-color:#b5b5b5; }
 .project-cover { position:absolute; inset:0; width:100%; height:100%; overflow:hidden; background:#f5f5f5; }
+.site-icon { display:inline-block; flex:none; vertical-align:-.125em; fill:currentColor; stroke:none; overflow:visible; }
+.project-close .site-icon { fill:currentColor; stroke:none; }
 .tile-open { position:absolute; top:17px; right:17px; padding:9px 13px; border-radius:25px; background:#171717; color:#fff; font-size:10px; font-weight:600; opacity:0; transform:translateY(-5px); transition:opacity .25s,transform .25s; pointer-events:none; }
 .project-tile:hover .tile-open,.project-tile:focus-visible .tile-open { opacity:1; transform:translateY(0); }
 .tile-caption { padding:16px 2px 0; }
@@ -148,7 +150,12 @@ html[data-page="home"] #root { overflow:hidden; }
 .is-reading .tile-title { font-size:9px; line-height:1.4; letter-spacing:0; font-weight:500; }
 .is-reading .tile-caption-title { margin-top:3px; }
 .is-reading .cover-stage,.is-reading .photo-composition { inset:7px; }
-.case-reader { position:fixed; inset:12px 12px 12px 164px; border:1px solid var(--gallery-line); border-radius:22px; background:var(--gallery-surface); overflow:hidden; display:flex; flex-direction:column; animation:reader-arrive .7s cubic-bezier(.16,1,.3,1) both; }
+.case-reader { position:fixed; inset:12px 12px 12px 164px; border:1px solid var(--gallery-line); border-radius:22px; background:var(--gallery-surface); overflow:hidden; display:flex; flex-direction:column; animation:reader-arrive .7s cubic-bezier(.65,0,.35,1) both; }
+.portfolio .project-close { position:fixed; z-index:40; left:55px; top:14px; display:grid; place-items:center; width:54px; height:54px; padding:0; border:1px solid var(--gallery-line); border-radius:50%; background:var(--gallery-ink); color:var(--gallery-bg); box-shadow:0 4px 16px #00000012; transition:transform .25s,box-shadow .25s; }
+.portfolio .project-close:hover { transform:scale(1.06); box-shadow:0 6px 22px #00000024; }
+.project-close svg { width:25px; height:25px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; }
+.is-reading .gallery-scroll { scroll-padding-top:82px; }
+.is-reading .project-grid { padding-top:66px; }
 .reader-toolbar { display:flex; align-items:center; gap:12px; flex-shrink:0; height:62px; padding:0 22px; background:var(--gallery-surface); border-bottom:1px solid var(--gallery-line); z-index:5; font-weight:600; }
 .reader-toolbar button { min-width:36px; min-height:36px; border:0; background:none; border-radius:30px; }
 .reader-toolbar button:first-child { display:flex; gap:9px; align-items:center; font-size:12px; }
@@ -168,7 +175,7 @@ html[data-page="home"] #root { overflow:hidden; }
 .about-card a { display:flex; gap:5px; align-items:center; }
 .about-card svg { width:15px; height:15px; }
 .is-paused *,.motion-paused .project-cover * { animation-play-state:paused!important; }
-::view-transition-group(*) { animation-duration:650ms; animation-timing-function:cubic-bezier(.22,1,.36,1); }
+::view-transition-group(*) { animation-duration:700ms; animation-timing-function:cubic-bezier(.65,0,.35,1); }
 ::view-transition-old(root),::view-transition-new(root) { animation-duration:350ms; }
 @keyframes tile-arrive { from { opacity:0; translate:0 25px; } to { opacity:1; translate:0 0; } }
 @keyframes dot-breathe { 50% { opacity:.5; } }
@@ -480,3 +487,8 @@ html[data-page="home"] #root { overflow:hidden; }
 .discount-card--original .discount-add { flex-shrink:0; width:87px; min-height:35px; margin-top:0; padding:9px 6px; font-size:10px; font-weight:700; background:#ededed; color:#a2a2a2; }
 .macys-focus.is-unlocked .discount-product-copy { opacity:1; }
 .discount-card--original .discount-add.is-enabled { background:#e31837; color:#fff; }
+
+/* Keep the return control available above the card rail and on narrow screens. */
+@media (min-width:721px) and (max-width:1000px) { .portfolio .project-close { left:38px; width:48px; height:48px; } }
+@media (max-width:720px) { .portfolio .project-close { left:auto; right:10px; top:8px; width:44px; height:44px; } .reader-toolbar { padding-right:64px; } }
+.has-opened-project .project-tile { animation:none; }
