@@ -12,7 +12,7 @@
 .kalshi-prediction { position:absolute; left:64px; right:64px; top:185px; display:flex; align-items:baseline; justify-content:space-between; gap:24px; font-size:68px; line-height:1.1; font-weight:700; letter-spacing:-.025em; }
 .kalshi-odds { display:inline-flex; align-items:baseline; font-size:88px; }
 .kalshi-odds>span:last-child { font-size:52px; margin-left:4px; }
-.kalshi-rule { position:absolute; left:64px; right:64px; top:292px; border-top:1px solid #c7e9d626; }
+.kalshi-rule { position:absolute; left:64px; right:64px; top:316px; border-top:1px dashed #c7e9d626; }
 .kalshi-pay-label,.kalshi-payout-label { position:absolute; top:342px; font-size:23px; line-height:1.15; font-weight:500; letter-spacing:.08em; color:#a8beb3; }
 .kalshi-pay-label { left:64px; }.kalshi-payout-label { right:64px; }
 .kalshi-pay,.kalshi-payout { position:absolute; top:382px; line-height:1; letter-spacing:-.02em; font-weight:700; font-variant-numeric:tabular-nums; }
