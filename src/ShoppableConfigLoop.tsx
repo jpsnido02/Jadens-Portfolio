@@ -1,5 +1,4 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
-import Cursor from "./Cursor"
 import { RoktWordmark } from "./icons"
 import ShoppablePhone, { FRAME_H, FRAME_W, type Stage } from "./ShoppablePhone"
 import { cycleMs, type LoopReporter } from "./LoopProgress"
@@ -214,8 +213,10 @@ const PRESS_EASE = "cubic-bezier(0.33, 1, 0.68, 1)"
 
 export default function ShoppableConfigLoop({
     alt,
+    paused = false,
     onProgress,
 }: {
+    paused?: boolean
     alt?: string
     onProgress?: LoopReporter
 }) {
@@ -240,7 +241,7 @@ export default function ShoppableConfigLoop({
         const el = wrapRef.current
         if (!el) return
         const measure = () => {
-            const r = el.getBoundingClientRect()
+            const r = { width: el.clientWidth, height: el.clientHeight }
             if (r.width > 0) setBox({ w: r.width, h: r.height })
         }
         measure()
@@ -301,7 +302,7 @@ export default function ShoppableConfigLoop({
     }, [visible])
 
     useEffect(() => {
-        if (!visible || reduced) return
+        if (paused || !visible || reduced) return
         const current = SCRIPT[step]
         let typer: number | undefined
         // A control and the components it drives change in the same frame. An
@@ -407,7 +408,7 @@ export default function ShoppableConfigLoop({
             window.clearTimeout(id)
             if (typer) window.clearInterval(typer)
         }
-    }, [step, visible, reduced])
+    }, [step, paused, visible, reduced])
 
     const isDone = (stage: Stage) => reduced || on.includes(stage)
     const TOTAL_STAGES = CONTROLS.reduce((n, c) => n + c.c.stages.length, 0)
@@ -803,7 +804,7 @@ export default function ShoppableConfigLoop({
                                             transition: `transform ${PRESS_MS / 2}ms ${PRESS_EASE}`,
                                         }}
                                     >
-                                        <Cursor size={22} />
+                                        
                                         {pressing && (
                                             <span
                                                 className="uber-tap"

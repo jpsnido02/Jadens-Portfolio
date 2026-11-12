@@ -19,7 +19,7 @@
  * that one has no body copy and the tallest card.
  */
 
-import { useLayoutEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 
 /** Uber's own faces, in the two families the app uses: Text for UI, the
  *  display cut for anything large. Declared in index.css. */
@@ -272,25 +272,54 @@ function Pill({
     )
 }
 
-export default function UberOfferCard({
-    offer,
-    index,
-    px,
-    swapMs,
-    animate,
-    tap,
-    tapKey,
-}: {
+type SwapPhase = "idle" | "out" | "resize" | "in"
+interface UberOfferCardProps {
     offer: Offer
-    /** Which of the four, for the pager. */
     index: number
     px: (v: number) => number
     swapMs: number
     animate: boolean
-    /** Which button is being pressed, if either. */
     tap?: "claim" | "notNow" | null
     tapKey?: number
-}) {
+}
+
+/** All content hands off together, inside one continuously measured shell. */
+export default function UberOfferCard(props: UberOfferCardProps) {
+    const [shown, setShown] = useState({ offer: props.offer, index: props.index })
+    const [pagerIndex, setPagerIndex] = useState(props.index)
+    const [phase, setPhase] = useState<SwapPhase>("idle")
+    useEffect(() => {
+        if (!props.animate) {
+            setShown({ offer: props.offer, index: props.index })
+            setPagerIndex(props.index)
+            setPhase("idle")
+            return
+        }
+        if (props.offer.id === shown.offer.id) return
+        const exitMs = Math.round(props.swapMs * .2)
+        const resizeMs = Math.round(props.swapMs * .45)
+        setPhase("out")
+        const swap = window.setTimeout(() => {
+            setShown({ offer: props.offer, index: props.index })
+            setPhase("resize")
+        }, exitMs)
+        const enter = window.setTimeout(() => {
+            setPhase("in")
+            setPagerIndex(props.index)
+        }, exitMs + resizeMs)
+        const settle = window.setTimeout(() => setPhase("idle"), props.swapMs)
+        return () => { window.clearTimeout(swap); window.clearTimeout(enter); window.clearTimeout(settle) }
+        // `shown` changes during this sequence; it must not cancel its own timers.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [props.offer.id, props.index, props.animate, props.swapMs])
+    return <OfferCardView {...props} offer={shown.offer} index={shown.index} phase={phase} pagerIndex={pagerIndex} />
+}
+
+function OfferCardView({ offer, index, px, swapMs, animate, tap, tapKey, phase, pagerIndex }: UberOfferCardProps & { phase: SwapPhase; pagerIndex: number }) {
+    const exitMs = Math.round(swapMs * .2)
+    const resizeMs = Math.round(swapMs * .45)
+    const enterMs = swapMs - exitMs - resizeMs
+    const hidden = phase === "out" || phase === "resize"
     const { ref: measureRef, widths } = usePillWidths(px)
     const bleed = offer.media.kind === "bleed" ? offer.media : null
     const inline = offer.media.kind === "inline" ? offer.media : null
@@ -317,7 +346,7 @@ export default function UberOfferCard({
                 // Set, not auto, so the one thing that carries across the
                 // four offers can move between their heights.
                 height: height ?? undefined,
-                transition: animate ? `height ${swapMs}ms ${EASE}` : "none",
+                transition: animate ? `height ${resizeMs}ms ${EASE}` : "none",
             }}
         >
             {/* Measured off-screen, never shown. */}
@@ -339,6 +368,12 @@ export default function UberOfferCard({
                 ))}
             </div>
 
+            <div data-offer-phase={phase} data-offer-id={offer.id} style={{
+                position: "relative", display: "flow-root",
+                opacity: hidden ? 0 : 1,
+                transform: phase === "out" ? `translateX(${px(-5)}px)` : phase === "resize" ? `translateX(${px(5)}px)` : "translateX(0)",
+                transition: !animate || phase === "resize" ? "none" : `opacity ${phase === "out" ? exitMs : enterMs}ms ease, transform ${phase === "out" ? exitMs : enterMs}ms ${EASE}`,
+            }}>
             {bleed && (
                 <img
                     key={offer.id}
@@ -352,9 +387,7 @@ export default function UberOfferCard({
                         height: px(bleed.h),
                         objectFit: "cover",
                         display: "block",
-                        animation: animate
-                            ? `uber-offer-in ${Math.round(swapMs * 0.5)}ms ${EASE} both`
-                            : "none",
+                        animation: "none",
                     }}
                 />
             )}
@@ -379,9 +412,7 @@ export default function UberOfferCard({
                             color: "#FFFFFF",
                             fontSize: px(12.5),
                             fontWeight: 500,
-                            animation: animate
-                                ? `uber-offer-in ${Math.round(swapMs * 0.5)}ms ${EASE} both`
-                                : "none",
+                            animation: "none",
                         }}
                     >
                         {offer.badge}
@@ -430,9 +461,7 @@ export default function UberOfferCard({
                                 flexShrink: 0,
                                 display: "block",
                                 objectFit: "cover",
-                                animation: animate
-                                    ? `uber-offer-in ${Math.round(swapMs * 0.5)}ms ${EASE} both`
-                                    : "none",
+                                animation: "none",
                             }}
                         />
                     )}
@@ -467,14 +496,14 @@ export default function UberOfferCard({
                         primary
                         width={widths ? widths[index] : undefined}
                         px={px}
-                        ms={swapMs}
+                        ms={resizeMs}
                         tapKey={tap === "claim" ? tapKey : undefined}
                     />
                     <Pill
                         label="Not now"
                         primary={false}
                         px={px}
-                        ms={swapMs}
+                        ms={resizeMs}
                         tapKey={tap === "notNow" ? tapKey : undefined}
                     />
                 </div>
@@ -506,6 +535,8 @@ export default function UberOfferCard({
                 </div>
             </div>
 
+            </div>
+
             {/* The pager, against the card's own bottom edge. */}
             {OFFERS.map((_, i) => (
                 <span
@@ -517,7 +548,7 @@ export default function UberOfferCard({
                         width: px(DOT_D),
                         height: px(DOT_D),
                         borderRadius: "50%",
-                        background: i === index ? DOT_ON : DOT_OFF,
+                        background: i === pagerIndex ? DOT_ON : DOT_OFF,
                         // No delay: the dots are anchored to the card's
                         // bottom edge, so they travel with the height, and
                         // the one that lights up should be moving with them

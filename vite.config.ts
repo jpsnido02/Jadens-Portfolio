@@ -10,6 +10,10 @@ const caseStudies = [
     "shoppable-config",
     "mcdonalds-kiosk",
     "expedia-1p-3p",
+    "pantry-notes",
+    "thought-atlas",
+    "build-view",
+    "kalshi-dynamic-ads",
 ]
 
 export default defineConfig({

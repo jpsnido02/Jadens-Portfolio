@@ -79,11 +79,13 @@ const MARK_MAX = 130
 
 export default function BrandedLayoutsLoop({
     alt,
+    paused = false,
     ink = "#E2E8F0",
     muted = "#94A3B8",
     accent = "#53B1FD",
 }: {
     alt?: string
+    paused?: boolean
     /** The mark of the partner being shown. */
     ink?: string
     /** The track, and the five marks that are not current. */
@@ -108,7 +110,7 @@ export default function BrandedLayoutsLoop({
         const el = wrapRef.current
         if (!el) return
         const measure = () => {
-            const r = el.getBoundingClientRect()
+            const r = { width: el.clientWidth, height: el.clientHeight }
             if (r.width > 0) setBox({ w: r.width, h: r.height })
         }
         measure()
@@ -126,7 +128,10 @@ export default function BrandedLayoutsLoop({
 
     // The rotation's clock runs only while something showing it is on screen,
     // so scrolling to the hero gives a full hold before the first slide.
-    useEffect(() => watchVisibility(wrapRef.current, setWatching), [])
+    useEffect(() => {
+        if (paused) { setWatching(false); return }
+        return watchVisibility(wrapRef.current, setWatching)
+    }, [paused])
 
     // The phone leaving is whichever one the rotation just moved off.
     useEffect(() => {

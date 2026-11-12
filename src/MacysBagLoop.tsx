@@ -19,7 +19,6 @@
  */
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
-import Cursor from "./Cursor"
 import { cycleMs, type LoopReporter } from "./LoopProgress"
 
 /* -------------------------------------------------------------------------
@@ -482,8 +481,10 @@ function AddToBag({
 
 export default function MacysBagLoop({
     alt,
+    paused = false,
     onProgress,
 }: {
+    paused?: boolean
     alt?: string
     onProgress?: LoopReporter
 }) {
@@ -517,7 +518,7 @@ export default function MacysBagLoop({
         const el = wrapRef.current
         if (!el) return
         const measure = () => {
-            const r = el.getBoundingClientRect()
+            const r = { width: el.clientWidth, height: el.clientHeight }
             if (r.width > 0) setBox({ w: r.width, h: r.height })
         }
         measure()
@@ -627,7 +628,7 @@ export default function MacysBagLoop({
     }
 
     useEffect(() => {
-        if (!visible || reduced || box.w === 0) return
+        if (paused || !visible || reduced || box.w === 0) return
         const current = SCRIPT[step]
         let dur = current.ms
 
@@ -706,7 +707,7 @@ export default function MacysBagLoop({
         // `rotation` is read when a pick is added, so the step this depends on
         // has to re-run if it changes.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [step, visible, reduced, box.w])
+    }, [step, paused, visible, reduced, box.w])
 
     /* ---- layout ---------------------------------------------------------- */
     const pad = box.w < 480 ? 8 : 16
@@ -1214,7 +1215,7 @@ export default function MacysBagLoop({
                                                         : `transform ${shotMs}ms cubic-bezier(0.4, 0, 0.2, 1)`,
                                                 }}
                                             >
-                                                <Cursor size={38} />
+                                                
                                             </span>
                                         </span>
                                     </span>

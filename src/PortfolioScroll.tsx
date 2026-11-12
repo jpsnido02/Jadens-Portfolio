@@ -48,6 +48,10 @@ export interface ProjectData {
         | "branded-shuffle"
         | "partner-agent"
         | "macys-bag"
+        | "pantry-notes"
+        | "thought-atlas"
+        | "build-view"
+        | "kalshi-live"
     /** Fills the card's thumbnail square. Left empty it stays a plain plate. */
     thumb?: { src: string; alt: string }
     /**

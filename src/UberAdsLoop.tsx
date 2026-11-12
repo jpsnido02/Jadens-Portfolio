@@ -172,6 +172,8 @@ const PAGE_MS = 780
  * the browser to re-rasterise from once the move ends.
  */
 const ZOOM_MS = 900
+const LOOP_BLACKOUT_MS = 520
+const LOOP_REVEAL_MS = 700
 /**
  * How far in the camera goes.
  *
@@ -200,6 +202,8 @@ type Step =
     | { kind: "scroll"; to: number; ms: number }
     /** To black, and hold there. */
     | { kind: "cut"; ms: number }
+    | { kind: "rewind"; ms: number }
+    | { kind: "reveal"; ms: number }
     | { kind: "reset"; ms: number }
 
 const SCREEN_MS = 520
@@ -249,10 +253,42 @@ const SCRIPT: Step[] = [
     { kind: "reset", ms: 60 },
 ]
 
+/** The gallery starts on the placement, then preserves the original destination flow. */
+const GALLERY_SCRIPT: Step[] = [
+    { kind: "hold", ms: 2100 },
+    { kind: "tap", on: "notNow", ms: 320 },
+    { kind: "advance", ms: PAGE_MS },
+    { kind: "hold", ms: 2100 },
+    { kind: "tap", on: "notNow", ms: 320 },
+    { kind: "advance", ms: PAGE_MS },
+    { kind: "hold", ms: 2100 },
+    { kind: "tap", on: "notNow", ms: 320 },
+    { kind: "advance", ms: PAGE_MS },
+    { kind: "hold", ms: 2600 },
+    { kind: "tap", on: "claim", ms: 320 },
+    { kind: "zoom", to: "wide", ms: ZOOM_MS },
+    { kind: "stage", to: "home", ms: CLOSE_MS },
+    { kind: "hold", ms: 560 },
+    { kind: "stage", to: "store", ms: OPEN_MS },
+    { kind: "hold", ms: 3200 },
+    // Hold the destination, dim the screen inside its bezel, then move the
+    // camera back to the placement while the phone is black.
+    { kind: "cut", ms: LOOP_BLACKOUT_MS },
+    { kind: "zoom", to: "offer", ms: ZOOM_MS },
+    // Rebuild Uber behind black, so the restart never appears as an app morph.
+    { kind: "rewind", ms: 60 },
+    { kind: "reveal", ms: LOOP_REVEAL_MS },
+    { kind: "reset", ms: 60 },
+]
+
 /** How long one pass of the script takes. */
 const CYCLE = cycleMs(SCRIPT.map((s) => s.ms))
 
 interface UberAdsLoopProps {
+    gallery?: boolean
+    /** Keep the whole device visible in a small gallery frame. */
+    camera?: boolean
+    paused?: boolean
     alt?: string
     /** Reports where the script is, for the hero's loop indicator. */
     onProgress?: LoopReporter
@@ -266,9 +302,13 @@ interface UberAdsLoopProps {
 
 export default function UberAdsLoop({
     alt,
+    paused = false,
+    camera = true,
+    gallery = false,
     fit = "width",
     onProgress,
 }: UberAdsLoopProps) {
+    const script = gallery ? GALLERY_SCRIPT : SCRIPT
     const wrapRef = useRef<HTMLDivElement>(null)
     // Starts at 1 rather than 0: the first measurement happens synchronously
     // below, and if it ever fails the component still renders at full size
@@ -328,7 +368,7 @@ export default function UberAdsLoop({
     useEffect(() => {
         if (step !== 0) return
         passes.current += 1
-        onProgress?.(CYCLE, passes.current)
+        onProgress?.(gallery ? cycleMs(GALLERY_SCRIPT.map(s => s.ms)) : CYCLE, passes.current)
     }, [step, onProgress])
 
     useEffect(() => {
@@ -362,12 +402,12 @@ export default function UberAdsLoop({
      * state that is already clear.
      */
     useEffect(() => {
-        if (visible) setStep(SCRIPT.length - 1)
+        if (visible) setStep(script.length - 1)
     }, [visible])
 
     useEffect(() => {
-        if (!visible || reduced) return
-        const current = SCRIPT[step]
+        if (paused || !visible || reduced) return
+        const current = script[step]
         switch (current.kind) {
             case "tap":
                 setTap(current.on)
@@ -397,25 +437,36 @@ export default function UberAdsLoop({
                 setTap(null)
                 setCut(true)
                 break
+            case "rewind":
+                setAnimate(false)
+                setTap(null)
+                setIndex(0)
+                setStage("app")
+                setScreen("track")
+                setScrollY(SCROLL_TO)
+                break
+            case "reveal":
+                setCut(false)
+                break
             case "reset":
                 setAnimate(false)
                 setCut(false)
                 setIndex(0)
                 setStage("app")
-                setZoom("wide")
-                setScreen("loading")
-                setScrollY(0)
+                setZoom(gallery ? "offer" : "wide")
+                setScreen(gallery ? "track" : "loading")
+                setScrollY(gallery ? SCROLL_TO : 0)
                 break
             case "hold":
                 setTap(null)
                 break
         }
         const id = window.setTimeout(() => {
-            if (current.kind === "reset") setAnimate(true)
-            setStep((s) => (s + 1) % SCRIPT.length)
+            if (current.kind === "reset" || current.kind === "rewind") setAnimate(true)
+            setStep((s) => (s + 1) % script.length)
         }, current.ms)
         return () => window.clearTimeout(id)
-    }, [step, visible, reduced])
+    }, [step, paused, visible, reduced, gallery, script])
 
     const offer = OFFERS[index % OFFERS.length]
     // Each surface morphs to and from its own icon on the home screen, not
@@ -435,6 +486,10 @@ export default function UberAdsLoop({
     return (
         <div
             ref={wrapRef}
+            data-loop-phase={script[step].kind}
+            data-loop-stage={stage}
+            data-loop-camera={zoom}
+            data-loop-black={cut}
             role="img"
             aria-label={
                 alt ??
@@ -469,7 +524,7 @@ export default function UberAdsLoop({
                 // the way in; vertically anchored on the offer so the offer is
                 // what the move frames.
                 transformOrigin: `50% ${ZOOM_ORIGIN_Y}%`,
-                transform: zoom === "offer" ? `scale(${ZOOM_SCALE})` : "none",
+                transform: camera && zoom === "offer" ? `scale(${gallery ? 2.25 : ZOOM_SCALE})` : "none",
                 transition: animate
                     ? `transform ${ZOOM_MS}ms ${APPLE_EASE}`
                     : "none",
@@ -817,17 +872,20 @@ export default function UberAdsLoop({
                                 />
                             </div>
 
-                            {/* The end. Over every surface and under the
-                                frame, and with no transition on it, because
-                                this is a cut: the phone is still there, the
-                                screen is simply done. */}
+                            {/* Black stays inside the real phone frame. The
+                                gallery zooms back in under this layer and
+                                reveals Uber again after its hidden reset. */}
                             <div
+                                data-loop-curtain
                                 aria-hidden="true"
                                 style={{
                                     position: "absolute",
                                     inset: 0,
                                     backgroundColor: "#000000",
                                     opacity: cut ? 1 : 0,
+                                    transition: gallery && animate
+                                        ? `opacity ${cut ? LOOP_BLACKOUT_MS : LOOP_REVEAL_MS}ms ease-in-out`
+                                        : "none",
                                     pointerEvents: "none",
                                 }}
                             />

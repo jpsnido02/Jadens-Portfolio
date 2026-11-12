@@ -370,8 +370,12 @@ const SHEET_EASE = "cubic-bezier(0.32, 0.72, 0, 1)"
 
 export default function PartnerAgentLoop({
     alt,
+    paused = false,
+    gallery = false,
     onProgress,
 }: {
+    paused?: boolean
+    gallery?: boolean
     alt?: string
     onProgress?: LoopReporter
 }) {
@@ -388,7 +392,7 @@ export default function PartnerAgentLoop({
         const el = wrapRef.current
         if (!el) return
         const measure = () => {
-            const r = el.getBoundingClientRect()
+            const r = { width: el.clientWidth, height: el.clientHeight }
             if (r.width > 0) setBox({ w: r.width, h: r.height })
         }
         measure()
@@ -449,7 +453,7 @@ export default function PartnerAgentLoop({
     }, [visible])
 
     useEffect(() => {
-        if (!visible || reduced) return
+        if (paused || !visible || reduced) return
         const cur = SCRIPT[step]
         let ticker: number | undefined
 
@@ -506,7 +510,7 @@ export default function PartnerAgentLoop({
             window.clearTimeout(id)
             if (ticker) window.clearInterval(ticker)
         }
-    }, [step, visible, reduced])
+    }, [step, paused, visible, reduced])
 
     const cur = SCRIPT[step]
     /**
@@ -603,6 +607,16 @@ export default function PartnerAgentLoop({
             "0 8px 24px rgba(43,42,39,0.07), 0 1px 3px rgba(43,42,39,0.05)",
         textDecoration: "none",
     } as const
+
+    if (gallery) return <div ref={wrapRef} className="agent-gallery-layout" role="img" aria-label={alt ?? "A prompt types into a composer, code is written, and the generated client mockup springs into the preview."}>
+        <div className={`agent-gallery-composer ${composing ? "is-composing" : ""}`}><span className="agent-gallery-label">ASK THE AGENT</span><div><strong>{reduced ? promptText : promptText.slice(0, promptChars)}<span className="agent-text-caret" /></strong><span className={`agent-gallery-send ${sent ? "is-sent" : ""}`}>↑</span></div><p>{cur.kind === "code" ? "Writing the next format…" : loading ? "Rendering your preview…" : built > 0 ? `${Math.min(built,FORMATS.length)} of ${FORMATS.length} formats built` : "Designing for Home Depot"}</p></div>
+        <div className="agent-gallery-code"><div className="agent-gallery-file"><span>‹/›</span> {FILE_NAME}<span>TS</span></div><div className="agent-gallery-lines">{snippet.map((line,i) => {
+            const begin = i === 0 ? 0 : ends[i-1]
+            let remaining = Math.max(0, shown - begin - line.indent * INDENT.length)
+            return <div key={i}><span className="agent-line-number">{i+1}</span><code style={{paddingLeft:line.indent*14}}>{line.tokens.map(([text,type],j) => {const value=text.slice(0,remaining);remaining=Math.max(0,remaining-text.length);return <span key={j} style={{color:INK[type]}}>{value}</span>})}</code></div>
+        })}</div>{(cur.kind === "package" || (cur.kind === "hold" && cur.seg === FORMATS.length - 1 && step > SCRIPT.length - 4)) && <div className="agent-gallery-package">✓ {FOLDER_NAME} · {FORMATS.length} files ready</div>}</div>
+        <div className="agent-gallery-preview"><div className="agent-gallery-preview-bar"><span className="agent-window-dots">● ● ●</span><span>{built > 0 ? FORMATS[Math.max(0,built-1)].label : "LIVE PREVIEW"}</span></div><div className="agent-gallery-artwork">{built > 0 ? <img key={built} className="agent-gallery-result" src={`${BASE}/${FORMATS[Math.max(0,built-1)].src}`} alt="" /> : <div className="agent-gallery-empty"><span>✧</span>Your mockup will appear here</div>}{loading && <div className="agent-gallery-loading"><span />Rendering…</div>}</div></div>
+    </div>
 
     return (
         <div
@@ -776,8 +790,9 @@ export default function PartnerAgentLoop({
                                                     width: 11,
                                                     height: 11,
                                                     borderRadius: 999,
-                                                    border: `1.6px solid ${LINE}`,
-                                                    borderTopColor: ACCENT,
+                                                    borderWidth: 1.6,
+                                                    borderStyle: "solid",
+                                                    borderColor: `${ACCENT} ${LINE} ${LINE}`,
                                                     display: "block",
                                                 }}
                                             />
@@ -1275,8 +1290,9 @@ export default function PartnerAgentLoop({
                                                 width: px(46),
                                                 height: px(46),
                                                 borderRadius: 999,
-                                                border: `${px(5)}px solid rgba(39,39,42,0.18)`,
-                                                borderTopColor: ACCENT,
+                                                borderWidth: px(5),
+                                                borderStyle: "solid",
+                                                borderColor: `${ACCENT} rgba(39,39,42,0.18) rgba(39,39,42,0.18)`,
                                                 display: "block",
                                             }}
                                         />

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import ConceptStudy, { type ConceptKind } from "./ConceptStudies"
 import { CONTENT_MAX_WIDTH, FONT_FAMILY } from "./tokens"
 import ThemeToggle from "./ThemeToggle"
 import UberAdsLoop from "./UberAdsLoop"
@@ -9,7 +10,7 @@ import {
     type CaseStudy,
     type FigureWidth,
 } from "./caseStudies"
-import type { Palette } from "./theme"
+import type { Palette, ThemeName } from "./theme"
 
 const CORNER = "superellipse(1.6)"
 
@@ -94,8 +95,14 @@ const numberFigures = (study: CaseStudy): (number | number[] | undefined)[] => {
     })
 }
 
-export default function CaseStudyPage({ slug }: { slug: string }) {
-    const { theme, palette, toggle } = useTheme()
+export default function CaseStudyPage({ slug, embedded = false, appearance }: {
+    slug: string
+    embedded?: boolean
+    appearance?: { theme: ThemeName; palette: Palette }
+}) {
+    const ownTheme = useTheme()
+    const { theme, palette } = appearance ?? ownTheme
+    const toggle = ownTheme.toggle
     const isMobile = useIsMobile()
     const s = sizesFor(isMobile)
     const study = bySlug(slug)
@@ -128,7 +135,7 @@ export default function CaseStudyPage({ slug }: { slug: string }) {
 
     return (
         <>
-            <ThemeToggle theme={theme} palette={palette} onToggle={toggle} />
+            {!embedded && <ThemeToggle theme={theme} palette={palette} onToggle={toggle} />}
             <main
                 style={{
                     fontFamily: FONT_FAMILY,
@@ -147,7 +154,8 @@ export default function CaseStudyPage({ slug }: { slug: string }) {
                         paddingTop: `calc(${isMobile ? 20 : 28}px + env(safe-area-inset-top))`,
                     }}
                 >
-                    <TopBar palette={palette} sizes={s} />
+                    {!embedded && <TopBar palette={palette} sizes={s} />}
+                    {!embedded && ["pantry-notes", "thought-atlas", "build-view"].includes(slug) && <div style={{position:"relative",height:isMobile?360:600,borderRadius:18,overflow:"hidden",marginBottom:36}}><ConceptStudy kind={slug as ConceptKind}/></div>}
                     <Masthead
                         study={study}
                         palette={palette}
@@ -222,7 +230,7 @@ function Masthead({
                     fontSize: sizes.title,
                     lineHeight: 1.08,
                     letterSpacing: "-0.025em",
-                    fontWeight: 600,
+                    fontWeight: 700,
                     marginTop: 0,
                     marginBottom: 0,
                     maxWidth: PROSE + 120,
@@ -370,6 +378,7 @@ function Media({
     isMobile: boolean
 }) {
     const box = mediaStyle(width, isMobile)
+    const [failed, setFailed] = useState(false)
     return (
         <div
             style={{
@@ -381,9 +390,10 @@ function Media({
                 border: `1px solid ${palette.cardBorder}`,
             }}
         >
-            {src && (
+            {src && !failed ? (
                 <img
                     src={src}
+                    onError={() => setFailed(true)}
                     alt={alt ?? ""}
                     loading="lazy"
                     style={{
@@ -393,7 +403,7 @@ function Media({
                         display: "block",
                     }}
                 />
-            )}
+            ) : <div style={{ width: "100%", height: "100%", display: "grid", placeContent: "center", textAlign: "center", gap: 8, color: palette.textMuted, fontSize: 12 }}><span>{alt}</span><span style={{ fontSize: 10 }}>Visual coming soon</span></div>}
         </div>
     )
 }

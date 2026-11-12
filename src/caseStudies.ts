@@ -1,3 +1,5 @@
+import { personalCaseStudies } from "./personalProjects"
+
 /**
  * CASE STUDY CONTENT — edit everything here.
  *
@@ -147,25 +149,25 @@ export const caseStudies: CaseStudy[] = [
                 kind: "section",
                 label: "The attempts",
                 thesis: "Two formats failed before one worked.",
-                body: "Each variant shipped to a slice of traffic. The two that lost are the interesting ones — they failed for different reasons, and the second failure is what pointed at the answer.",
+                body: "Each variant shipped to a slice of traffic. The two that lost are the interesting ones. They failed for different reasons, and the second failure is what pointed at the answer.",
             },
             {
                 kind: "attempt",
-                label: "Attempt 1 — inline above the subtotal",
+                label: "Attempt 1: inline above the subtotal",
                 body: "Put the offer where the eye already was. It pushed the subtotal below the fold on a 375px viewport, and bag abandonment moved the wrong way.",
                 src: img(3),
             },
             {
                 kind: "attempt",
-                label: "Attempt 2 — interstitial on bag entry",
+                label: "Attempt 2: interstitial on bag entry",
                 body: "Move it out of the layout entirely. No layout cost, but it interrupted a decision already in progress and was dismissed before it rendered fully.",
                 src: img(4),
             },
             {
                 kind: "attempt",
-                label: "Attempt 3 — after the commit, before the receipt",
+                label: "Attempt 3: after the commit, before the receipt",
                 won: true,
-                body: "A session replay showed people scrolling back to the bag to re-check the total rather than to reconsider. The hesitation was arithmetic, not doubt — so the offer belonged after the decision, not inside it.",
+                body: "A session replay showed people scrolling back to the bag to re-check the total rather than to reconsider. The hesitation was arithmetic, not doubt, so the offer belonged after the decision, not inside it.",
                 reasons: [
                     "Nothing competes with the subtotal",
                     "The decision is already made, so there is nothing to interrupt",
@@ -175,7 +177,7 @@ export const caseStudies: CaseStudy[] = [
             },
             {
                 kind: "quote",
-                text: "Placeholder — a line from the partner or PM about what changed. Replace or delete the block; a weak quote is worse than none.",
+                text: "Placeholder: a line from the partner or PM about what changed. Replace or delete the block; a weak quote is worse than none.",
                 who: "Name",
                 role: "Role, Macy's",
             },
@@ -217,7 +219,7 @@ export const caseStudies: CaseStudy[] = [
         blocks: [
             {
                 kind: "abstract",
-                text: "Contextual offers inside the Uber Eats order screen — the window between placing an order and it arriving. Four offers share one placement, each written against what was ordered and how long the wait will be.",
+                text: "Contextual offers inside the Uber Eats order screen during the window between placing an order and it arriving. Four offers share one placement, each written against what was ordered and how long the wait will be.",
             },
             {
                 kind: "confidential",
@@ -337,7 +339,7 @@ export const caseStudies: CaseStudy[] = [
                         src: img(6),
                         alt: "Template under brand A",
                         caption:
-                            "The same template under two brands — the proof the system works.",
+                            "The same template under two brands, showing how the system works.",
                     },
                     { src: img(1), alt: "Template under brand B" },
                 ],
@@ -388,7 +390,7 @@ export const caseStudies: CaseStudy[] = [
         blocks: [
             {
                 kind: "abstract",
-                text: "A shoppable ad lets someone buy a product directly from the ad itself. It was a brand-new format, so every sales pitch needed a custom working demo — hand-built in Figma, about a week each. I built a tool that made them in minutes.",
+                text: "A shoppable ad lets someone buy a product directly from the ad itself. It was a brand-new format, so every sales pitch needed a custom working demo, hand-built in Figma, about a week each. I built a tool that made them in minutes.",
             },
             {
                 kind: "insights",
@@ -441,7 +443,7 @@ export const caseStudies: CaseStudy[] = [
             {
                 kind: "takeaway",
                 title: "Takeaway: the best design work here was not designing",
-                body: "That week of hand-building was real craft, and it was waste. The win was deleting it rather than getting faster at it — which meant arguing my own team out of a job it was proud of.",
+                body: "That week of hand-building was real craft, and it was waste. The win was deleting it rather than getting faster at it, which meant arguing my own team out of a job it was proud of.",
             },
             {
                 kind: "takeaway",
@@ -468,7 +470,7 @@ export const caseStudies: CaseStudy[] = [
         blocks: [
             {
                 kind: "abstract",
-                text: "A shoppable ad lets someone buy a product directly from the ad itself. It was a brand-new format, so every sales pitch needed a custom working demo — hand-built in Figma, about a week each. I built a tool that made them in minutes.",
+                text: "A shoppable ad lets someone buy a product directly from the ad itself. It was a brand-new format, so every sales pitch needed a custom working demo, hand-built in Figma, about a week each. I built a tool that made them in minutes.",
             },
             {
                 kind: "insights",
@@ -521,7 +523,7 @@ export const caseStudies: CaseStudy[] = [
             {
                 kind: "takeaway",
                 title: "Takeaway: the best design work here was not designing",
-                body: "That week of hand-building was real craft, and it was waste. The win was deleting it rather than getting faster at it — which meant arguing my own team out of a job it was proud of.",
+                body: "That week of hand-building was real craft, and it was waste. The win was deleting it rather than getting faster at it, which meant arguing my own team out of a job it was proud of.",
             },
             {
                 kind: "takeaway",
@@ -587,25 +589,25 @@ export const caseStudies: CaseStudy[] = [
             },
             {
                 kind: "attempt",
-                label: "Attempt 1 — the web format, ported",
+                label: "Attempt 1: the web format, ported",
                 body: "The existing placement, dropped onto the kiosk. It assumed a reader with time and privacy, and had neither. Nobody finished reading it.",
                 src: img(6),
             },
             {
                 kind: "attempt",
-                label: "Attempt 2 — email capture on screen",
+                label: "Attempt 2: email capture on screen",
                 body: "Technically possible, socially impossible. Typing a personal address on a shared screen with a queue behind you is not something people will do.",
                 src: img(1),
             },
             {
                 kind: "attempt",
-                label: "Attempt 3 — claim now, deliver to the receipt",
+                label: "Attempt 3: claim now, deliver to the receipt",
                 won: true,
-                body: "Staff told us people photograph their receipt to remember the order number. The receipt was already a thing customers kept — so the offer moved onto it, and the screen only had to carry a yes.",
+                body: "Staff told us people photograph their receipt to remember the order number. The receipt was already a thing customers kept, so the offer moved onto it, and the screen only had to carry a yes.",
                 reasons: [
-                    "Dwell — one tap fits in the time available",
-                    "Privacy — nothing personal appears on the shared screen",
-                    "Input — no typing, no device",
+                    "Dwell: one tap fits in the time available",
+                    "Privacy: nothing personal appears on the shared screen",
+                    "Input: no typing, no device",
                 ],
                 src: img(2),
             },
@@ -629,7 +631,7 @@ export const caseStudies: CaseStudy[] = [
             {
                 kind: "appendix",
                 title: "Appendix: things people did to the kiosk",
-                body: "One person tried to swipe it like a phone, repeatedly, then told us it was broken. Another held their receipt up to the camera that was not there. Replace with your own outtakes — this is the block people remember.",
+                body: "One person tried to swipe it like a phone, repeatedly, then told us it was broken. Another held their receipt up to the camera that was not there. Replace with your own outtakes. This is the block people remember.",
             },
         ],
     },
@@ -736,6 +738,26 @@ export const caseStudies: CaseStudy[] = [
         ],
     },
 ]
+
+caseStudies.push({
+    slug: "kalshi-dynamic-ads",
+    title: "An ad that moves with the market",
+    client: "Kalshi",
+    year: "2026",
+    role: "Dynamic ad design",
+    duration: "Project preview",
+    shape: "Gallery",
+    paletteIndex: 7,
+    numbered: false,
+    next: "macys-bag-page",
+    preview: "Dynamic creative that updates with prediction-market pricing.",
+    blocks: [
+        { kind: "abstract", text: "An advertisement that changes as Kalshi’s prediction market updates. The market probability and potential payout move together, keeping the creative connected to the underlying market." },
+        { kind: "section", label: "The interaction", thesis: "The market moves. The ad follows.", body: "The football market, selected team, and $25 amount stay anchored. Only the changing probability and payout roll into their next values, making the update the focal interaction." },
+        { kind: "confidential", text: "This portfolio animation uses illustrative sample quotes, beginning with the supplied 16% / $147.56 creative. It is not connected to live market data, and its example transitions are not a payout calculator." },
+        { kind: "figure", width: "full", src: "../../projects/kalshi/reference-ad.webp", alt: "The supplied Kalshi San Francisco football advertisement", caption: "The supplied creative, used as the visual reference for the animated preview." },
+    ],
+}, ...personalCaseStudies)
 
 export const bySlug = (slug: string) =>
     caseStudies.find((study) => study.slug === slug)
