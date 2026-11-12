@@ -11,7 +11,7 @@
 .portfolio .click-word:focus-visible { outline:2px solid currentColor; outline-offset:8px; border-radius:2px; }
 .click-letters { display:inline-block; position:relative; transform-origin:50% 78%; scale:1; }
 .click-letter { display:inline-block; position:relative; }
-.click-ink { position:absolute; inset:-.12em; padding:.12em; color:transparent; -webkit-text-fill-color:transparent; background-image:var(--click-colors); background-origin:content-box; background-size:var(--word-width) 100%; background-position:calc(-1 * var(--glyph-left)) 0; background-repeat:no-repeat; -webkit-background-clip:text; background-clip:text;
+.click-ink { position:absolute; inset:-.12em; padding:.12em; color:transparent; -webkit-text-fill-color:transparent; background-image:var(--click-ribbon); background-origin:content-box; background-size:var(--word-width) 100%; background-position:calc(var(--word-width) * (var(--click-front) - 1) - var(--glyph-left)) 0; background-repeat:no-repeat; -webkit-background-clip:text; background-clip:text;
     clip-path:inset(0 clamp(0px,calc(var(--glyph-right) + .24em - (var(--word-width) + .24em) * var(--click-front)),calc(var(--glyph-width) + .24em)) 0 clamp(0px,calc((var(--word-width) + .24em) * var(--click-back) - var(--glyph-left)),calc(var(--glyph-width) + .24em)));
 }
 .click-line-track { position:absolute; left:0; right:0; bottom:-.1em; height:.09em; min-height:3px; overflow:hidden; pointer-events:none; }
@@ -28,10 +28,10 @@
 .click-word.is-running .click-letter { animation:click-letter-hop 380ms var(--click-ease) both; animation-delay:calc(var(--letter-index)*70ms); }
 .click-word.is-running { animation:click-transfer var(--click-cycle) var(--click-ease) forwards; }
 @keyframes click-line-cycle {
-    0% { transform:translateX(0); clip-path:inset(0); background-image:var(--click-colors); }
-    40%,59.9999% { transform:translateX(0); clip-path:inset(0 0 0 100%); background-image:var(--click-colors); }
-    60% { transform:translateX(calc(100% + 2px)); clip-path:inset(0); background-image:var(--click-ribbon); }
-    100% { transform:translateX(0); clip-path:inset(0); background-image:var(--click-ribbon); }
+    0% { transform:translateX(0); background-image:var(--click-colors); }
+    40%,59.9999% { transform:translateX(calc(-100% - 2px)); background-image:var(--click-colors); }
+    60% { transform:translateX(calc(100% + 2px)); background-image:var(--click-ribbon); }
+    100% { transform:translateX(0); background-image:var(--click-ribbon); }
 }
 @keyframes click-letter-hop {
     0%,100% { transform:translateY(0); }
