@@ -20,15 +20,6 @@
 .kalshi-pay { left:64px; font-size:66px; }.kalshi-payout { right:64px; top:376px; display:flex; align-items:baseline; font-size:96px; color:#00d49b; }
 .kalshi-condition { position:absolute; top:478px; right:64px; font-size:25px; line-height:1.2; color:#c3d4ca; }
 .kalshi-terms { position:absolute; left:64px; right:64px; top:554px; margin:0; color:#9aaca1; font-size:20px; line-height:1.45; }
-.kalshi-number { margin-left:3px; }
-.kalshi-prediction>span:last-child { margin-left:-12px; }
-.kalshi-rule { position:absolute; left:64px; right:64px; top:268px; border-top:2px dashed #ffffff25; }
-.kalshi-pay-label,.kalshi-payout-label { position:absolute; top:282px; font-size:48px; line-height:1.15; font-weight:600; letter-spacing:.04em; color:#bfc5c2; }
-.kalshi-pay-label { left:64px; }.kalshi-payout-label { right:64px; }
-.kalshi-pay,.kalshi-payout { position:absolute; top:334px; font-size:88px; line-height:1; letter-spacing:-.02em; font-weight:700; font-variant-numeric:tabular-nums; }
-.kalshi-pay { left:64px; }.kalshi-payout { right:64px; display:flex; align-items:baseline; color:#00d49b; }
-.kalshi-condition { position:absolute; top:420px; right:64px; font-size:38px; line-height:1.2; color:#bfc5c2; }
-.kalshi-terms { position:absolute; left:64px; right:64px; top:494px; margin:0; color:#959d98; font-size:32px; line-height:1.4; }
 .kalshi-number { display:inline-flex; font-variant-numeric:tabular-nums; }
 .kalshi-digit { display:inline-block; position:relative; width:.62em; height:1em; line-height:1em; overflow:hidden; text-align:center; }
 .kalshi-digit.is-point { width:.25em; }
