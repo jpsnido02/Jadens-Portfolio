@@ -12,11 +12,11 @@ import "./gallery.css"
 
 // Temporarily hidden from the gallery and reader rail; keep the project content.
 const hiddenProjectLinks = new Set(["work/mcdonalds-kiosk/"])
-const projects = [...workProjects.slice(0, 2), ...workProjects.filter(project => project.component === "kalshi-live"), ...personalProjects, ...workProjects.slice(2).filter(project => project.component !== "kalshi-live")].filter(project => !hiddenProjectLinks.has(project.link ?? ""))
+const projects = [...workProjects.slice(0, 2), ...personalProjects, ...workProjects.slice(2)].filter(project => !hiddenProjectLinks.has(project.link ?? ""))
 const slugs = projects.map(p => p.link?.split("/").filter(Boolean).pop() ?? "")
-const clients = ["Uber Eats", "Macy’s", "Rokt", "Multi-brand / Rokt", "Rokt", "McDonald’s", "Expedia", "Kalshi"]
+const clients = ["Uber Eats", "Macy’s", "Rokt", "Multi-brand / Rokt", "Rokt", "McDonald’s", "Expedia"]
 const shortTitles = ["Uber Eats, right on time", "A better bag at Macy’s", "From prompt to prototype", "Same system. Different brands.", "Build it before the call ends", "A little extra with your order", "The rest of the trip"]
-const oneLiners = ["Contextual offers during order tracking", "Turning bag review into a reason to add more", "An agent that builds client-ready mockups", "A design system that speaks every brand", "A live demo, made in minutes", "Rewards that reach beyond the kiosk", "Connecting bookings to what comes next", "An ad that moves with the prediction market"]
+const oneLiners = ["Contextual offers during order tracking", "Turning bag review into a reason to add more", "An agent that builds client-ready mockups", "A design system that speaks every brand", "A live demo, made in minutes", "Rewards that reach beyond the kiosk", "Connecting bookings to what comes next"]
 function selectedFromURL() {
     const slug = new URLSearchParams(location.search).get("project")
     return slug && bySlug(slug) ? slug : null

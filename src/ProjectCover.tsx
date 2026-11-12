@@ -6,7 +6,6 @@ import ShoppableConfigLoop from "./ShoppableConfigLoop"
 import BrandedLayoutsLoop from "./BrandedLayoutsLoop"
 import { UberPreview, MacysPreview, AgentPreview, BrandedPreview, ConfigPreview } from "./GalleryPreviews"
 import ConceptStudy from "./ConceptStudies"
-import KalshiPreview from "./KalshiPreview"
 import type { ProjectData } from "./PortfolioScroll"
 
 /** Fit the complete prototype stage inside its frame without cropping. */
@@ -40,7 +39,6 @@ export default function ProjectCover({ project, index, live = true, focused = fa
     }, [])
     const playing = live && visible && !reduced
     const kind = project.component
-    if (kind === "kalshi-live") return <div ref={ref} className={`project-cover ${!playing ? "is-paused" : ""}`} aria-hidden="true"><KalshiPreview playing={playing} /></div>
     if (kind === "pantry-notes" || kind === "thought-atlas" || kind === "build-view") return <div ref={ref} className={`project-cover personal-cover ${!playing ? "is-paused" : ""}`} aria-hidden="true"><ConceptStudy kind={kind} playing={playing}/></div>
     if (focused && kind) return <div ref={ref} className={`project-cover focused-cover focus-${kind} ${!playing ? "is-paused" : ""}`} aria-hidden="true">
         {kind === "uber-loop" && <UberPreview playing={playing} />}

@@ -739,25 +739,7 @@ export const caseStudies: CaseStudy[] = [
     },
 ]
 
-caseStudies.push({
-    slug: "kalshi-dynamic-ads",
-    title: "An ad that moves with the market",
-    client: "Kalshi",
-    year: "2026",
-    role: "Dynamic ad design",
-    duration: "Project preview",
-    shape: "Gallery",
-    paletteIndex: 7,
-    numbered: false,
-    next: "macys-bag-page",
-    preview: "Dynamic creative that updates with prediction-market pricing.",
-    blocks: [
-        { kind: "abstract", text: "An advertisement that changes as Kalshi’s prediction market updates. The market probability and potential payout move together, keeping the creative connected to the underlying market." },
-        { kind: "section", label: "The interaction", thesis: "The market moves. The ad follows.", body: "The football market, selected team, and $25 amount stay anchored. Only the changing probability and payout roll into their next values, making the update the focal interaction." },
-        { kind: "confidential", text: "This portfolio animation uses illustrative sample quotes, beginning with the supplied 16% / $147.56 creative. It is not connected to live market data, and its example transitions are not a payout calculator." },
-        { kind: "figure", width: "full", src: "../../projects/kalshi/reference-ad.webp", alt: "The supplied Kalshi San Francisco football advertisement", caption: "The supplied creative, used as the visual reference for the animated preview." },
-    ],
-}, ...personalCaseStudies)
+caseStudies.push(...personalCaseStudies)
 
 export const bySlug = (slug: string) =>
     caseStudies.find((study) => study.slug === slug)

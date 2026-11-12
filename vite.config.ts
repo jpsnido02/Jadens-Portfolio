@@ -13,7 +13,6 @@ const caseStudies = [
     "pantry-notes",
     "thought-atlas",
     "build-view",
-    "kalshi-dynamic-ads",
 ]
 
 export default defineConfig({

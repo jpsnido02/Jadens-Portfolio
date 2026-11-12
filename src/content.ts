@@ -51,7 +51,6 @@ export const intro = {
 }
 
 export const projects: ProjectData[] = [
-    // Kalshi is appended below to preserve the existing work palette indexes.
     // Order matters twice over: it indexes the card palette, and it is the
     // reading order of the case studies.
     {
@@ -194,16 +193,5 @@ export const projects: ProjectData[] = [
             "Upsells that close the trip: a hotel to go with the flight, or a ride out of the airport, inside the booking flow.",
         tags: [],
         link: "work/expedia-1p-3p/",
-    },
-    {
-        title: "Kalshi Dynamic Advertising",
-        image: { src: "/projects/kalshi/reference-ad.webp", alt: "A Kalshi football prediction-market advertisement" },
-        mediaType: "component",
-        component: "kalshi-live",
-        category: "Dynamic creative",
-        year: "2026",
-        description: "An advertisement that updates as the prediction market moves.",
-        tags: [],
-        link: "work/kalshi-dynamic-ads/",
     },
 ]
