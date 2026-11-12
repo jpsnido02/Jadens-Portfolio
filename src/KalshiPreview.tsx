@@ -65,7 +65,6 @@ export default function KalshiPreview({ playing }: { playing: boolean }) {
                 <span className="kalshi-chance-label">MARKET CHANCE</span>
                 <div className="kalshi-prediction"><span>San Francisco</span><span className="kalshi-odds"><RollingValue value={String(quote.probability)} previous={String(previous.probability)} revision={revision} /><span>%</span></span></div>
                 <div className="kalshi-rule" />
-                <div className="kalshi-payout-surface" aria-hidden="true" />
                 <span className="kalshi-pay-label">YOU PAY</span><strong className="kalshi-pay">$25.00</strong>
                 <span className="kalshi-payout-label">YOUR PAYOUT</span><strong className="kalshi-payout"><span>$</span><RollingValue value={quote.payout} previous={previous.payout} revision={revision} /></strong>
                 <span className="kalshi-condition">if San Francisco wins</span>
