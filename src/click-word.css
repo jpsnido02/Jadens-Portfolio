@@ -1,6 +1,6 @@
 @property --click-front { syntax:"<number>"; inherits:true; initial-value:0; }
 @property --click-back { syntax:"<number>"; inherits:true; initial-value:0; }
-/* Fill 0–600ms; hold 600–900ms; erase 900–1500ms; return line 1500–2100ms. */
+/* Fill 0–600ms; hold 600–900ms; erase and return the line together 900–1500ms. */
 .portfolio .click-word {
     appearance:none; display:inline-block; vertical-align:baseline; position:relative;
     padding:0; margin:0; border:0; background:none; border-radius:0;
@@ -18,7 +18,7 @@
 .click-line { display:block; width:100%; height:100%; background:var(--click-colors); }
 /* One shared gradient, mask, duration and easing: each line segment
    becomes the same-colored region of the word at exactly the same instant. */
-.click-word { --click-cycle:2100ms; --click-ease:cubic-bezier(.65,0,.35,1);
+.click-word { --click-cycle:1500ms; --click-ease:cubic-bezier(.65,0,.35,1);
     --click-forward:linear-gradient(90deg,var(--click-tangerine) 0 var(--click-first-stop,33.333%),var(--click-raspberry) var(--click-first-stop,33.333%) var(--click-second-stop,66.666%),var(--click-violet) var(--click-second-stop,66.666%) 100%);
     --click-reverse:linear-gradient(90deg,var(--click-violet) 0 var(--click-first-stop,33.333%),var(--click-raspberry) var(--click-first-stop,33.333%) var(--click-second-stop,66.666%),var(--click-tangerine) var(--click-second-stop,66.666%) 100%);
     --click-colors:var(--click-forward); --click-ribbon:var(--click-reverse);
@@ -29,8 +29,8 @@
 .click-word.is-running { animation:click-transfer var(--click-cycle) var(--click-ease) forwards; }
 @keyframes click-line-cycle {
     0% { transform:translateX(0); background-image:var(--click-colors); }
-    28.571429%,71.428% { transform:translateX(calc(-100% - 2px)); background-image:var(--click-colors); }
-    71.428571% { transform:translateX(calc(100% + 2px)); background-image:var(--click-ribbon); }
+    40%,59.9999% { transform:translateX(calc(-100% - 2px)); background-image:var(--click-colors); }
+    60% { transform:translateX(calc(100% + 2px)); background-image:var(--click-ribbon); }
     100% { transform:translateX(0); background-image:var(--click-ribbon); }
 }
 @keyframes click-letter-hop {
@@ -39,8 +39,8 @@
 }
 @keyframes click-transfer {
     0% { --click-front:0; --click-back:0; }
-    28.571429%,42.857143% { --click-front:1; --click-back:0; }
-    71.428571%,100% { --click-front:1; --click-back:1; }
+    40%,60% { --click-front:1; --click-back:0; }
+    100% { --click-front:1; --click-back:1; }
 }
 .motion-paused .click-word,.motion-paused .click-word *, .motion-paused .click-word *::before { animation-play-state:paused!important; }
 @media(prefers-reduced-motion:reduce) {
