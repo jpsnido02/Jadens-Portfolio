@@ -492,3 +492,7 @@ html[data-page="home"] #root { overflow:hidden; }
 @media (min-width:721px) and (max-width:1000px) { .portfolio .project-close { left:38px; width:48px; height:48px; } }
 @media (max-width:720px) { .portfolio .project-close { left:auto; right:10px; top:8px; width:44px; height:44px; } .reader-toolbar { padding-right:64px; } }
 .has-opened-project .project-tile { animation:none; }
+
+.project-group-heading { grid-column:1/-1; margin:20px 0 -6px; padding-top:22px; border-top:1px solid var(--gallery-line); font-size:10px; font-weight:600; letter-spacing:.1em; line-height:1.4; }
+.project-group-heading>span { color:var(--gallery-muted); font-size:9px; margin-left:8px; }
+.is-reading .project-group-heading { display:none; }

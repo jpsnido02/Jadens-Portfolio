@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react"
+import { Fragment, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react"
 import { flushSync } from "react-dom"
 import { intro, projects as workProjects } from "./content"
 import { personalProjects, personalMeta } from "./personalProjects"
@@ -12,7 +12,8 @@ import "./gallery.css"
 
 // Temporarily hidden from the gallery and reader rail; keep the project content.
 const hiddenProjectLinks = new Set(["work/mcdonalds-kiosk/"])
-const projects = [...workProjects.slice(0, 2), ...personalProjects, ...workProjects.slice(2)].filter(project => !hiddenProjectLinks.has(project.link ?? ""))
+const projects = [...workProjects, ...personalProjects].filter(project => !hiddenProjectLinks.has(project.link ?? ""))
+const workCount = projects.filter(project => workProjects.includes(project)).length
 const slugs = projects.map(p => p.link?.split("/").filter(Boolean).pop() ?? "")
 const clients = ["Uber Eats", "Macy’s", "Rokt", "Multi-brand / Rokt", "Rokt", "McDonald’s", "Expedia"]
 const shortTitles = ["Uber Eats, right on time", "A better bag at Macy’s", "From prompt to prototype", "Same system. Different brands.", "Build it before the call ends", "A little extra with your order", "The rest of the trip"]
@@ -144,11 +145,11 @@ export default function App() {
                 <div><p className="eyebrow building-status"><span className="live-dot" /><span>Currently building AI systems for advertisements at Rokt</span></p><h1>Hi, I’m Jaden<br /><span>I create designs that</span>{" "}<ClickWord /></h1></div>
                 <p className="intro-description">A product designer rethinking commerce through craft and curiosity.<br /><span>From idea to concept to engagement uplift</span></p>
             </section>
-            <div className="work-heading"><span>SELECTED WORK <span className="project-count">{String(projects.length).padStart(2, "0")}</span></span><button className="motion-control" aria-pressed={motion} onClick={() => setMotion(!motion)}><SiteIcon name={motion ? "pause" : "play"} size={12} /> <span>{motion ? "Motion on" : "Motion paused"}</span></button></div>
+            <div className="work-heading"><span>WORK PROJECTS <span className="project-count">{String(workCount).padStart(2, "0")}</span></span><button className="motion-control" aria-pressed={motion} onClick={() => setMotion(!motion)}><SiteIcon name={motion ? "pause" : "play"} size={12} /> <span>{motion ? "Motion on" : "Motion paused"}</span></button></div>
             <div className="project-grid">
-                {projects.map((project, index) => <a key={project.title} ref={element => { if (element) projectTiles.current.set(slugs[index], element); else projectTiles.current.delete(slugs[index]) }} data-project={slugs[index]} href={`?project=${slugs[index]}`} className={`project-tile ${selected === slugs[index] ? "is-selected" : ""}`} onClick={event => open(event, slugs[index])} onPointerEnter={project.component === "macys-bag" ? () => setMacysReplay(value => value + 1) : undefined} onFocus={project.component === "macys-bag" ? () => setMacysReplay(value => value + 1) : undefined} aria-current={selected === slugs[index] ? "page" : undefined} aria-label={`${project.title}${project.comingSoon ? ", case study in progress" : ""}`} style={{ "--tile-index": index, viewTransitionName: `project-${index}` } as CSSProperties}>
+                {projects.map((project, index) => <Fragment key={project.title}>{index === workCount && <h2 className="project-group-heading">PERSONAL PROJECTS <span>{String(projects.length - workCount).padStart(2, "0")}</span></h2>}<a ref={element => { if (element) projectTiles.current.set(slugs[index], element); else projectTiles.current.delete(slugs[index]) }} data-project={slugs[index]} href={`?project=${slugs[index]}`} className={`project-tile ${selected === slugs[index] ? "is-selected" : ""}`} onClick={event => open(event, slugs[index])} onPointerEnter={project.component === "macys-bag" ? () => setMacysReplay(value => value + 1) : undefined} onFocus={project.component === "macys-bag" ? () => setMacysReplay(value => value + 1) : undefined} aria-current={selected === slugs[index] ? "page" : undefined} aria-label={`${project.title}${project.comingSoon ? ", case study in progress" : ""}`} style={{ "--tile-index": index, viewTransitionName: `project-${index}` } as CSSProperties}>
                     <div className="tile-visual"><ProjectCover project={project} index={Math.max(0, workProjects.indexOf(project))} live={motion && !selected} focused={!selected} replayKey={macysReplay} /><div className="tile-caption"><div className="tile-caption-line"><strong>{personalMeta[slugs[index]]?.label ?? clients[workProjects.indexOf(project)] ?? project.thumb?.alt ?? project.category}</strong><span className="tile-caption-separator">: </span><span>{personalMeta[slugs[index]]?.summary ?? oneLiners[workProjects.indexOf(project)] ?? project.description}</span><span className="tile-arrow"><SiteIcon name="external" /></span></div>{project.comingSoon && <span className="tile-wip">Case study in progress</span>}</div></div>
-                </a>)}
+                </a></Fragment>)}
             </div>
             <footer className="gallery-footer"><div className="footer-links">{intro.links.map(link => <a key={link.label} href={link.url} target={link.url.startsWith("mailto:") ? undefined : "_blank"} rel="noreferrer">{link.label}</a>)}<button onClick={toggle}>{theme === "dark" ? "Light" : "Dark"} mode <SiteIcon name={theme === "dark" ? "sun" : "moon"} size={13} /></button></div><p>Jaden Snyder · Product designer · 2026</p></footer>
         </div>
