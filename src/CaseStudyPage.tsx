@@ -3,6 +3,7 @@ import ConceptStudy, { type ConceptKind } from "./ConceptStudies"
 import { AgentDashboard, ShoppableDashboard } from "./PortfolioWorkbench"
 import { CONTENT_MAX_WIDTH, FONT_FAMILY } from "./tokens"
 import ThemeToggle from "./ThemeToggle"
+import { SiteIcon } from "./icons"
 import UberAdsLoop from "./UberAdsLoop"
 import { useTheme } from "./useTheme"
 import {
@@ -202,7 +203,7 @@ function TopBar({ palette, sizes }: { palette: Palette; sizes: Sizes }) {
                 href="../../"
                 style={{ color: palette.textMuted, textDecoration: "none" }}
             >
-                ← Back
+                <SiteIcon name="back" size={12} /> Back
             </a>
         </div>
     )
@@ -321,7 +322,7 @@ function NextLink({
                     letterSpacing: "-0.02em",
                 }}
             >
-                {next.title} →
+                {next.title} <SiteIcon name="next" size={18} />
             </span>
             {/* The next project's thesis, not just its name. Three of the five
                 references preview content rather than linking blind. */}

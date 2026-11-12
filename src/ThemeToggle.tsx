@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { SiteIcon } from "./icons"
 import { CONTENT_MAX_WIDTH } from "./tokens"
 import type { Palette, ThemeName } from "./theme"
 
@@ -69,45 +70,7 @@ export default function ThemeToggle({
                       : "translateY(0px)",
             }}
         >
-            {theme === "dark" ? <SunIcon /> : <MoonIcon />}
+            <SiteIcon name={theme === "dark" ? "sun" : "moon"} size={17} />
         </button>
-    )
-}
-
-function SunIcon() {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            width="17"
-            height="17"
-            aria-hidden="true"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            style={{ display: "block" }}
-        >
-            <circle cx="12" cy="12" r="4.2" />
-            <path d="M12 2.6v2.2M12 19.2v2.2M4.2 12H2M22 12h-2.2M6.5 6.5 4.9 4.9M19.1 19.1l-1.6-1.6M17.5 6.5l1.6-1.6M4.9 19.1l1.6-1.6" />
-        </svg>
-    )
-}
-
-function MoonIcon() {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            width="17"
-            height="17"
-            aria-hidden="true"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={{ display: "block" }}
-        >
-            <path d="M20 13.4A8.2 8.2 0 0 1 10.6 4a8.4 8.4 0 1 0 9.4 9.4Z" />
-        </svg>
     )
 }

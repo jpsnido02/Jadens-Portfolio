@@ -75,5 +75,83 @@
 .pw-phone-screen[data-checkout-step="offer"] h4 { margin-bottom:10px; }
 .pw-kettle { height:88px; margin-bottom:8px; }
 .pw-product-name>b { margin-bottom:9px; }
+.pw-page-heading { padding-top:20px; padding-bottom:15px; }
+.pw-metrics { margin-bottom:16px; }
+.pw-metrics>div>span { font-size:11px; }
+.pw-metrics small { font-size:9px; }
+.pw-task-row { min-height:51px; }
+.pw-task-title strong { font-size:12px; line-height:1.35; }
+.pw-task-title small { font-size:9px; }
+.pw-owner,.pw-task-time { font-size:10px; }
+.pw-app .pw-row-action { font-size:10px; padding:7px; }
+.pw-status { font-size:10px; }
+.pw-filter-tabs { font-size:9px; }
+.pw-task-panel .pw-task-toolbar input { font-size:10px; }
 .motion-paused .pw-app * { animation-play-state:paused!important; }
 @media(prefers-reduced-motion:reduce) { .pw-app * { animation:none!important; transition:none!important; } }
+
+.pw-app button,.pw-app .pw-play,.pw-view-tabs>span,.pw-review-actions>span { gap:6px; }
+.pw-app .site-icon { vertical-align:-.12em; flex:none; }
+
+/* Inter is bundled locally for the operations UI. */
+@font-face { font-family:"Inter"; src:url("/fonts/inter/Inter-latin.woff2") format("woff2"); font-style:normal; font-weight:400 700; font-display:swap; }
+.pw-icon { display:inline-block; fill:currentColor; stroke:none; flex:none; vertical-align:-.125em; }
+.pw-sidebar>span:not(.pw-nav-label) { display:flex; align-items:center; gap:9px; }
+.pw-primary,.pw-secondary,.pw-row-action,.pw-phone-button { gap:7px; }
+.pw-view-tabs>* { gap:6px; }
+.pw-search-placeholder { display:flex; align-items:center; gap:7px; }
+.pw-review-checks>span { display:flex; align-items:center; gap:6px; }
+.pw-phone-status>span { display:flex; align-items:center; gap:3px; }
+.pw-payment-method { gap:6px; }
+.pw-agent-heading-tools { display:flex; align-items:center; gap:18px; }
+.pw-agent-notification { position:relative; color:#717e92; }
+.pw-agent-notification>i { position:absolute; top:0; right:-2px; width:4px; height:4px; border-radius:50%; background:#4761ef; box-shadow:0 0 0 2px #fff; }
+
+/* Agent: crisp, data-dense operations software, inspired by the Innex table. */
+.pw-stage--agent { background:#dce5ef; font-family:"Inter",Arial,sans-serif; --pw-accent:#3657ee; --pw-tint:#eaf0ff; }
+.pw-stage--agent .pw-app { border-radius:12px; border-color:#d3dde9; box-shadow:0 22px 65px #183a5c20,0 2px 5px #183a5c0c; }
+.pw-stage--agent .pw-sidebar { width:168px; background:#f3f6fb; padding:25px 14px; border-color:#e4eaf2; }
+.pw-stage--agent .pw-brand { padding-bottom:33px; font-size:29px; }
+.pw-stage--agent .pw-sidebar>span { font-size:11px; }
+.pw-stage--agent .pw-sidebar>span.is-active { background:#e7edff; border:1px solid #d8e2ff; color:#3657ee; }
+.pw-stage--agent .pw-topbar { height:48px; background:#fff; padding:0 24px; }
+.pw-stage--agent .pw-page-heading { padding:17px 24px 16px; }
+.pw-stage--agent .pw-page-heading h3 { font-family:"Inter",Arial,sans-serif; font-size:23px; font-weight:600; letter-spacing:-.035em; }
+.pw-stage--agent .pw-page-heading p { color:#7c8798; }
+.pw-stage--agent .pw-metrics { margin:0 24px 17px; border-radius:7px; background:#fcfdff; }
+.pw-stage--agent .pw-metrics>div { padding:14px 14px 13px; }
+.pw-stage--agent .pw-metrics strong { font-size:29px; letter-spacing:-.045em; }
+.pw-stage--agent .pw-metrics small { font-size:8px; }
+.pw-stage--agent .pw-task-panel { margin:0 24px; border-radius:7px; }
+.pw-stage--agent .pw-table-head { height:31px; font-size:8px; color:#8994a5; background:#f5f8fc; }
+.pw-stage--agent .pw-task-row { min-height:56px; }
+.pw-stage--agent .pw-task-title strong { font-size:11px; font-weight:500; }
+.pw-stage--agent .pw-task-title small { font-size:8px; }
+.pw-stage--agent .pw-task-title>i { border-radius:5px; background:#f5f7fc; }
+.pw-stage--agent .pw-filter-tabs { height:39px; }
+.pw-stage--agent .pw-review { border-radius:8px; border-color:#dbe3f1; }
+.pw-stage--agent .pw-status { border-radius:4px; }
+
+/* Shoppable: a warm creative studio, with a canvas rather than a task dashboard. */
+.pw-stage--shop { background:#e9e0d9; font-family:"Plus Jakarta Sans",Arial,sans-serif; --pw-accent:#b22473; --pw-tint:#faeaf3; }
+.pw-stage--shop .pw-app { border-radius:23px; background:#faf8f5; border-color:#d9cfc7; box-shadow:0 22px 65px #5c3c3320; }
+.pw-stage--shop .pw-sidebar { display:none; }
+.pw-stage--shop .pw-main { background:#faf8f5; }
+.pw-stage--shop .pw-topbar { padding:0 32px; height:53px; background:#fffdfb; border-color:#e9e1dc; }
+.pw-stage--shop .pw-topbar>span:first-child { color:#8b3263; font-weight:600; }
+.pw-stage--shop .pw-page-heading { padding:20px 32px 18px; }
+.pw-stage--shop .pw-page-heading h3 { font-family:Georgia,serif; font-size:29px; font-weight:400; letter-spacing:-.045em; color:#332c30; }
+.pw-stage--shop .pw-eyebrow { color:#a2788d; font-size:8px; }
+.pw-stage--shop .pw-shop-layout { padding:0 32px; grid-template-columns:360px minmax(0,1fr); gap:24px; }
+.pw-stage--shop .pw-config-card { margin-top:0; border-radius:12px; padding:21px; border-color:#e6dbd5; box-shadow:0 4px 15px #6a4b3910; }
+.pw-stage--shop .pw-setting { min-height:65px; border-color:#eee7e2; }
+.pw-stage--shop .pw-setting strong { font-size:11px; }
+.pw-stage--shop .pw-setting p { font-size:8px; color:#9c8f92; }
+.pw-stage--shop .pw-phone-area { height:476px; background:radial-gradient(ellipse at 50% 40%,#f7efdf,#e9ddd0); border-color:#e2d4c6; border-radius:15px; }
+.pw-stage--shop .pw-phone { width:250px; height:405px; box-shadow:0 18px 35px #503e2b24; }
+.pw-stage--shop .pw-preview-heading { color:#998574; }
+.pw-stage--shop .pw-journey { font-size:8px; gap:20px; }
+.pw-stage--shop .pw-phone-screen { height:353px; padding-left:16px; padding-right:16px; }
+.pw-stage--shop .pw-phone-screen h4 { font-size:21px; }
+.pw-stage--shop .pw-play { border-radius:7px; padding:12px; font-size:11px; }
+.pw-stage--shop .pw-status { border-radius:20px; padding:7px 11px; background:#f4e6ed; color:#a13b72; }

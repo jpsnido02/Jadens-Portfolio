@@ -36,7 +36,7 @@ Desktop shows two large gallery columns, with client and project context reveale
 
 ## Content inherited from the original repository
 
-Several case studies contain placeholder prose, +00% metrics, generic visuals, and references to missing project-01.jpg/project-05.jpg/project-06.jpg assets. Those claims were not rewritten or invented. Missing images now show a neutral “Visual coming soon” placeholder. The agent card still opens the existing shoppable-pitching-platform case study, as it did in the original source; it needs a dedicated case study before publication.
+Several case studies contain placeholder prose, +00% metrics, generic visuals, and references to missing project-01.jpg/project-05.jpg/project-06.jpg assets. Those claims were not rewritten or invented. Missing images now show a neutral “Visual coming soon” placeholder. The agent card now has its own design-operations case study and a task dashboard with Queue, Building, For review, and Complete. Task data is illustrative and interactions stay local to the browser.
 
 ## Status
 
@@ -61,3 +61,9 @@ These are visual interaction concepts with sample data. The gallery and reader p
 The gallery version holds context, presses the upper CTA, confirms the addition while the lower offer stays locked, reveals the lower offer, holds for reading, then adds the third shirt and holds the result. There is no progress bar or item counter. Pointer entry or keyboard focus restarts the gallery sequence. Each beat has its own duration in `MACYS_BEATS` in `src/GalleryPreviews.tsx`.
 
 The Macy’s sequence includes a single opening button pulse and a measured demo cursor. Cubic and quadratic paths add curved approaches, small corrections, reading drifts and post-click retreats. Cursor targets are measured from the actual CTA bounds in scene coordinates. Cursor motion and the cue are hidden for reduced-motion preferences; the existing pause control pauses the sequence.
+
+## Dashboard previews and site icons
+
+The agent preview includes a task table, board, stage filters, search, feedback, and approval. Shoppable includes settings switches and a playable payment → loading → offer → confirmation journey. These are portfolio prototypes and do not control production systems or process payments. Thought Atlas opens a structured collection with aligned note cards, categories, and metadata.
+
+Site navigation, social links, and dashboard controls use the official Font Awesome React packages. Icons within the original animated illustrations retain their existing artwork.
