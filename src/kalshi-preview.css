@@ -17,6 +17,7 @@
 .kalshi-pay-label { left:64px; }.kalshi-payout-label { right:64px; }
 .kalshi-pay,.kalshi-payout { position:absolute; top:382px; line-height:1; letter-spacing:-.02em; font-weight:700; font-variant-numeric:tabular-nums; }
 .kalshi-pay { left:64px; font-size:66px; }.kalshi-payout { right:64px; top:376px; display:flex; align-items:baseline; font-size:96px; color:#00d49b; }
+.kalshi-code { position:absolute; left:64px; top:474px; padding:12px 18px; border-radius:10px; background:#00d49b; color:#04251b; font-size:21px; line-height:1.15; font-weight:700; letter-spacing:.055em; }
 .kalshi-condition { position:absolute; top:478px; right:64px; font-size:25px; line-height:1.2; color:#c3d4ca; }
 .kalshi-terms { position:absolute; left:64px; right:64px; top:554px; margin:0; color:#9aaca1; font-size:20px; line-height:1.45; }
 .kalshi-number { display:inline-flex; font-variant-numeric:tabular-nums; }
