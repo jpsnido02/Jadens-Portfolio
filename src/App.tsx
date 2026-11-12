@@ -6,7 +6,6 @@ import { bySlug } from "./caseStudies"
 import CaseStudyPage from "./CaseStudyPage"
 import ProjectCover from "./ProjectCover"
 import ClickWord from "./ClickWord"
-import BuildingWords from "./BuildingWords"
 import { IntroIcon, resolveIntroIcon } from "./icons"
 import { useTheme } from "./useTheme"
 import "./gallery.css"
@@ -92,7 +91,7 @@ export default function App() {
                 <nav aria-label="Main navigation"><button onClick={() => setAbout(true)}>About</button><a href={intro.links.find(l => l.label === "Resume")?.url} target="_blank" rel="noreferrer">Résumé ↗</a><a className="contact-link" href="mailto:jadenpsnyder02@gmail.com">Let’s talk <span>↗</span></a></nav>
             </header>
             <section className="gallery-intro">
-                <div><p className="eyebrow building-status"><span className="live-dot" /><span className="building-sentence"><span>Currently building</span><BuildingWords playing={motion} /><span>at Rokt</span></span></p><h1>Hi, I’m Jaden<br /><span>I create designs that</span>{" "}<ClickWord /></h1></div>
+                <div><p className="eyebrow building-status"><span className="live-dot" /><span>Currently building AI systems for advertisements at Rokt</span></p><h1>Hi, I’m Jaden<br /><span>I create designs that</span>{" "}<ClickWord /></h1></div>
                 <p className="intro-description">A product designer rethinking commerce through craft and curiosity.<br /><span>From idea to concept to engagement uplift</span></p>
             </section>
             <div className="work-heading"><span>SELECTED WORK <span className="project-count">{String(projects.length).padStart(2, "0")}</span></span><button className="motion-control" aria-pressed={motion} onClick={() => setMotion(!motion)}>{motion ? "Ⅱ" : "▷"} <span>{motion ? "Motion on" : "Motion paused"}</span></button></div>
