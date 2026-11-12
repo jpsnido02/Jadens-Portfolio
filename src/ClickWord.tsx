@@ -4,7 +4,6 @@ import "./click-word.css"
 /** The word's gradient and underline share one wipe and one finish point. */
 export default function ClickWord() {
     const [running, setRunning] = useState(false)
-    const [reversed, setReversed] = useState(false)
     const letters = useRef<HTMLSpanElement>(null)
     useLayoutEffect(() => {
         const word = letters.current!
@@ -37,14 +36,13 @@ export default function ClickWord() {
     useEffect(() => {
         if (!running) return
         const mq = matchMedia("(prefers-reduced-motion: reduce)")
-        const timer = mq.matches ? window.setTimeout(() => { setReversed(value => !value); setRunning(false) }, 600) : undefined
+        const timer = mq.matches ? window.setTimeout(() => setRunning(false), 600) : undefined
         const stopForReducedMotion = () => { if (mq.matches) setRunning(false) }
         mq.addEventListener("change", stopForReducedMotion)
         return () => { window.clearTimeout(timer); mq.removeEventListener("change", stopForReducedMotion) }
     }, [running])
-    return <button type="button" className={`click-word ${running ? "is-running" : ""} ${reversed ? "is-reversed" : ""}`} onClick={() => { if (!running) setRunning(true) }} aria-label="click." title="Play the color fill" aria-busy={running} onAnimationEnd={event => {
+    return <button type="button" className={`click-word ${running ? "is-running" : ""}`} onClick={() => { if (!running) setRunning(true) }} aria-label="click." title="Play the color fill" aria-busy={running} onAnimationEnd={event => {
         if (event.animationName === "click-transfer" && event.target === event.currentTarget) {
-            setReversed(value => !value)
             setRunning(false)
         }
     }}>

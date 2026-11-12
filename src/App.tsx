@@ -16,7 +16,7 @@ const projects = [...workProjects.slice(0, 2), ...personalProjects, ...workProje
 const slugs = projects.map(p => p.link?.split("/").filter(Boolean).pop() ?? "")
 const clients = ["Uber Eats", "Macy’s", "Rokt", "Multi-brand / Rokt", "Rokt", "McDonald’s", "Expedia"]
 const shortTitles = ["Uber Eats, right on time", "A better bag at Macy’s", "From prompt to prototype", "Same system. Different brands.", "Build it before the call ends", "A little extra with your order", "The rest of the trip"]
-const oneLiners = ["Contextual offers during order tracking", "Turning bag review into a reason to add more", "An agent that builds client-ready mockups", "A design system that speaks every brand", "A live demo, made in minutes", "Rewards that reach beyond the kiosk", "Connecting bookings to what comes next"]
+const oneLiners = ["Contextual offers that relate to your UberEats order", "Creating an incentive for second cart adds through an exclusive discount", "A completely autonomous designer to manage over 5,000 active account pages’ UX", "Branded offer experiences, tested across partner accounts", "Configure a shoppable journey, then play the complete checkout demo", "Rewards that reach beyond the kiosk", "Connecting bookings to what comes next"]
 function selectedFromURL() {
     const slug = new URLSearchParams(location.search).get("project")
     return slug && bySlug(slug) ? slug : null
@@ -110,7 +110,7 @@ export default function App() {
                 if (match && bySlug(match[1]) && !event.metaKey && !event.ctrlKey) { event.preventDefault(); select(match[1]) }
             }}>
                 <div key={selected} className="reader-content">
-                    {selectedIndex >= 0 && <div className="reader-hero"><ProjectCover project={projects[selectedIndex]} index={Math.max(0, workProjects.indexOf(projects[selectedIndex]))} live={motion} /></div>}
+                    {selectedIndex >= 0 && <div className="reader-hero"><ProjectCover project={projects[selectedIndex]} index={Math.max(0, workProjects.indexOf(projects[selectedIndex]))} live={motion} interactive /></div>}
                     <CaseStudyPage slug={selected} embedded appearance={{ theme, palette: { ...palette, background: theme === "dark" ? "#111111" : "#ffffff", text: theme === "dark" ? "#ffffff" : "#171717", textMuted: theme === "dark" ? "#b5b5b5" : "#707070", cardBorder: theme === "dark" ? "#353535" : "#e5e5e5", cardThumbBackground: theme === "dark" ? "#222222" : "#f5f5f5" } }} />
                 </div>
             </div>
