@@ -214,3 +214,31 @@
 .ops-review-note strong { font-weight:600; color:var(--ops-ink); }
 .ops-review-note p { margin:4px 0 0; }
 .pw-stage--agent .pw-review { overflow-y:auto; }
+
+/* Ticket queue: enlarged, right-anchored composition. */
+.pw-stage--agent .pw-app { width:1400px; left:auto; right:24px; transform-origin:right center; }
+.pw-stage--agent .pw-page-heading { padding:28px 24px 20px; }
+.pw-stage--agent .pw-page-heading h3 { margin:0 0 8px; font-size:28px; }
+.pw-stage--agent .pw-brand { padding-bottom:32px; }
+.pw-stage--agent .pw-kanban { height:386px; min-height:386px; gap:16px; padding:0 16px 16px; }
+.pw-stage--agent .pw-kanban article { padding:16px; border-radius:7px; }
+.pw-stage--agent .pw-kanban h4 { font-size:11px; }
+.ops-card-account { height:28px; gap:8px; }
+.ops-card-account>img { width:28px; height:24px; object-fit:contain; object-position:center; flex:none; }
+.ops-card-account>strong { font:500 11px Inter,Arial,sans-serif; color:var(--ops-ink); white-space:nowrap; }
+.ops-card-account>span { margin-left:auto; font-size:8px; }
+.pw-stage--agent .pw-kanban h5 { font-size:15px; line-height:1.4; min-height:42px; margin:18px 0 12px; }
+.pw-stage--agent .ops-card-stage { display:inline-flex; font-size:8px; padding:4px 7px; margin-bottom:12px; }
+.ops-build-checks { gap:5px; margin-bottom:20px; }
+.ops-build-checks>span { font-size:7px; padding:4px 5px; }
+.ops-card-progress>div:first-child { display:flex; align-items:center; justify-content:space-between; font-size:10px; margin-bottom:8px; color:var(--ops-secondary); }
+.ops-card-progress b { font:500 11px ui-monospace,monospace; color:var(--ops-ink); }
+.ops-card-progress em { font-style:normal; color:var(--ops-meta); }
+.ops-progress-track { height:4px; border-radius:2px; overflow:hidden; background:var(--ops-line-soft); }
+.ops-progress-track>i { display:block; height:100%; border-radius:inherit; background:var(--ops-action); transition:width .2s ease; }
+.ops-card-time { display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--ops-line-soft); margin:16px 0 14px; padding-top:12px; font-size:9px; color:var(--ops-secondary); }
+.ops-card-time b,.ops-table-count { font:500 10px ui-monospace,monospace; color:var(--ops-ink); }
+.pw-stage--agent .pw-kanban .pw-row-action { min-height:32px; font-size:10px; }
+.pw-stage--agent .pw-review { top:20px; bottom:20px; width:360px; }
+.pw-stage--agent .pw-table-head,.pw-stage--agent .pw-task-row { grid-template-columns:minmax(0,2.6fr) 1fr .9fr .9fr .9fr; }
+@media(max-width:600px) { .pw-stage--agent .pw-app { right:12px; } }
