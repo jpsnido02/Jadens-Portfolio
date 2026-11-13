@@ -764,7 +764,7 @@ caseStudies.push({
     slug: "kalshi-dynamic-ads", title: "An ad that moves with the market", client: "Kalshi", year: "2026", role: "Dynamic ad design", duration: "Project preview", shape: "Gallery", paletteIndex: 7, numbered: false, next: "macys-bag-page", preview: "Dynamic creative that updates with prediction-market pricing.",
     blocks: [
         { kind: "abstract", text: "An advertisement that changes as the prediction market updates. Market probability and potential payout move together, keeping the creative connected to the underlying market." },
-        { kind: "section", label: "The interaction", thesis: "The market moves. The ad follows.", body: "The selected team and $25 entry stay anchored. A 15-yard play provides context before the illustrative probability and potential payout update." },
+        { kind: "section", label: "The interaction", thesis: "The market moves. The ad follows.", body: "The selected team and $25 entry stay anchored. A five-yard loss provides context as the illustrative win probability falls from 18% to 16% and the potential payout for a new $25 purchase rises." },
         { kind: "confidential", text: "This portfolio preview uses an illustrative single-game scenario and sample quotes. It is not connected to live market data, and the example transitions are not a payout calculator." },
     ],
 })

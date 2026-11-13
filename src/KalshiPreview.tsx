@@ -5,16 +5,16 @@ import "./kalshi-preview.css"
 // Illustrative quotes for the portfolio loop, not a live feed or a payout model.
 // Single-game example: SF trails SEA 17–24 late in Q4. Quotes are illustrative, not inferred from yardage.
 const QUOTES = [
-    { probability: 16, payout: "147.56" },
     { probability: 18, payout: "131.16" },
+    { probability: 16, payout: "147.56" },
 ]
-// Line up → 15-yard run → finish → quote update → reverse → settle.
+// Line up → five-yard loss → finish → quote update → reverse → settle.
 const PLAY_TIMING = [1400, 2400, 550, 3000, 1800, 600]
 function FootballPlay({ phase }: { phase: number }) {
     const finished = phase === 2 || phase === 3
     return <div className={`kalshi-football ${finished ? "is-finished" : ""}`} data-play-phase={phase}>
-        <div className="kalshi-game-context"><span>SF 17 · SEA 24</span><span className="kalshi-example-label">ILLUSTRATIVE GAME</span><span>Q4 · {finished ? "1:58 · 1ST & 10 · SF 45" : "2:10 · 2ND & 10 · SF 30"}</span></div>
-        <svg viewBox="0 0 1200 174" role="img" aria-label="San Francisco gains 15 yards, from the 30-yard line to the 45-yard line.">
+        <div className="kalshi-game-context"><span>SF 17 · SEA 24</span><span className="kalshi-example-label">ILLUSTRATIVE GAME</span><span>Q4 · {finished ? "1:58 · 3RD & 15 · SF 25" : "2:10 · 2ND & 10 · SF 30"}</span></div>
+        <svg viewBox="0 0 1200 174" role="img" aria-label="San Francisco loses 5 yards, from the 30-yard line to the 25-yard line.">
             <rect x="1" y="1" width="1198" height="172" rx="12" fill="#111d18" stroke="#ffffff12" strokeWidth="2" />
             {[100, 420, 740, 1060].map((x, i) => <g key={x}>
                 <text className="kalshi-yard-number" x={x} y="42" textAnchor="middle">{20 + i * 10}</text>
@@ -26,7 +26,7 @@ function FootballPlay({ phase }: { phase: number }) {
             </g>)}
             <line className="kalshi-scrimmage" x1="420" x2="420" y1="60" y2="148" />
             <line className="kalshi-first-down" x1="740" x2="740" y1="60" y2="148" />
-            <path className="kalshi-yard-progress" d="M420 104 H900" pathLength="1" />
+            <path className="kalshi-yard-progress" d="M420 104 H260" pathLength="1" />
             <g className="kalshi-ball-marker">
                 <circle r="28" fill="#00d49b" stroke="#111d18" strokeWidth="5" />
                 <g transform="rotate(-35)">
@@ -34,7 +34,7 @@ function FootballPlay({ phase }: { phase: number }) {
                     <path d="M-7 0H7 M-4 -3V3 M0 -3V3 M4 -3V3" fill="none" stroke="#06251c" strokeWidth="2" strokeLinecap="round" />
                 </g>
             </g>
-            <text className="kalshi-run-gain" x="900" y="42" textAnchor="middle">+15 YDS</text>
+            <text className="kalshi-run-gain" x="260" y="42" textAnchor="middle">−5 YDS</text>
         </svg>
     </div>
 }
