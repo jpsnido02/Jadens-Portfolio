@@ -11,7 +11,7 @@ import { useTheme } from "./useTheme"
 import "./gallery.css"
 
 // Temporarily hidden from the gallery and reader rail; keep the project content.
-const hiddenProjectLinks = new Set(["work/mcdonalds-kiosk/", "work/build-view/"])
+const hiddenProjectLinks = new Set(["work/mcdonalds-kiosk/", "work/build-view/", "work/shoppable-config/"])
 const projects = [
     ...workProjects.slice(0, 1),
     ...workProjects.filter(project => project.component === "kalshi-live"),
