@@ -42,6 +42,8 @@ export default function App() {
     const [macysReplay, setMacysReplay] = useState(0)
     const gallery = useRef<HTMLDivElement>(null)
     const reader = useRef<HTMLDivElement>(null)
+    const casePanel = useRef<HTMLElement>(null)
+    const projectOrigin = useRef<DOMRect | null>(null)
     const closeButton = useRef<HTMLButtonElement>(null)
     const opener = useRef<HTMLAnchorElement | null>(null)
     const galleryPosition = useRef(0)
@@ -50,10 +52,16 @@ export default function App() {
     const selectedIndex = selected ? slugs.indexOf(selected) : -1
     const select = (slug: string | null, push = true) => {
         if (slug === selectedRef.current) return
+        const opening = Boolean(slug && !selectedRef.current)
+        if (opening && slug) projectOrigin.current = projectTiles.current.get(slug)?.querySelector(".tile-visual")?.getBoundingClientRect() ?? null
         if (!selectedRef.current) galleryPosition.current = gallery.current?.scrollTop ?? 0
         if (slug) hasOpenedProject.current = true
         selectedRef.current = slug
-        transition(() => setSelected(slug))
+        if (opening && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            activeTransition?.skipTransition()
+            activeTransition = undefined
+            flushSync(() => setSelected(slug))
+        } else transition(() => setSelected(slug))
         if (push) {
             const url = new URL(location.href)
             if (slug) url.searchParams.set("project", slug)
@@ -76,6 +84,17 @@ export default function App() {
         document.title = selected ? `${bySlug(selected)?.title} — Jaden Snyder` : "Jaden Snyder — Product Designer"
         reader.current?.scrollTo(0, 0)
         if (selected) {
+            const panel = casePanel.current
+            const source = projectOrigin.current
+            if (!previousSelected.current && panel && source && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                const target = panel.getBoundingClientRect()
+                panel.animate([
+                    { transform: `translate(${source.left - target.left}px,${source.top - target.top}px) scale(${source.width / target.width},${source.height / target.height})`, borderRadius: "18px" },
+                    { transform: "none", borderRadius: "24px" }
+                ], { duration:650, easing:"cubic-bezier(.22,.8,.2,1)" })
+                for (const child of panel.children) child.animate([{opacity:0},{opacity:1}], {duration:450,delay:150,fill:"backwards"})
+                projectOrigin.current = null
+            }
             if (!previousSelected.current) gallery.current?.scrollTo({ top: 0, behavior: "instant" })
             closeButton.current?.focus({ preventScroll: true })
         }
@@ -154,7 +173,7 @@ export default function App() {
             <footer className="gallery-footer"><div className="footer-links">{intro.links.map(link => <a key={link.label} href={link.url} target={link.url.startsWith("mailto:") ? undefined : "_blank"} rel="noreferrer">{link.label}</a>)}<button onClick={toggle}>{theme === "dark" ? "Light" : "Dark"} mode <SiteIcon name={theme === "dark" ? "sun" : "moon"} size={13} /></button></div><p>Jaden Snyder · Product designer · 2026</p></footer>
         </div>
         {selected && <button ref={closeButton} className="project-close" onClick={() => select(null)} aria-label="Close project and return to all work" inert={about}><SiteIcon name="close" size={21} /></button>}
-        {selected && <section className="case-reader" inert={about} aria-label="Case study">
+        {selected && <section ref={casePanel} className="case-reader" style={{animation:"none",transformOrigin:"top left"}} inert={about} aria-label="Case study">
             <div className="reader-toolbar"><button onClick={() => select(null)} aria-label="Back to all work"><SiteIcon name="back" size={12} /> <span>All work</span></button><span>{selectedIndex >= 0 ? projects[selectedIndex].title : bySlug(selected)?.title}</span><button onClick={() => setMotion(!motion)} aria-label={motion ? "Pause animations" : "Play animations"} aria-pressed={!motion}><SiteIcon name={motion ? "pause" : "play"} size={12} /></button><button onClick={toggle} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}><SiteIcon name={theme === "dark" ? "sun" : "moon"} /></button></div>
             <div className="reader-scroll" ref={reader} onClick={event => {
                 const link = (event.target as HTMLElement).closest("a")

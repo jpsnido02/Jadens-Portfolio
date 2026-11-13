@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react"
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react"
 import useStudySequence from "./useStudySequence"
 import { SiteIcon, RoktWordmark } from "./icons"
 import "./portfolio-workbench.css"
@@ -16,12 +16,17 @@ function WorkbenchIcon({ name, size = 12 }: { name: keyof typeof WORKBENCH_ICONS
 function Workbench({ children, kind }: { children: ReactNode; kind: string }) {
     const root = useRef<HTMLDivElement>(null)
     const [scale, setScale] = useState(0)
+    const [appHeight, setAppHeight] = useState(660)
     useEffect(() => {
-        const observer = new ResizeObserver(([entry]) => setScale(Math.max(0, kind === "agent" ? Math.min((entry.contentRect.width - 48) / 1268, (entry.contentRect.height - 40) / 660) : Math.min((entry.contentRect.width - 30) / 1000, (entry.contentRect.height - 30) / 660))))
+        const observer = new ResizeObserver(([entry]) => {
+            const nextScale = Math.max(0, kind === "agent" ? Math.min((entry.contentRect.width - 48) / 1268, (entry.contentRect.height - 40) / 660) : Math.min((entry.contentRect.width - 30) / 1000, (entry.contentRect.height - 30) / 660))
+            setScale(nextScale)
+            if (kind === "agent" && nextScale > 0) setAppHeight((entry.contentRect.height - 40) / nextScale)
+        })
         observer.observe(root.current!)
         return () => observer.disconnect()
     }, [kind])
-    return <div ref={root} className={`pw-stage pw-stage--${kind}`}><div className="pw-app" style={{ transform: kind === "agent" ? `translateY(-50%) scale(${scale})` : `translate(-50%,-50%) scale(${scale})` }}>{children}</div></div>
+    return <div ref={root} className={`pw-stage pw-stage--${kind}`}><div className="pw-app" style={{ height: kind === "agent" ? appHeight : undefined, transform: kind === "agent" ? `translateY(-50%) scale(${scale})` : `translate(-50%,-50%) scale(${scale})` }}>{children}</div></div>
 }
 
 function Action({ children, interactive, onClick, className = "", disabled = false, label }: { children: ReactNode; interactive: boolean; onClick?: () => void; className?: string; disabled?: boolean; label?: string }) {
@@ -88,6 +93,42 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
     const phase = useStudySequence(AGENT_TIMING, playing && !interactive, 2)
     const [tasks, setTasks] = useState(SAMPLE_TASKS)
     const [selected, setSelected] = useState<string | null>(null)
+    const ticketCards = useRef(new Map<string, HTMLElement>())
+    const detailPanel = useRef<HTMLElement>(null)
+    const sourceRect = useRef<DOMRect | null>(null)
+    const detailAnimation = useRef<Animation | null>(null)
+    const opener = useRef<HTMLElement | null>(null)
+    const [closing, setClosing] = useState(false)
+    const morphFrame = (panel: HTMLElement, card: HTMLElement, opening = false) => {
+        const target = panel.getBoundingClientRect()
+        const source = opening && sourceRect.current ? sourceRect.current : card.getBoundingClientRect()
+        const scale = target.width / panel.offsetWidth
+        return { transform: `translate(${(source.left - target.left) / scale}px, ${(source.top - target.top) / scale}px) scale(${source.width / target.width}, ${source.height / target.height})`, borderRadius: "7px" }
+    }
+    useLayoutEffect(() => {
+        const panel = detailPanel.current
+        const card = selected ? ticketCards.current.get(selected) : null
+        if (!interactive || !panel || !card) return
+        if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            detailAnimation.current = panel.animate([morphFrame(panel, card, true), { transform: "none", borderRadius: "12px" }], { duration: 560, easing: "cubic-bezier(.22,.8,.2,1)" })
+        }
+        panel.querySelector<HTMLButtonElement>(".pw-close")?.focus({ preventScroll: true })
+        return () => detailAnimation.current?.cancel()
+    }, [selected, interactive])
+    const closeTicket = async () => {
+        if (closing) return
+        const panel = detailPanel.current
+        const card = selected ? ticketCards.current.get(selected) : null
+        setClosing(true)
+        if (panel && card && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            detailAnimation.current?.cancel()
+            detailAnimation.current = panel.animate([{ transform: "none", borderRadius: "12px" }, morphFrame(panel, card)], { duration: 420, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" })
+            await detailAnimation.current.finished.catch(() => {})
+        }
+        setSelected(null)
+        setClosing(false)
+        opener.current?.focus({ preventScroll: true })
+    }
     const [filter, setFilter] = useState<TaskStage | "All tickets">("All tickets")
     const [view, setView] = useState<"table" | "board">("board")
     const [search, setSearch] = useState("")
@@ -117,21 +158,31 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
     const activeId = interactive ? selected : phase === 2 ? "DS-104" : null
     const active = rows.find(task => task.id === activeId)
     const visible = rows.filter(task => (filter === "All tickets" || task.stage === filter) && `${task.title} ${task.account}`.toLowerCase().includes(search.toLowerCase()))
-    const update = (stage: TaskStage) => {
+    const update = async (stage: TaskStage) => {
+        if (closing) return
+        await closeTicket()
         if (stage === "Building" && activeId && feedback.trim()) setReviewNotes(current => ({ ...current, [activeId]: feedback.trim() }))
         setTasks(current => current.map(task => task.id === activeId ? { ...task, stage } : task))
         setSelected(null)
         setNotice(stage === "Complete" ? "Approved. The task is complete." : "Feedback sent. The agent will build a revision.")
         setFeedback("")
     }
-    const act = (id: string, stage: TaskStage) => { setSelected(id); setNotice(""); if (stage === "Queue") setTasks(current => current.map(task => task.id === id ? { ...task, stage: "Building" } : task)) }
+    const act = (id: string, stage: TaskStage) => { opener.current = document.activeElement as HTMLElement; sourceRect.current = ticketCards.current.get(id)?.getBoundingClientRect() ?? null; setClosing(false); setSelected(id); setNotice(""); if (stage === "Queue") setTasks(current => current.map(task => task.id === id ? { ...task, stage: "Building" } : task)) }
     const rowAction = (id: string, stage: TaskStage) => <Action interactive={interactive} className={`pw-row-action ${stage === "For review" ? "pw-primary" : ""}`} onClick={() => act(id, stage)}>{stage === "Queue" ? "Start build" : "View build"}<WorkbenchIcon name={stage === "Queue" ? "play" : "arrow"} size={9} /></Action>
     return <Workbench kind="agent"><aside className="pw-sidebar"><b className="pw-brand"><RoktWordmark height={22}/></b><span className="pw-nav-label">WORKSPACE</span><span><SiteIcon name="overview" size={10} /> Overview</span><span className="is-active"><SiteIcon name="tasks" size={10} /> Ticket queue</span><span><SiteIcon name="library" size={10} /> Account library</span><span><SiteIcon name="activity" size={10} /> Activity</span><div className="pw-sidebar-note"><i />Agent workspace<small>Example task data</small></div><div className="pw-sidebar-bottom"><i>JS</i><span>Jaden Snyder<small>Designer · reviewer</small></span></div></aside><div className="pw-main">
         <div className="pw-page-heading"><div><h3>Ticket queue</h3><p>5,000+ account pages. One agent-to-reviewer workflow.</p></div><div className="pw-agent-heading-tools"><span className="pw-agent-notification"><WorkbenchIcon name="bell" size={14} /><i /></span><span className="pw-avatar">JS</span></div></div>
         <div className="ops-handoff"><div><WorkbenchIcon name="robot" size={14}/><span>AGENT OWNS</span><b>Queue <WorkbenchIcon name="arrow" size={9}/> Building</b></div><span className="ops-handoff-divider"/><div><WorkbenchIcon name="review" size={14}/><span>YOUR CALL</span><b>For review <WorkbenchIcon name="arrow" size={9}/> Complete</b></div></div>
         <section className="pw-task-panel"><div className="pw-task-toolbar"><div className="pw-view-tabs">{(["board", "table"] as const).map(mode => <Action key={mode} interactive={interactive} className={view === mode ? "is-active" : ""} onClick={() => setView(mode)}><SiteIcon name={mode === "table" ? "tasks" : "board"} size={10} />{mode === "table" ? "Ticket list" : "Board"}</Action>)}</div>{interactive ? <input aria-label="Search tickets" value={search} onChange={event => setSearch(event.target.value)} placeholder="Search tickets…" /> : <span className="pw-search-placeholder"><SiteIcon name="search" size={9} /> Search tickets…</span>}</div><div className="pw-filter-tabs">{(["All tickets", ...STAGES] as const).map(stage => <Action key={stage} interactive={interactive} className={filter === stage ? "is-active" : ""} onClick={() => setFilter(stage)}>{stage}<b>{stage === "All tickets" ? rows.length : rows.filter(task => task.stage === stage).length}</b></Action>)}</div>
-        {view === "table" ? <div className="pw-task-table"><div className="pw-table-head"><span>BRAND / TICKET</span><span>PROGRESS</span><span>DESIGNS MADE</span><span>BUILD TIME</span><span>ACTION</span></div>{visible.map(task => <div className={`pw-task-row ${task.id === activeId ? "is-selected" : ""}`} key={task.id}><div className="pw-task-title"><i><img src={ACCOUNT_LOGOS[task.account]} alt=""/></i><div><strong>{task.title}</strong><small>{task.account} · {task.id}</small></div></div><span><b className={`pw-status ${stageClass(task.stage)}`}>{task.stage}</b></span><span className="ops-table-count">{designsMade(task.stage)}/30</span><span className="pw-task-time">{buildTime(task.buildSeconds + (elapsed[task.id] ?? 0))}</span>{rowAction(task.id, task.stage)}</div>)}{visible.length === 0 && <p className="pw-empty">No tickets match this search.</p>}</div> : <div className="pw-kanban">{STAGES.map(stage => <section key={stage}><h4><WorkbenchIcon name={stage === "Queue" ? "queue" : stage === "Building" ? "building" : stage === "For review" ? "review" : "check"} size={11}/>{stage}<span>{visible.filter(task => task.stage === stage).length}</span></h4>{visible.filter(task => task.stage === stage).map(task => <article key={task.id} className={task.stage === "For review" ? "ops-card-needs-review" : ""}><div className="ops-card-account"><img src={ACCOUNT_LOGOS[task.account]} alt=""/><strong>{task.account}</strong><span>{task.id}</span></div><h5>{task.title}</h5><span className={`pw-status ops-card-stage ${stageClass(task.stage)}`}>{task.stage}</span><div className="ops-build-checks" aria-label={task.stage === "Queue" ? "Not started" : task.stage === "Building" ? "Design build in progress" : "Build checks ready"}>{["Tokens","Layout","QA"].map((label, index) => <span key={label} className={task.stage === "Complete" || task.stage === "For review" || task.stage === "Building" && index === 0 ? "is-done" : ""}><WorkbenchIcon name={task.stage === "Queue" ? "queue" : "check"} size={8}/>{label}</span>)}</div><div className="ops-card-progress"><div><span>Designs made</span><b>{designsMade(task.stage)}<em>/30</em></b></div><div className="ops-progress-track" role="progressbar" aria-label={`Designs made for ${task.id}`} aria-valuenow={designsMade(task.stage)} aria-valuemin={0} aria-valuemax={30}><i style={{width: `${designsMade(task.stage) / 30 * 100}%`}}/></div></div><div className="ops-card-time"><span>Total time building</span><b>{buildTime(task.buildSeconds + (elapsed[task.id] ?? 0))}</b></div>{rowAction(task.id, task.stage)}</article>)}{visible.filter(task => task.stage === stage).length === 0 && <div className="ops-empty-column"><WorkbenchIcon name={stage === "For review" ? "review" : stage === "Complete" ? "check" : "queue"} size={14}/><span>{stage === "For review" ? "Nothing waiting on you" : "No tickets here"}</span></div>}</section>)}</div>}
+        {view === "table" ? <div className="pw-task-table"><div className="pw-table-head"><span>BRAND / TICKET</span><span>PROGRESS</span><span>DESIGNS MADE</span><span>BUILD TIME</span><span>ACTION</span></div>{visible.map(task => <div ref={element => { if (element) ticketCards.current.set(task.id, element) }} className={`pw-task-row ${task.id === activeId ? "is-selected" : ""}`} key={task.id}><div className="pw-task-title"><i><img src={ACCOUNT_LOGOS[task.account]} alt=""/></i><div><strong>{task.title}</strong><small>{task.account} · {task.id}</small></div></div><span><b className={`pw-status ${stageClass(task.stage)}`}>{task.stage}</b></span><span className="ops-table-count">{designsMade(task.stage)}/30</span><span className="pw-task-time">{buildTime(task.buildSeconds + (elapsed[task.id] ?? 0))}</span>{rowAction(task.id, task.stage)}</div>)}{visible.length === 0 && <p className="pw-empty">No tickets match this search.</p>}</div> : <div className="pw-kanban">{STAGES.map(stage => <section key={stage}><h4><WorkbenchIcon name={stage === "Queue" ? "queue" : stage === "Building" ? "building" : stage === "For review" ? "review" : "check"} size={11}/>{stage}<span>{visible.filter(task => task.stage === stage).length}</span></h4>{visible.filter(task => task.stage === stage).map(task => <article onClick={interactive ? event => { if (!(event.target as HTMLElement).closest("button")) act(task.id, task.stage) } : undefined} ref={element => { if (element) ticketCards.current.set(task.id, element) }} key={task.id} className={`${task.stage === "For review" ? "ops-card-needs-review" : ""} ${task.id === activeId ? "ops-card-open" : ""}`}><div className="ops-card-account"><img src={ACCOUNT_LOGOS[task.account]} alt=""/><strong>{task.account}</strong><span>{task.id}</span></div><h5>{task.title}</h5><span className={`pw-status ops-card-stage ${stageClass(task.stage)}`}>{task.stage}</span><div className="ops-build-checks" aria-label={task.stage === "Queue" ? "Not started" : task.stage === "Building" ? "Design build in progress" : "Build checks ready"}>{["Tokens","Layout","QA"].map((label, index) => <span key={label} className={task.stage === "Complete" || task.stage === "For review" || task.stage === "Building" && index === 0 ? "is-done" : ""}><WorkbenchIcon name={task.stage === "Queue" ? "queue" : "check"} size={8}/>{label}</span>)}</div><div className="ops-card-progress"><div><span>Designs made</span><b>{designsMade(task.stage)}<em>/30</em></b></div><div className="ops-progress-track" role="progressbar" aria-label={`Designs made for ${task.id}`} aria-valuenow={designsMade(task.stage)} aria-valuemin={0} aria-valuemax={30}><i style={{width: `${designsMade(task.stage) / 30 * 100}%`}}/></div></div><div className="ops-card-time"><span>Total time building</span><b>{buildTime(task.buildSeconds + (elapsed[task.id] ?? 0))}</b></div>{rowAction(task.id, task.stage)}</article>)}{visible.filter(task => task.stage === stage).length === 0 && <div className="ops-empty-column"><WorkbenchIcon name={stage === "For review" ? "review" : stage === "Complete" ? "check" : "queue"} size={14}/><span>{stage === "For review" ? "Nothing waiting on you" : "No tickets here"}</span></div>}</section>)}</div>}
         <footer className="pw-table-footer"><span role="status">{notice || "Illustrative tickets · local preview"}</span><span>{visible.length} tickets</span></footer></section>
-        {active && <aside className="pw-review"><div className="pw-review-heading"><span>{active.id} · {active.account}</span><Action interactive={interactive} onClick={() => setSelected(null)} className="pw-close" label="Close task details"><SiteIcon name="close" size={12} /></Action></div><span className={`pw-status ${stageClass(active.stage)}`}>{active.stage}</span><h4>{active.title}</h4><p>{active.stage === "For review" ? "The agent has finished. Your call comes next." : active.stage === "Complete" ? "Reviewed and approved output." : "The agent is applying the account’s design system."}</p>{reviewNotes[active.id] && <div className="ops-review-note"><strong>Your latest feedback</strong><p>{reviewNotes[active.id]}</p></div>}<div className="pw-output-preview"><img className="pw-account-logo" src={ACCOUNT_LOGOS[active.account]} alt={active.account}/><strong>A little extra.<br />A better everyday.</strong><div>Explore your offer <WorkbenchIcon name="arrow" size={8} /></div></div><div className="pw-review-checks">{(active.stage === "Building" ? ["Reading brand tokens", "Building responsive layout", "Running contrast checks"] : ["Brand tokens matched", "Responsive layout checked", "Contrast checks complete"]).map(label => <span key={label}><SiteIcon name={active.stage === "Building" ? "activity" : "check"} size={8} /> {label}</span>)}</div>{active.stage === "For review" ? <><label className="pw-feedback-label">Your feedback{interactive ? <textarea value={feedback} onChange={event => setFeedback(event.target.value)} placeholder="What should the agent refine?" /> : <span className="pw-feedback-placeholder">What should the agent refine?</span>}</label><div className="pw-review-actions"><Action interactive={interactive} className="pw-secondary" disabled={interactive && !feedback.trim()} onClick={() => update("Building")}>Request changes</Action><Action interactive={interactive} className="pw-primary" onClick={() => update("Complete")}>Approve <SiteIcon name="check" size={9} /></Action></div></> : <Action interactive={interactive} className="pw-secondary" onClick={() => setSelected(null)}>Back to tasks</Action>}</aside>}
+        {active && <><div className={`ops-detail-backdrop ${closing ? "is-closing" : ""}`} onClick={interactive ? () => void closeTicket() : undefined} /><aside ref={detailPanel} role={interactive ? "dialog" : undefined} aria-modal={interactive ? true : undefined} aria-label={`${active.id}: ${active.title}`} onKeyDown={event => {
+            if (event.key === "Escape") { event.preventDefault(); void closeTicket() }
+            if (event.key === "Tab") {
+                const controls = [...event.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled), textarea, input, [tabindex="0"]')]
+                const first = controls[0], last = controls[controls.length - 1]
+                if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus() }
+                else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus() }
+            }
+        }} className={`pw-review ops-detail-expanded ${closing ? "is-closing" : ""}`}><div className="ops-detail-content"><div className="pw-review-heading"><span>{active.id} · {active.account}</span><Action interactive={interactive} onClick={() => void closeTicket()} className="pw-close" label="Close task details"><SiteIcon name="close" size={12} /></Action></div><span className={`pw-status ${stageClass(active.stage)}`}>{active.stage}</span><h4>{active.title}</h4><p>{active.stage === "For review" ? "The agent has finished. Your call comes next." : active.stage === "Complete" ? "Reviewed and approved output." : "The agent is applying the account’s design system."}</p>{reviewNotes[active.id] && <div className="ops-review-note"><strong>Your latest feedback</strong><p>{reviewNotes[active.id]}</p></div>}<div className="pw-output-preview"><img className="pw-account-logo" src={ACCOUNT_LOGOS[active.account]} alt={active.account}/><strong>A little extra.<br />A better everyday.</strong><div>Explore your offer <WorkbenchIcon name="arrow" size={8} /></div></div><div className="pw-review-checks">{(active.stage === "Building" ? ["Reading brand tokens", "Building responsive layout", "Running contrast checks"] : ["Brand tokens matched", "Responsive layout checked", "Contrast checks complete"]).map(label => <span key={label}><SiteIcon name={active.stage === "Building" ? "activity" : "check"} size={8} /> {label}</span>)}</div>{active.stage === "For review" ? <><label className="pw-feedback-label">Your feedback{interactive ? <textarea value={feedback} onChange={event => setFeedback(event.target.value)} placeholder="What should the agent refine?" /> : <span className="pw-feedback-placeholder">What should the agent refine?</span>}</label><div className="pw-review-actions"><Action interactive={interactive} className="pw-secondary" disabled={interactive && !feedback.trim()} onClick={() => update("Building")}>Request changes</Action><Action interactive={interactive} className="pw-primary" onClick={() => update("Complete")}>Approve <SiteIcon name="check" size={9} /></Action></div></> : <Action interactive={interactive} className="pw-secondary" onClick={() => void closeTicket()}>Back to tickets</Action>}</div></aside></>}
     </div></Workbench>
 }

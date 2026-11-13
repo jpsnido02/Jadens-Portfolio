@@ -242,3 +242,35 @@
 .pw-stage--agent .pw-review { top:20px; bottom:20px; width:360px; }
 .pw-stage--agent .pw-table-head,.pw-stage--agent .pw-task-row { grid-template-columns:minmax(0,2.6fr) 1fr .9fr .9fr .9fr; }
 @media(max-width:600px) { .pw-stage--agent .pw-app { right:12px; } }
+
+/* Fill the available height; tickets expand from their source card. */
+.pw-stage--agent .pw-main { display:flex; flex-direction:column; }
+.pw-stage--agent .pw-task-panel { display:flex; flex-direction:column; flex:1; min-height:0; margin-bottom:24px; }
+.pw-stage--agent .pw-task-toolbar,.pw-stage--agent .pw-filter-tabs,.pw-stage--agent .pw-table-footer { flex:none; }
+.pw-stage--agent .pw-kanban { flex:1; height:auto; min-height:0; }
+.pw-stage--agent .pw-task-table { flex:1; min-height:0; overflow-y:auto; }
+.ops-card-open { visibility:hidden; }
+.ops-detail-backdrop { position:absolute; inset:0; z-index:7; background:#20263030; backdrop-filter:blur(2px); animation:ops-backdrop-in 360ms ease both; }
+.ops-detail-backdrop.is-closing { opacity:0; transition:opacity 420ms ease; }
+.pw-stage--agent .pw-review.ops-detail-expanded { z-index:8; inset:24px; width:auto; padding:28px 32px; transform-origin:top left; border-radius:12px; will-change:transform; }
+.ops-detail-content { display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); column-gap:32px; align-content:start; animation:ops-detail-reveal 560ms ease both; }
+.ops-detail-content>.pw-review-heading,.ops-detail-content>h4,.ops-detail-content>.pw-status,.ops-detail-content>p { grid-column:1/-1; }
+.pw-stage--agent .ops-detail-content>h4 { font-size:28px; margin:12px 0 8px; }
+.ops-detail-content>.pw-review-heading { font-size:11px; }
+.ops-detail-content>.pw-status { justify-self:start; }
+.ops-detail-content>.pw-output-preview { grid-column:1; grid-row:5 / span 5; min-height:330px; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; padding:40px; }
+.ops-detail-content>.pw-output-preview strong { font-size:42px; }
+.ops-detail-content>.pw-output-preview .pw-account-logo { width:100px; height:40px; }
+.ops-detail-content>.pw-output-preview>div { padding:12px 18px; font-size:11px; }
+.ops-detail-content>.ops-review-note,.ops-detail-content>.pw-review-checks,.ops-detail-content>.pw-feedback-label,.ops-detail-content>.pw-review-actions,.ops-detail-content>.pw-secondary { grid-column:2; }
+.ops-detail-content>.pw-review-checks { font-size:11px; gap:10px; }
+.ops-detail-content>.pw-feedback-label { font-size:11px; }
+.ops-detail-content .pw-feedback-label textarea { height:90px; font-size:11px; }
+.ops-detail-content .pw-review-actions>* { min-height:38px; font-size:11px; }
+.ops-detail-expanded.is-closing .ops-detail-content { opacity:0; animation:none; transition:opacity 120ms ease; }
+@keyframes ops-backdrop-in { from { opacity:0; } to { opacity:1; } }
+@keyframes ops-detail-reveal { 0%,32% { opacity:0; transform:translateY(8px); } 100% { opacity:1; transform:translateY(0); } }
+@media(prefers-reduced-motion:reduce) { .ops-detail-content,.ops-detail-backdrop { animation:none!important; transition:none!important; } }
+
+.pw-stage--agent .pw-kanban article:has(button) { cursor:pointer; transition:border-color 150ms ease; }
+.pw-stage--agent .pw-kanban article:has(button):hover { border-color:#b9c5e9; }
