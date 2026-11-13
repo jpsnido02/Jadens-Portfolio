@@ -11,13 +11,13 @@ import { useTheme } from "./useTheme"
 import "./gallery.css"
 
 // Temporarily hidden from the gallery and reader rail; keep the project content.
-const hiddenProjectLinks = new Set(["work/mcdonalds-kiosk/"])
+const hiddenProjectLinks = new Set(["work/mcdonalds-kiosk/", "work/build-view/"])
 const projects = [...workProjects, ...personalProjects].filter(project => !hiddenProjectLinks.has(project.link ?? ""))
 const workCount = projects.filter(project => workProjects.includes(project)).length
 const slugs = projects.map(p => p.link?.split("/").filter(Boolean).pop() ?? "")
-const clients = ["Uber Eats", "Macy’s", "Rokt", "Multi-brand / Rokt", "Rokt", "McDonald’s", "Expedia"]
+const clients = ["Uber Eats", "Macy’s", "Rokt", "Multi-brand / Rokt", "Rokt", "McDonald’s", "Expedia", "Kalshi"]
 const shortTitles = ["Uber Eats, right on time", "A better bag at Macy’s", "From prompt to prototype", "Same system. Different brands.", "Build it before the call ends", "A little extra with your order", "The rest of the trip"]
-const oneLiners = ["Contextual offers that relate to your UberEats order", "Creating an incentive for second cart adds through an exclusive discount", "A completely autonomous designer to manage over 5,000 active account pages’ UX", "Branded offer experiences, tested across partner accounts", "Configure a shoppable journey, then play the complete checkout demo", "Rewards that reach beyond the kiosk", "Connecting bookings to what comes next"]
+const oneLiners = ["Contextual offers that relate to your UberEats order", "Creating an incentive for second cart adds through an exclusive discount", "A completely autonomous designer to manage over 5,000 active account pages’ UX", "Branded offer experiences, tested across partner accounts", "Configure a shoppable journey, then play the complete checkout demo", "Rewards that reach beyond the kiosk", "Connecting bookings to what comes next", "An advertisement that updates as the prediction market moves"]
 function selectedFromURL() {
     const slug = new URLSearchParams(location.search).get("project")
     return slug && bySlug(slug) ? slug : null

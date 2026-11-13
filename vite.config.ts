@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react"
 
 /** One HTML entry per case study, so each gets a real, shareable URL. */
 const caseStudies = [
+    "kalshi-dynamic-ads",
     "macys-bag-page",
     "uber-ads",
     "branded-layouts",

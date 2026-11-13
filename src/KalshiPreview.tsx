@@ -3,7 +3,7 @@ import useStudySequence from "./useStudySequence"
 import "./kalshi-preview.css"
 
 // Illustrative quotes for the portfolio loop, not a live feed or a payout model.
-// The baseline is copied from the supplied creative; a staged football play triggers the second quote.
+// Single-game example: SF trails SEA 17–24 late in Q4. Quotes are illustrative, not inferred from yardage.
 const QUOTES = [
     { probability: 16, payout: "147.56" },
     { probability: 18, payout: "131.16" },
@@ -13,6 +13,7 @@ const PLAY_TIMING = [1400, 2400, 550, 3000, 1800, 600]
 function FootballPlay({ phase }: { phase: number }) {
     const finished = phase === 2 || phase === 3
     return <div className={`kalshi-football ${finished ? "is-finished" : ""}`} data-play-phase={phase}>
+        <div className="kalshi-game-context"><span>SF 17 · SEA 24</span><span className="kalshi-example-label">ILLUSTRATIVE GAME</span><span>Q4 · {finished ? "1:58 · 1ST & 10 · SF 45" : "2:10 · 2ND & 10 · SF 30"}</span></div>
         <svg viewBox="0 0 1200 174" role="img" aria-label="San Francisco gains 15 yards, from the 30-yard line to the 45-yard line.">
             <rect x="1" y="1" width="1198" height="172" rx="12" fill="#111d18" stroke="#ffffff12" strokeWidth="2" />
             {[100, 420, 740, 1060].map((x, i) => <g key={x}>
@@ -49,7 +50,7 @@ export default function KalshiPreview({ playing }: { playing: boolean }) {
     const [scale, setScale] = useState(0)
     const phase = useStudySequence(PLAY_TIMING, playing, 3)
     useEffect(() => {
-        const observer = new ResizeObserver(([entry]) => setScale(Math.max(0, Math.min((entry.contentRect.width - 80) / 1200, (entry.contentRect.height - 80) / 826))))
+        const observer = new ResizeObserver(([entry]) => setScale(Math.max(0, Math.min((entry.contentRect.width - 80) / 1200, (entry.contentRect.height - 80) / 870))))
         observer.observe(root.current!)
         return () => observer.disconnect()
     }, [])
@@ -61,15 +62,15 @@ export default function KalshiPreview({ playing }: { playing: boolean }) {
             <FootballPlay phase={phase} />
             <div className="kalshi-ad">
                 <span className="kalshi-sport">PRO FOOTBALL</span><span className="kalshi-wordmark">Kalshi</span>
-                <span className="kalshi-event">2027 PRO FOOTBALL CHAMPION</span>
+                <span className="kalshi-event">SAN FRANCISCO VS SEATTLE · GAME WINNER</span>
                 <span className="kalshi-chance-label">MARKET CHANCE</span>
                 <div className="kalshi-prediction"><span>San Francisco</span><span className="kalshi-odds"><RollingValue value={String(quote.probability)} previous={String(previous.probability)} revision={revision} /><span>%</span></span></div>
                 <div className="kalshi-rule" />
                 <span className="kalshi-pay-label">YOU PAY</span><strong className="kalshi-pay">$25.00</strong>
                 <span className="kalshi-code">CODE: FREE50</span>
-                <span className="kalshi-payout-label">YOUR PAYOUT</span><strong className="kalshi-payout"><span>$</span><RollingValue value={quote.payout} previous={previous.payout} revision={revision} /></strong>
-                <span className="kalshi-condition">if San Francisco wins</span>
-                <p className="kalshi-terms">Illustrative prices. CFTC-regulated. Bonus terms apply.<br />Trading involves risk of loss. Not available in all states. 18+.</p>
+                <span className="kalshi-payout-label">POTENTIAL PAYOUT</span><strong className="kalshi-payout"><span>$</span><RollingValue value={quote.payout} previous={previous.payout} revision={revision} /></strong>
+                <span className="kalshi-condition">if San Francisco wins this game</span>
+                <p className="kalshi-terms">Illustrative scenario and prices for a new $25 entry.<br />Trading involves risk of loss. Not available in all states. 18+.</p>
             </div>
         </div>
     </div>

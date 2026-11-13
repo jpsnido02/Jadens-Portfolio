@@ -4,6 +4,7 @@ import MacysBagLoop from "./MacysBagLoop"
 import { AgentDashboard, ShoppableDashboard } from "./PortfolioWorkbench"
 import BrandedLayoutsLoop from "./BrandedLayoutsLoop"
 import { UberPreview, MacysPreview, BrandedPreview } from "./GalleryPreviews"
+import KalshiPreview from "./KalshiPreview"
 import ConceptStudy from "./ConceptStudies"
 import type { ProjectData } from "./PortfolioScroll"
 
@@ -38,6 +39,7 @@ export default function ProjectCover({ project, index, live = true, focused = fa
     }, [])
     const playing = live && visible && !reduced
     const kind = project.component
+    if (kind === "kalshi-live") return <div ref={ref} className={`project-cover ${!playing ? "is-paused" : ""}`} aria-hidden="true"><KalshiPreview playing={playing} /></div>
     if (kind === "pantry-notes" || kind === "thought-atlas" || kind === "build-view") return <div ref={ref} className={`project-cover personal-cover ${!playing ? "is-paused" : ""}`} aria-hidden="true"><ConceptStudy kind={kind} playing={playing}/></div>
     if (kind === "partner-agent" || kind === "shoppable-config") return <div ref={ref} className={`project-cover ${!playing ? "is-paused" : ""}`} aria-hidden={interactive ? undefined : true}>{kind === "partner-agent" ? <AgentDashboard playing={playing} interactive={interactive} /> : <ShoppableDashboard playing={playing} interactive={interactive} />}</div>
     if (focused && kind) return <div ref={ref} className={`project-cover focused-cover focus-${kind} ${!playing ? "is-paused" : ""}`} aria-hidden="true">

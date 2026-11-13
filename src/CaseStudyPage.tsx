@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import ConceptStudy, { type ConceptKind } from "./ConceptStudies"
+import KalshiPreview from "./KalshiPreview"
 import { AgentDashboard, ShoppableDashboard } from "./PortfolioWorkbench"
 import { CONTENT_MAX_WIDTH, FONT_FAMILY } from "./tokens"
 import ThemeToggle from "./ThemeToggle"
@@ -158,6 +159,7 @@ export default function CaseStudyPage({ slug, embedded = false, appearance }: {
                 >
                     {!embedded && <TopBar palette={palette} sizes={s} />}
                     {!embedded && ["pantry-notes", "thought-atlas", "build-view"].includes(slug) && <div style={{position:"relative",height:isMobile?360:600,borderRadius:18,overflow:"hidden",marginBottom:36}}><ConceptStudy kind={slug as ConceptKind}/></div>}
+                    {!embedded && slug === "kalshi-dynamic-ads" && <div style={{position:"relative",height:isMobile?360:600,borderRadius:18,overflow:"hidden",marginBottom:36}}><KalshiPreview playing /></div>}
                     {!embedded && ["agent-design-operations", "shoppable-config"].includes(slug) && <div style={{position:"relative",height:isMobile?360:600,borderRadius:18,overflow:"hidden",marginBottom:36}}>{slug === "agent-design-operations" ? <AgentDashboard playing interactive /> : <ShoppableDashboard playing interactive />}</div>}
                     <Masthead
                         study={study}

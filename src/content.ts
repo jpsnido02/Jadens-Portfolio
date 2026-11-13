@@ -194,4 +194,5 @@ export const projects: ProjectData[] = [
         tags: [],
         link: "work/expedia-1p-3p/",
     },
+    { title: "Kalshi Dynamic Advertising", image: { src: "/projects/project-04.jpg", alt: "Kalshi dynamic advertising" }, thumb: { src: "/projects/icon-rokt-logo.svg", alt: "Kalshi" }, mediaType: "component", component: "kalshi-live", category: "Dynamic creative", year: "2026", description: "An advertisement that updates as the prediction market moves.", tags: [], link: "work/kalshi-dynamic-ads/" },
 ]
