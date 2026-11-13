@@ -11,3 +11,30 @@
 @keyframes db-spin { to { transform:rotate(360deg); } }@media(prefers-reduced-motion:reduce) { .db-spinner { animation:none; }.db-switch i { transition:none; } }
 
 .db-app button.db-primary { color:#fff; background:#b90073; }.db-app .db-offer-actions button.db-primary { background:#5930ed; color:#fff; }.db-app button.db-secondary { color:#2b2926; background:#fff; }.db-app .db-decline { color:#6b655d; }
+
+/* Use the same measured iPhone shell as the other portfolio animations. */
+.db-app { height:720px; overflow:visible; }
+.db-body { height:658px; border-radius:0 0 12px 12px; }
+.db-steps { border-radius:12px 12px 0 0; }
+.db-editor { background:#fff; border-radius:0 0 0 12px; }
+.db-preview { border-radius:0 0 12px 0; overflow:visible; }
+.db-device { width:430px; height:auto; margin:14px auto 0; border:0; border-radius:0; background:transparent; box-shadow:none; overflow:visible; }
+.db-phone-canvas { width:393px; height:852px; transform-origin:top left; background:#fff; }
+.db-phone-status { height:54px; display:flex; align-items:center; justify-content:space-between; padding:0 28px; font-size:14px; color:#171717; }
+.db-phone-status>span { font-size:12px; letter-spacing:2px; }
+.db-store { padding:10px 12px 13px; }
+.db-store strong { font-size:27px; }
+.db-store span { font-size:11px; }
+.db-device-content { height:720px; padding:22px 21px; overflow:auto; }
+.db-device-content[data-screen="offer"] h4 { font-size:22px; margin:24px 0 12px; }
+.db-customer-progress { font-size:8px; }
+.db-customer-copy { font-size:12px; line-height:1.6; margin:10px 5px 18px; }
+.db-product-art { height:231px; margin:16px 0; }
+.db-product-art img { display:block; object-fit:contain; }
+.db-offer-detail { align-items:flex-start; font-size:12px; margin:12px 0 20px; }
+.db-offer-detail strong { max-width:190px; }
+.db-offer-actions { gap:10px; }
+.db-offer-actions .db-primary,.db-offer-actions .db-secondary { min-height:42px; padding:11px; font-size:14px; }
+.db-offer-actions .db-decline { padding:12px; font-size:12px!important; }
+
+.db-body { grid-template-rows:minmax(0,1fr); }.db-preview,.db-editor { min-height:0; }.db-phone-status>span { display:flex; gap:5px; align-items:center; }
