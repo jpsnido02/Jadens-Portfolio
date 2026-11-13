@@ -12,7 +12,12 @@ import "./gallery.css"
 
 // Temporarily hidden from the gallery and reader rail; keep the project content.
 const hiddenProjectLinks = new Set(["work/mcdonalds-kiosk/", "work/build-view/"])
-const projects = [...workProjects, ...personalProjects].filter(project => !hiddenProjectLinks.has(project.link ?? ""))
+const projects = [
+    ...workProjects.slice(0, 1),
+    ...workProjects.filter(project => project.component === "kalshi-live"),
+    ...workProjects.slice(1).filter(project => project.component !== "kalshi-live"),
+    ...personalProjects,
+].filter(project => !hiddenProjectLinks.has(project.link ?? ""))
 const workCount = projects.filter(project => workProjects.includes(project)).length
 const slugs = projects.map(p => p.link?.split("/").filter(Boolean).pop() ?? "")
 const clients = ["Uber Eats", "Macy’s", "Rokt", "Multi-brand / Rokt", "Rokt", "McDonald’s", "Expedia", "Kalshi"]
