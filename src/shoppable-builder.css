@@ -38,3 +38,10 @@
 .db-offer-actions .db-decline { padding:12px; font-size:12px!important; }
 
 .db-body { grid-template-rows:minmax(0,1fr); }.db-preview,.db-editor { min-height:0; }.db-phone-status>span { display:flex; gap:5px; align-items:center; }
+
+/* The complete builder grows to contain the phone, with matching outer space. */
+.db-app { height:1040px; overflow:hidden; }
+.db-body { height:978px; }
+.db-preview { overflow:hidden; }
+.db-device { margin-top:20px; }
+.reader-hero:has(.db-stage) { height:auto; aspect-ratio:1200/1100; }
