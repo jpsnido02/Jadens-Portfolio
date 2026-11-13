@@ -101,6 +101,7 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
     const [section, setSection] = useState<"checks" | "request" | "log" | "designs" | null>(null)
     const [notice, setNotice] = useState("")
     const [elapsed, setElapsed] = useState<Record<string, number>>({})
+    const [buildStart, setBuildStart] = useState<Record<string, number>>({})
     const [reviewNotes, setReviewNotes] = useState<Record<string, string>>({})
     const [moving, setMoving] = useState(false)
     const moveTimer = useRef<number | undefined>(undefined)
@@ -117,10 +118,11 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
     const active = rows.find(task => task.id === selected)
     const visible = rows.filter(task => (filter === "All tickets" || task.stage === filter) && `${task.title} ${task.account}`.toLowerCase().includes(search.toLowerCase()))
     const stageKey = rows.map(task => `${task.id}:${task.stage}`).join("|")
-    const designsMade = (task: typeof SAMPLE_TASKS[number]) => task.stage === "Queue" ? 0 : task.stage === "Building" ? Math.min(29, 16 + (interactive ? (elapsed[task.id] ?? 0) * 2 : 0)) : 30
+    const designsMade = (task: typeof SAMPLE_TASKS[number]) => task.stage === "Queue" ? 0 : task.stage === "Building" ? Math.min(29, 16 + (interactive ? Math.max(0, (elapsed[task.id] ?? 0) - (buildStart[task.id] ?? 0)) * 2 : 0)) : 30
     useLayoutEffect(() => {
         const next = new Map<string, DOMRect>()
         const newlyReady: string[] = []
+        const changedStage = rows.some(task => stagesBefore.current.has(task.id) && stagesBefore.current.get(task.id) !== task.stage)
         let didMove = false
         for (const task of rows) {
             const card = ticketCards.current.get(task.id)
@@ -128,7 +130,7 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
             const after = card.getBoundingClientRect()
             const before = positions.current.get(task.id)
             const oldStage = stagesBefore.current.get(task.id)
-            if (before && oldStage && oldStage !== task.stage && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            if (changedStage && before && oldStage && (oldStage !== task.stage || Math.abs(before.top - after.top) > 1 || Math.abs(before.left - after.left) > 1) && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
                 didMove = true
                 const scale = after.width / card.offsetWidth
                 card.animate([
@@ -204,7 +206,10 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
         const id = active.id
         if (stage === "Building" && !feedback.trim()) return
         await closeTicket()
-        if (stage === "Building") setReviewNotes(current => ({ ...current, [id]: feedback.trim() }))
+        if (stage === "Building") {
+            setReviewNotes(current => ({ ...current, [id]: feedback.trim() }))
+            setBuildStart(current => ({ ...current, [id]: elapsed[id] ?? 0 }))
+        }
         setTasks(current => current.map(task => task.id === id ? { ...task, stage } : task))
         setAttention(current => ({ ...current, [id]: false }))
         setNotice(stage === "Complete" ? "Approved. The ticket is complete." : "Feedback sent. The agent is building a revision.")
