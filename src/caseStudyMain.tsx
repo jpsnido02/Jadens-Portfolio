@@ -1,3 +1,4 @@
+import VisitorGate from "./VisitorGate"
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import CaseStudyPage from "./CaseStudyPage"
@@ -11,6 +12,6 @@ const slug = root.dataset.slug ?? ""
 
 createRoot(root).render(
     <StrictMode>
-        <CaseStudyPage slug={slug} />
+        <VisitorGate><CaseStudyPage slug={slug} /></VisitorGate>
     </StrictMode>
 )
