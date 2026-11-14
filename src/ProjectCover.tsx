@@ -25,7 +25,7 @@ function Stage({ children, kind }: { children: ReactNode; kind: string }) {
     </div>
 }
 
-export default function ProjectCover({ project, index, live = true, focused = false, replayKey = 0, interactive = false }: { project: ProjectData; index: number; live?: boolean; focused?: boolean; replayKey?: number; interactive?: boolean }) {
+export default function ProjectCover({ project, index, live = true, focused = false, replayKey = 0 }: { project: ProjectData; index: number; live?: boolean; focused?: boolean; replayKey?: number; interactive?: boolean }) {
     const ref = useRef<HTMLDivElement>(null)
     const [visible, setVisible] = useState(false)
     const [reduced, setReduced] = useState(() => matchMedia("(prefers-reduced-motion: reduce)").matches)
@@ -41,7 +41,7 @@ export default function ProjectCover({ project, index, live = true, focused = fa
     const kind = project.component
     if (kind === "kalshi-live") return <div ref={ref} className={`project-cover ${!playing ? "is-paused" : ""}`} aria-hidden="true"><KalshiPreview playing={playing} /></div>
     if (kind === "pantry-notes" || kind === "thought-atlas" || kind === "build-view") return <div ref={ref} className={`project-cover personal-cover ${!playing ? "is-paused" : ""}`} aria-hidden="true"><ConceptStudy kind={kind} playing={playing}/></div>
-    if (kind === "partner-agent" || kind === "shoppable-config") return <div ref={ref} className={`project-cover ${!playing ? "is-paused" : ""}`} aria-hidden={interactive ? undefined : true}>{kind === "partner-agent" ? <AgentDashboard playing={playing} interactive={interactive} /> : <ShoppableDashboard playing={playing} interactive={interactive} />}</div>
+    if (kind === "partner-agent" || kind === "shoppable-config") return <div ref={ref} className={`project-cover ${!playing ? "is-paused" : ""}`} aria-hidden="true" inert>{kind === "partner-agent" ? <AgentDashboard playing={playing} /> : <ShoppableDashboard playing={playing} /> }</div>
     if (focused && kind) return <div ref={ref} className={`project-cover focused-cover focus-${kind} ${!playing ? "is-paused" : ""}`} aria-hidden="true">
         {kind === "uber-loop" && <UberPreview playing={playing} />}
         {kind === "macys-bag" && <MacysPreview key={replayKey} playing={playing} />}
