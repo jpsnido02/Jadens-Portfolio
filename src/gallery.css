@@ -504,3 +504,12 @@ html[data-page="home"] #root { overflow:hidden; }
 .intro-details .building-status { border-top:0; padding-top:14px; margin:0; color:var(--gallery-muted); font-size:10px; font-weight:500; line-height:1.65; letter-spacing:0; }
 @media(max-width:1000px) and (min-width:721px) { .intro-details { width:280px; max-width:34%; }.intro-details .intro-description { font-size:12px; } }
 @media(max-width:720px) { .intro-details { width:100%; max-width:none; margin-top:22px; gap:16px; }.intro-details .intro-description { font-size:12px; max-width:48ch; }.intro-details .building-status { font-size:10px; padding-top:12px; }.wordmark img { width:36px; height:36px; } }
+
+.compact-demo { container-type:inline-size; }.photo-composition>picture { display:block; width:100%; height:100%; }
+.macys-focus .mock-button[data-pressed="true"]::before,.macys-focus .mock-button[data-pressed="true"]::after { display:none; }
+.macys-focus[data-attention="lower"] .discount-card { box-shadow:none; transform:none; }.macys-focus[data-attention="lower"] .bag-product { opacity:.8; }
+.macys-focus .mock-heading { align-items:flex-start; gap:15px; }.macys-focus .mock-heading>span { font-size:11px; white-space:nowrap; padding-top:5px; }
+@media(max-width:720px) { .tile-visual:has(.agent-story--compact),.tile-visual:has(.pantry-compact),.tile-visual:has(.atlas-compact),.tile-visual:has(.kalshi-compact) { aspect-ratio:1.05; } }
+/* Reader navigation uses true miniatures, not narrow reflowed product screens. */
+.is-reading .project-tile .compact-demo>div,.is-reading .project-tile .kalshi-compact { position:absolute; inset:auto; left:50%; top:50%; width:420px; height:360px; transform:translate(-50%,-50%) scale(.3); transform-origin:center; }
+.is-reading .project-tile .compact-demo { container-type:normal; }

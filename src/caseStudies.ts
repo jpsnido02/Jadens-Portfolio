@@ -1,25 +1,12 @@
 import { personalCaseStudies } from "./personalProjects"
 
-/**
- * CASE STUDY CONTENT — edit everything here.
- *
- * A case study is an ordered list of blocks. The order IS the design: see
- * docs/case-studies/ for the per-project template each of these follows, and
- * docs/case-study-template.md for the block library and the shape rules.
- *
- * Word budgets, which are the whole point:
- *   abstract ≤45 · thesis ≤20 · section body ≤60 · caption ≤25 · takeaway ≤50
- *   whole case study 250–600
- *
- * Every string below is placeholder copy written to the right length, so the
- * layout is honest about how much room you actually have. Numbers are left as
- * `+00%` on purpose — never ship a figure you have not measured.
- */
+/** Case-study narratives use supplied project facts and clearly scoped portfolio recreations. */
 
 /** Media width tiers. Varying these is the main pacing device. */
 export type FigureWidth = "bleed" | "full" | "half" | "strip"
 
 export type Block =
+    | { kind: "evidence"; name: "uber-context" | "macys-decision" | "agent-review" | "branded-comparison" | "expedia-proof" | "pantry-proof"; caption?: string }
     /** ≤45 words. Hanging indent, set apart from everything else. */
     | { kind: "abstract"; text: string }
     /** One sentence, ≤20 words. The largest type in the body. */
@@ -82,6 +69,8 @@ export type Block =
 
 export interface CaseStudy {
     slug: string
+    result?: string
+    status?: string
     /** Shown in the masthead and the browser tab. */
     title: string
     /** The client, or a category descriptor if the name cannot be used. */
@@ -109,665 +98,286 @@ export interface CaseStudy {
  */
 const img = (n: number) => `../../projects/project-0${n}.jpg`
 
+
 export const caseStudies: CaseStudy[] = [
-    // ---------------------------------------------------------------- 1 of 6
     {
-        slug: "macys-bag-page",
-        title: "Where intent goes to die",
-        client: "Macy's",
-        year: "2026",
-        role: "Product Designer",
-        duration: "4 months",
-        shape: "Iteration",
-        paletteIndex: 0,
-        numbered: true,
-        preview: "Three variants, two of which lost.",
-        next: "uber-ads",
-        blocks: [
+        "slug": "uber-ads",
+        "title": "Uber Eats Contextual Advertising",
+        "client": "Uber Eats",
+        "year": "2026",
+        "role": "Contextual offer UX and visual design",
+        "duration": "",
+        "shape": "Gallery",
+        "paletteIndex": 0,
+        "numbered": false,
+        "next": "",
+        "preview": "Relevant offers during the wait between ordering and delivery.",
+        "result": "One placement connects order context to a relevant next action.",
+        "status": "Recreated prototype",
+        "blocks": [
             {
-                kind: "abstract",
-                text: "The bag page is the last screen before someone commits. It is also the least defended surface on the site. This project tested whether a placement could sit there without costing the sale it was standing next to.",
+                "kind": "abstract",
+                "text": "The wait after an Uber Eats order is a distinct moment: the purchase is complete, but the customer is still in the app. I designed contextual offers around that moment rather than treating it as an interchangeable ad slot."
             },
             {
-                kind: "thesis",
-                text: "The highest-intent moment on the site was also the worst protected.",
+                "kind": "section",
+                "label": "Context",
+                "thesis": "An offer that belongs to the wait.",
+                "body": "Keep the order visible and give the offer a specific reason to be there. The Spotify example connects listening to the delivery wait; the coffee example connects the offer to breakfast."
             },
             {
-                kind: "confidential",
-                text: "Screens are recreated and simplified. Figures are directional.",
+                "kind": "evidence",
+                "name": "uber-context",
+                "caption": "Order context, offer, and customer action remain connected. These are recreated portfolio examples."
             },
             {
-                kind: "figurePair",
-                items: [
-                    { src: img(1), alt: "Bag page before" },
-                    { src: img(2), alt: "Bag page after" },
-                ],
-                caption:
-                    "Before and after. The subtotal stays above the fold in both.",
+                "kind": "section",
+                "label": "Design decision",
+                "thesis": "One placement, different kinds of relevance.",
+                "body": "A consistent container holds different partner assets, messages, and actions. The primary action names what happens next, and the secondary action lets the customer continue without accepting."
             },
             {
-                kind: "section",
-                label: "The attempts",
-                thesis: "Two formats failed before one worked.",
-                body: "Each variant shipped to a slice of traffic. The two that lost are the interesting ones. They failed for different reasons, and the second failure is what pointed at the answer.",
+                "kind": "takeaway",
+                "title": "Reflection",
+                "body": "The contextual message matters as much as the placement. Showing why an offer belongs in this moment makes the interaction easier to understand than adding more visual emphasis."
             },
             {
-                kind: "attempt",
-                label: "Attempt 1: inline above the subtotal",
-                body: "Put the offer where the eye already was. It pushed the subtotal below the fold on a 375px viewport, and bag abandonment moved the wrong way.",
-                src: img(3),
-            },
-            {
-                kind: "attempt",
-                label: "Attempt 2: interstitial on bag entry",
-                body: "Move it out of the layout entirely. No layout cost, but it interrupted a decision already in progress and was dismissed before it rendered fully.",
-                src: img(4),
-            },
-            {
-                kind: "attempt",
-                label: "Attempt 3: after the commit, before the receipt",
-                won: true,
-                body: "A session replay showed people scrolling back to the bag to re-check the total rather than to reconsider. The hesitation was arithmetic, not doubt, so the offer belonged after the decision, not inside it.",
-                reasons: [
-                    "Nothing competes with the subtotal",
-                    "The decision is already made, so there is nothing to interrupt",
-                    "Attention is unoccupied for the first time in the flow",
-                ],
-                src: img(5),
-            },
-            {
-                kind: "quote",
-                text: "Placeholder: a line from the partner or PM about what changed. Replace or delete the block; a weak quote is worse than none.",
-                who: "Name",
-                role: "Role, Macy's",
-            },
-            {
-                kind: "numbers",
-                items: [
-                    { value: "+00%", label: "Placement engagement" },
-                    { value: "+00%", label: "Revenue per session" },
-                    { value: "00%", label: "Change in bag abandonment" },
-                ],
-            },
-            {
-                kind: "takeaway",
-                title: "Takeaway: a losing variant is the cheapest research you will ever run",
-                body: "Two failures cost one sprint each and told us more about the page than the preceding month of discovery.",
-            },
-            {
-                kind: "takeaway",
-                title: "Takeaway: read hesitation before you design for it",
-                body: "We assumed scrolling back meant doubt. It meant arithmetic. The whole solution turned on that one distinction.",
-            },
-        ],
+                "kind": "confidential",
+                "text": "Screens are recreated and simplified for this portfolio. The demo does not represent a production data connection or a measured campaign result."
+            }
+        ]
     },
-
-    // ---------------------------------------------------------------- 2 of 6
     {
-        slug: "uber-ads",
-        title: "Uber Eats Contextual Advertising",
-        client: "Uber Eats",
-        year: "2026",
-        role: "Product Designer",
-        duration: "6 months",
-        shape: "Gallery",
-        paletteIndex: 1,
-        numbered: false,
-        preview:
-            "Design that understands your order, and what to do while you wait.",
-        next: "branded-layouts",
-        blocks: [
+        "slug": "macys-bag-page",
+        "title": "A second item. An exclusive discount.",
+        "client": "Macy’s",
+        "year": "2026",
+        "role": "Bag-page offer UX and visual design",
+        "duration": "",
+        "shape": "Iteration",
+        "paletteIndex": 0,
+        "numbered": false,
+        "next": "",
+        "preview": "Give customers a clear incentive to add a second item to their bag.",
+        "result": "The second addition unlocks an exclusive price on a third item.",
+        "status": "Recreated bag-page flow",
+        "blocks": [
             {
-                kind: "abstract",
-                text: "Contextual offers inside the Uber Eats order screen during the window between placing an order and it arriving. Four offers share one placement, each written against what was ordered and how long the wait will be.",
+                "kind": "abstract",
+                "text": "The bag already contains a shirt. The design introduces a simple next step: add another suggested item to unlock an exclusive discount. The incentive needs to be understood before the customer acts, and its unlocked state needs to be clear afterward."
             },
             {
-                kind: "confidential",
-                text: "Conceptual and simplified throughout. Nothing here reflects shipped production UI.",
+                "kind": "section",
+                "label": "The constraint",
+                "thesis": "Make the condition visible before the reward.",
+                "body": "The suggested item and the locked discount are shown together. Customers can see what they need to add and the price that action will unlock, without leaving the bag."
             },
             {
-                kind: "animation",
-                name: "uber-loop",
-                width: "full",
-                caption:
-                    "Four offers, one placement. The Disney+ offer opens the App Store.",
+                "kind": "evidence",
+                "name": "macys-decision",
+                "caption": "The two states isolate the decision: add a second item, then see the exclusive discount become available."
             },
             {
-                kind: "figure",
-                width: "strip",
-                src: img(3),
-                alt: "States",
-                caption: "States, left to right.",
+                "kind": "section",
+                "label": "The decision",
+                "thesis": "Keep the change where the customer is looking.",
+                "body": "Confirmation stays on the Add to bag control. The exclusive discount then changes from unavailable to available, keeping the product and its new price in the same location."
             },
             {
-                kind: "figure",
-                width: "full",
-                src: img(4),
-                alt: "In context",
-                caption: "In context.",
+                "kind": "section",
+                "label": "The result",
+                "thesis": "Show the updated bag, not just a successful click.",
+                "body": "The demonstration ends with the discounted item added and the bag state updated. This makes the benefit of the sequence visible. No conversion lift is claimed here."
             },
             {
-                kind: "figurePair",
-                items: [
-                    { src: img(5), alt: "Compact variant" },
-                    { src: img(6), alt: "Expanded variant" },
-                ],
-                caption: "Compact and expanded.",
-            },
-            {
-                kind: "figure",
-                width: "strip",
-                src: img(1),
-                alt: "Type specimen",
-                caption: "Type at the smallest size that survives sunlight.",
-            },
-            {
-                kind: "figure",
-                width: "bleed",
-                src: img(2),
-                alt: "Final format",
-            },
-            {
-                kind: "takeaway",
-                title: "Takeaway: one piece of reflection, earning its place",
-                body: "Everything else on this page is visual, so the single written thought has to be worth stopping for. Replace this with yours.",
-            },
-        ],
+                "kind": "takeaway",
+                "title": "Reflection",
+                "body": "An incentive is only useful when its condition and reward are equally clear. The locked and unlocked states carry that explanation more effectively than an additional promotional banner."
+            }
+        ]
     },
-
-    // ---------------------------------------------------------------- 3 of 6
     {
-        slug: "branded-layouts",
-        title: "One system, every brand",
-        client: "Rokt",
-        year: "2026",
-        role: "Product Designer",
-        duration: "Ongoing",
-        shape: "System",
-        paletteIndex: 2,
-        numbered: true,
-        preview: "A placement that inherits a partner's brand automatically.",
-        next: "shoppable-pitching-platform",
-        blocks: [
+        "slug": "agent-design-operations",
+        "title": "Agent Design Operations",
+        "client": "Rokt",
+        "year": "2026",
+        "role": "Agent workflow, review UX, and interface design",
+        "duration": "",
+        "shape": "System",
+        "paletteIndex": 0,
+        "numbered": false,
+        "next": "",
+        "preview": "A workspace for an autonomous designer managing UX across over 5,000 active account pages.",
+        "result": "A clear human review and feedback step before work is approved.",
+        "status": "Workflow prototype · illustrative tasks",
+        "blocks": [
             {
-                kind: "abstract",
-                text: "Partners want placements that look like their own product, not like an ad network. Designing each one by hand does not scale past a handful. This is the system that reads a brand and applies it without a designer in the loop.",
+                "kind": "abstract",
+                "text": "An autonomous designer needs more than a way to start tasks. It needs a visible queue, a readable build state, and a deliberate handoff where I can inspect its work, give feedback, or approve it."
             },
             {
-                kind: "thesis",
-                text: "A placement should inherit a partner's brand, not be redrawn for it.",
+                "kind": "section",
+                "label": "The system",
+                "thesis": "Four stages, one clear owner.",
+                "body": "Queue, Building, For review, and Complete separate work waiting for the agent from work waiting for me. A ticket carries the same account and design task through each stage."
             },
             {
-                kind: "figure",
-                width: "strip",
-                src: img(3),
-                alt: "Many partner treatments side by side",
-                caption:
-                    "One template, many partners. Scale before a word is read.",
+                "kind": "section",
+                "label": "The handoff",
+                "thesis": "Review the output before the build metadata.",
+                "body": "A representative generated design sits beside the review criteria. Brand treatment, responsive layout, and the customer action are visible together so the decision is grounded in the proposed experience."
             },
             {
-                kind: "insights",
-                items: [
-                    "Bespoke design per partner",
-                    "Brand drift between placement and site",
-                    "No way to preview before launch",
-                ],
+                "kind": "evidence",
+                "name": "agent-review",
+                "caption": "A recreated example of the review handoff. The generated output and review criteria lead; ticket metadata stays secondary."
             },
             {
-                kind: "layer",
-                name: "Token extraction",
-                thesis: "Read the brand off the surface the partner already ships.",
-                figures: [
-                    {
-                        src: img(4),
-                        alt: "Scraped tokens",
-                        caption: "Colour, type, radii, button shape.",
-                    },
-                    {
-                        src: img(5),
-                        alt: "Token review",
-                        caption: "Where automatic extraction needs a human.",
-                    },
-                ],
+                "kind": "section",
+                "label": "The decision",
+                "thesis": "Feedback is part of the workflow.",
+                "body": "Requesting changes sends the ticket back to Building with the reviewer’s feedback. Approval sends it to Complete. These are distinct decisions, rather than a generic done state."
             },
             {
-                kind: "layer",
-                name: "Templating",
-                thesis: "Tokens drive the layout; the layout is never touched.",
-                figures: [
-                    {
-                        src: img(6),
-                        alt: "Template under brand A",
-                        caption:
-                            "The same template under two brands, showing how the system works.",
-                    },
-                    { src: img(1), alt: "Template under brand B" },
-                ],
+                "kind": "takeaway",
+                "title": "Reflection",
+                "body": "Autonomy makes the review boundary more important. The system should make the proposed output easy to inspect and leave the final approval unmistakably human."
             },
             {
-                kind: "layer",
-                name: "Rollout",
-                thesis: "Ranked by revenue, batched, reviewed before launch.",
-                figures: [
-                    {
-                        src: img(2),
-                        alt: "Rollout queue",
-                        caption: "Highest-revenue partners first.",
-                    },
-                ],
-            },
-            {
-                kind: "wip",
-                text: "Metrics for this one are still landing. We are measuring placement engagement and partner-reported brand lift against the unbranded baseline, with first numbers expected next quarter.",
-            },
-            {
-                kind: "takeaway",
-                title: "Takeaway: the system is the deliverable, not the layouts",
-                body: "The output that mattered was not any single partner's placement. It was the rule that made the next hundred of them cost nothing.",
-            },
-            {
-                kind: "takeaway",
-                title: "Takeaway: automate the extraction, keep the judgement",
-                body: "Tokens can be read mechanically. Deciding which of a brand's six blues is the one it actually uses still needs a person.",
-            },
-        ],
+                "kind": "confidential",
+                "text": "Account names and tasks illustrate the workflow. The portfolio animation cannot edit accounts, run a production agent, or publish designs."
+            }
+        ]
     },
-
-    // ---------------------------------------------------------------- 4 of 6
     {
-        slug: "shoppable-pitching-platform",
-        title: "From a week to minutes",
-        client: "Rokt",
-        year: "2026",
-        role: "Product Designer",
-        duration: "5 months",
-        shape: "Reframe",
-        paletteIndex: 3,
-        numbered: false,
-        preview:
-            "Sales shipped their own demos. Design stopped being the queue.",
-        next: "mcdonalds-kiosk",
-        blocks: [
+        "slug": "branded-layouts",
+        "title": "Branded Offers",
+        "client": "Rokt",
+        "year": "2026",
+        "role": "Branded offer system and scaling workflow",
+        "duration": "",
+        "shape": "System",
+        "paletteIndex": 0,
+        "numbered": false,
+        "next": "",
+        "preview": "One offer system adapted to the identity of the partner showing it.",
+        "result": "20% value-per-transaction lift in tested accounts.",
+        "status": "Verified test result",
+        "blocks": [
             {
-                kind: "abstract",
-                text: "A shoppable ad lets someone buy a product directly from the ad itself. It was a brand-new format, so every sales pitch needed a custom working demo, hand-built in Figma, about a week each. I built a tool that made them in minutes.",
+                "kind": "abstract",
+                "text": "A shared offer needs to feel at home across different partner experiences. I designed branded treatments that preserve the underlying offer structure while adapting typography, color, and controls to the partner."
             },
             {
-                kind: "insights",
-                items: [
-                    "A week of hand-building, per demo",
-                    "Every pitch queued behind the design team",
-                    "A brand-new format nobody could picture",
-                ],
+                "kind": "section",
+                "label": "The system",
+                "thesis": "Keep the offer stable. Let the brand change.",
+                "body": "The greeting, offer content, primary action, and decline action keep their roles. Brand tokens change how those elements look without changing what the customer needs to do."
             },
             {
-                kind: "thesis",
-                text: "Nobody can sell a format they cannot show, and nobody could hand-build one demo per deal.",
+                "kind": "evidence",
+                "name": "branded-comparison",
+                "caption": "Recreated offer anatomy held side by side for comparison. The demo above shows the supplied partner screens."
             },
             {
-                kind: "figurePair",
-                items: [
-                    { src: img(4), alt: "A prototype hand-built in Figma" },
-                    { src: img(5), alt: "The same demo, built by sales" },
-                ],
-                caption:
-                    "A week of someone's craft, and the thing that replaced it.",
+                "kind": "section",
+                "label": "The outcome",
+                "thesis": "20% more value per transaction.",
+                "body": "The branded treatments delivered a verified 20% value-per-transaction lift in the accounts tested. That result is scoped to those tests; it is not presented as a network-wide result."
             },
             {
-                kind: "figure",
-                width: "full",
-                src: img(6),
-                alt: "The builder in use",
-                caption:
-                    "Sales assembling a live demo against a real catalogue.",
-            },
-            {
-                kind: "section",
-                label: "Building it",
-                thesis: "I wrote it myself, in Cursor.",
-                body: "A spec would have joined a backlog behind revenue work, which is how the week kept surviving. Writing it meant it shipped in weeks and I could change it the same afternoon an account manager told me what was wrong.",
-            },
-            {
-                kind: "splitOutcome",
-                business: [
-                    "Sales self-serve a demo for every pitch",
-                    "About a week of turnaround down to a working session",
-                    "A new vertical pitchable at volume, not per deal",
-                ],
-                design: [
-                    "Design removed from the critical path, deliberately",
-                    "One shared definition of what a shoppable ad is",
-                    "Delivered as working code rather than a specification",
-                ],
-            },
-            {
-                kind: "takeaway",
-                title: "Takeaway: the best design work here was not designing",
-                body: "That week of hand-building was real craft, and it was waste. The win was deleting it rather than getting faster at it, which meant arguing my own team out of a job it was proud of.",
-            },
-            {
-                kind: "takeaway",
-                title: "Takeaway: being able to ship it is what made it exist",
-                body: "I could not have handed this over as a request. The gap between noticing the problem and removing it was only short because the person who noticed could also build it.",
-            },
-        ],
+                "kind": "takeaway",
+                "title": "Reflection",
+                "body": "A scalable brand system preserves the customer’s understanding while changing the visual language. The reusable part is the relationship between the elements, not a single frozen skin."
+            }
+        ]
     },
-
-    // DUPLICATE for comparing hero treatments — see src/content.ts.
     {
-        slug: "shoppable-config",
-        title: "From a week to minutes",
-        client: "Rokt",
-        year: "2026",
-        role: "Product Designer",
-        duration: "5 months",
-        shape: "Reframe",
-        paletteIndex: 3,
-        numbered: false,
-        preview:
-            "Sales shipped their own demos. Design stopped being the queue.",
-        next: "mcdonalds-kiosk",
-        blocks: [
+        "slug": "expedia-1p-3p",
+        "title": "Expedia Upsell Experience",
+        "client": "Expedia",
+        "year": "2026",
+        "role": "Post-booking offer UX and visual design",
+        "duration": "",
+        "shape": "Gallery",
+        "paletteIndex": 0,
+        "numbered": false,
+        "next": "",
+        "preview": "Connect a completed flight booking to the next part of the trip.",
+        "result": "Hotel and onward-travel offers presented inside the booking flow.",
+        "status": "Recreated interface",
+        "blocks": [
             {
-                kind: "abstract",
-                text: "A shoppable ad lets someone buy a product directly from the ad itself. It was a brand-new format, so every sales pitch needed a custom working demo, hand-built in Figma, about a week each. I built a tool that made them in minutes.",
+                "kind": "abstract",
+                "text": "A confirmed flight creates a relevant next question: where will the traveler stay, or how will they get there? The placement connects those offers to the trip the customer has just booked."
             },
             {
-                kind: "insights",
-                items: [
-                    "A week of hand-building, per demo",
-                    "Every pitch queued behind the design team",
-                    "A brand-new format nobody could picture",
-                ],
+                "kind": "section",
+                "label": "The context",
+                "thesis": "Continue the trip, not the checkout.",
+                "body": "Booking confirmation remains the anchor. The hotel or onward-travel offer follows as an optional next action, with a clear way to continue without taking it."
             },
             {
-                kind: "thesis",
-                text: "Nobody can sell a format they cannot show, and nobody could hand-build one demo per deal.",
+                "kind": "evidence",
+                "name": "expedia-proof",
+                "caption": "The supplied desktop and mobile composition, displayed in full rather than cropped into a generic media box."
             },
             {
-                kind: "figurePair",
-                items: [
-                    { src: img(4), alt: "A prototype hand-built in Figma" },
-                    { src: img(5), alt: "The same demo, built by sales" },
-                ],
-                caption:
-                    "A week of someone's craft, and the thing that replaced it.",
+                "kind": "section",
+                "label": "The design decision",
+                "thesis": "Keep source and next action understandable.",
+                "body": "The offer explains what it is for and gives the customer a specific action. The surrounding confirmation maintains the connection to the original booking."
             },
             {
-                kind: "figure",
-                width: "full",
-                src: img(6),
-                alt: "The builder in use",
-                caption:
-                    "Sales assembling a live demo against a real catalogue.",
-            },
-            {
-                kind: "section",
-                label: "Building it",
-                thesis: "I wrote it myself, in Cursor.",
-                body: "A spec would have joined a backlog behind revenue work, which is how the week kept surviving. Writing it meant it shipped in weeks and I could change it the same afternoon an account manager told me what was wrong.",
-            },
-            {
-                kind: "splitOutcome",
-                business: [
-                    "Sales self-serve a demo for every pitch",
-                    "About a week of turnaround down to a working session",
-                    "A new vertical pitchable at volume, not per deal",
-                ],
-                design: [
-                    "Design removed from the critical path, deliberately",
-                    "One shared definition of what a shoppable ad is",
-                    "Delivered as working code rather than a specification",
-                ],
-            },
-            {
-                kind: "takeaway",
-                title: "Takeaway: the best design work here was not designing",
-                body: "That week of hand-building was real craft, and it was waste. The win was deleting it rather than getting faster at it, which meant arguing my own team out of a job it was proud of.",
-            },
-            {
-                kind: "takeaway",
-                title: "Takeaway: being able to ship it is what made it exist",
-                body: "I could not have handed this over as a request. The gap between noticing the problem and removing it was only short because the person who noticed could also build it.",
-            },
-        ],
+                "kind": "takeaway",
+                "title": "Reflection",
+                "body": "The next offer feels more coherent when it follows a need created by the completed booking. The trip supplies the context; the interface should not have to manufacture urgency."
+            }
+        ]
     },
-
-    // ---------------------------------------------------------------- 5 of 6
     {
-        slug: "mcdonalds-kiosk",
-        title: "Advertising to someone in a queue",
-        client: "McDonald's",
-        year: "2026",
-        role: "Product Designer",
-        duration: "3 months",
-        shape: "Iteration",
-        paletteIndex: 4,
-        numbered: true,
-        preview:
-            "A placement on a screen you do not own, in a room full of people.",
-        next: "expedia-1p-3p",
-        blocks: [
+        "slug": "kalshi-dynamic-ads",
+        "title": "Kalshi Dynamic Advertising",
+        "client": "Kalshi",
+        "year": "2026",
+        "role": "Dynamic creative and motion design",
+        "duration": "",
+        "shape": "Gallery",
+        "paletteIndex": 0,
+        "numbered": false,
+        "next": "",
+        "preview": "An advertisement that responds when the market changes.",
+        "result": "A five-yard loss precedes a lower SF chance and higher potential payout.",
+        "status": "Illustrative market animation",
+        "blocks": [
             {
-                kind: "abstract",
-                text: "A placement on an in-restaurant ordering kiosk. Not a phone, not a browser: a shared screen, bolted down, mid-order, with someone waiting behind you.",
+                "kind": "abstract",
+                "text": "The ad keeps the selected team and $25 amount anchored while the market chance and potential payout update. A short football sequence gives the change a visible context."
             },
             {
-                kind: "thesis",
-                text: "Every assumption a web placement makes about privacy and time is wrong here.",
+                "kind": "section",
+                "label": "The interaction",
+                "thesis": "One event. Two connected values.",
+                "body": "San Francisco loses five yards. The illustrative win chance falls from 18% to 16%, while the potential payout rises from $131.16 to $147.56. Both values change in place so their relationship is easy to follow."
             },
             {
-                kind: "figure",
-                width: "bleed",
-                src: img(5),
-                alt: "Kiosk in a restaurant",
-                caption: "The real thing, in a real restaurant. Not a mockup.",
+                "kind": "section",
+                "label": "The hierarchy",
+                "thesis": "Keep the decision in the foreground.",
+                "body": "The selected team, market chance, entry amount, and potential payout carry the most weight. The field sequence supports the change; it does not compete with the offer."
             },
             {
-                kind: "section",
-                label: "The constraints",
-                thesis: "The constraint set is the brief.",
+                "kind": "takeaway",
+                "title": "Reflection",
+                "body": "The motion is clearest when it explains a relationship. Keeping both values anchored makes the change legible without animating the entire advertisement."
             },
             {
-                kind: "criteria",
-                items: [
-                    {
-                        word: "Dwell",
-                        question:
-                            "How many seconds does the screen actually have?",
-                    },
-                    {
-                        word: "Privacy",
-                        question: "Who else in the queue can read this?",
-                    },
-                    {
-                        word: "Input",
-                        question:
-                            "What can someone do with full hands and no phone?",
-                    },
-                ],
-            },
-            {
-                kind: "attempt",
-                label: "Attempt 1: the web format, ported",
-                body: "The existing placement, dropped onto the kiosk. It assumed a reader with time and privacy, and had neither. Nobody finished reading it.",
-                src: img(6),
-            },
-            {
-                kind: "attempt",
-                label: "Attempt 2: email capture on screen",
-                body: "Technically possible, socially impossible. Typing a personal address on a shared screen with a queue behind you is not something people will do.",
-                src: img(1),
-            },
-            {
-                kind: "attempt",
-                label: "Attempt 3: claim now, deliver to the receipt",
-                won: true,
-                body: "Staff told us people photograph their receipt to remember the order number. The receipt was already a thing customers kept, so the offer moved onto it, and the screen only had to carry a yes.",
-                reasons: [
-                    "Dwell: one tap fits in the time available",
-                    "Privacy: nothing personal appears on the shared screen",
-                    "Input: no typing, no device",
-                ],
-                src: img(2),
-            },
-            {
-                kind: "numbers",
-                items: [
-                    { value: "+00%", label: "Claim rate vs ported format" },
-                    { value: "00s", label: "Median time on placement" },
-                ],
-            },
-            {
-                kind: "takeaway",
-                title: "Takeaway: the room is part of the interface",
-                body: "A queue behind the user changed more about this design than any device constraint did. Nothing in our web patterns accounted for being watched.",
-            },
-            {
-                kind: "takeaway",
-                title: "Takeaway: ask the staff first",
-                body: "The receipt insight came from a shift manager in ten minutes, after we had spent two weeks on formats that could not work.",
-            },
-            {
-                kind: "appendix",
-                title: "Appendix: things people did to the kiosk",
-                body: "One person tried to swipe it like a phone, repeatedly, then told us it was broken. Another held their receipt up to the camera that was not there. Replace with your own outtakes. This is the block people remember.",
-            },
-        ],
-    },
-
-    // ---------------------------------------------------------------- 6 of 6
-    {
-        slug: "expedia-1p-3p",
-        title: "Expedia Upsell Experience",
-        client: "Expedia",
-        year: "2026",
-        role: "Product Designer",
-        duration: "7 months",
-        shape: "System",
-        paletteIndex: 5,
-        numbered: true,
-        preview:
-            "Whether a traveller should be able to tell whose offer it is.",
-        next: "macys-bag-page",
-        blocks: [
-            {
-                kind: "abstract",
-                text: "Two kinds of offer appear in the same place: Expedia's own, and a third party's. They are bought differently, earn differently, and until this project they looked identical to the person deciding.",
-            },
-            {
-                kind: "thesis",
-                text: "The question was whether a traveller should be able to tell whose offer it is.",
-            },
-            {
-                kind: "figurePair",
-                items: [
-                    { src: img(6), alt: "First-party offer" },
-                    { src: img(1), alt: "Third-party offer" },
-                ],
-                caption:
-                    "First-party and third-party, as they arrived. The whole problem in one image.",
-            },
-            {
-                kind: "insights",
-                items: [
-                    "Travellers assumed every offer was Expedia's",
-                    "The two types could not be ranked on the same scale",
-                ],
-            },
-            {
-                kind: "layer",
-                name: "Distinction",
-                thesis: "Make the source legible without making it loud.",
-                figures: [
-                    {
-                        src: img(2),
-                        alt: "Source treatment",
-                        caption:
-                            "Enough signal to be honest, not enough to look like a warning.",
-                    },
-                ],
-            },
-            {
-                kind: "layer",
-                name: "Ranking",
-                thesis: "One scale, stated openly.",
-                figures: [
-                    {
-                        src: img(3),
-                        alt: "Ranking model",
-                        caption: "What decides the order.",
-                    },
-                    { src: img(4), alt: "Edge cases" },
-                ],
-            },
-            {
-                kind: "layer",
-                name: "Surfaces",
-                thesis: "The same rules across every place it appears.",
-                figures: [
-                    {
-                        src: img(5),
-                        alt: "Across surfaces",
-                        caption: "Confirmation, itinerary, email.",
-                    },
-                ],
-            },
-            {
-                kind: "splitOutcome",
-                business: [
-                    "Third-party attach rate, without first-party cannibalisation",
-                    "A ranking model partnerships could explain to advertisers",
-                ],
-                design: [
-                    "A shared definition of 1P and 3P the whole team used",
-                    "Decision rules handed to teams that were not in the room",
-                    "A pattern that outlived the project",
-                ],
-            },
-            {
-                kind: "takeaway",
-                title: "Takeaway: disclosure is a design problem, not a legal one",
-                body: "The requirement was a sentence long. Making it readable without making it feel like a disclaimer took most of the project.",
-            },
-            {
-                kind: "takeaway",
-                title: "Takeaway: a commercial model you cannot explain is a design constraint",
-                body: "We could not design the ranking until someone could say out loud why one offer should beat another. Writing that sentence was the work.",
-            },
-        ],
-    },
+                "kind": "confidential",
+                "text": "The scenario and quotes are illustrative. The animation is not connected to live market data and does not calculate an executable quote."
+            }
+        ]
+    }
 ]
+caseStudies.push(...personalCaseStudies)
 
-caseStudies.push({
-    slug: "agent-design-operations",
-    title: "A designer’s control room for an autonomous agent",
-    client: "Rokt",
-    year: "2026",
-    role: "Product design & agent workflows",
-    duration: "Ongoing",
-    shape: "System",
-    paletteIndex: 2,
-    numbered: false,
-    next: "branded-layouts",
-    preview: "Queue, building, human review, complete: design operations across more than 5,000 active account pages.",
-    blocks: [
-        { kind: "abstract", text: "A completely autonomous designer managing UX across more than 5,000 active account pages needs a clear place for a human to direct the work. This dashboard makes the queue, agent progress, review decisions, and completed outputs visible in one workspace." },
-        { kind: "section", label: "The workflow", thesis: "The agent builds. The designer makes the call.", body: "Tasks move from Queue to Building to For review to Complete. In review, I inspect the agent’s output and either provide feedback for another pass or approve the work. Requesting changes returns the task to Building; approval moves it to Complete." },
-        { kind: "section", label: "The interface", thesis: "The next action belongs beside the task.", body: "A board makes the four stages visible at once: Queue, Building, For review, and Complete. Each card shows the account, design task, build checks, owner, and next action. Search and stage filters narrow the work; a secondary task list provides a compact alternative." },
-        { kind: "section", label: "The human handoff", body: "A review drawer keeps the task’s context, proposed output, checks, and feedback together. Approval and requested changes are explicit decisions, so the agent’s work has a clear owner and a visible next step." },
-        { kind: "confidential", text: "The portfolio dashboard uses illustrative tasks and account examples. Interactions run locally in the browser and do not control a production agent or publish changes to account pages." },
-    ],
-}, ...personalCaseStudies)
-
-caseStudies.push({
-    slug: "kalshi-dynamic-ads", title: "An ad that moves with the market", client: "Kalshi", year: "2026", role: "Dynamic ad design", duration: "Project preview", shape: "Gallery", paletteIndex: 7, numbered: false, next: "macys-bag-page", preview: "Dynamic creative that updates with prediction-market pricing.",
-    blocks: [
-        { kind: "abstract", text: "An advertisement that changes as the prediction market updates. Market probability and potential payout move together, keeping the creative connected to the underlying market." },
-        { kind: "section", label: "The interaction", thesis: "The market moves. The ad follows.", body: "The selected team and $25 entry stay anchored. A five-yard loss provides context as the illustrative win probability falls from 18% to 16% and the potential payout for a new $25 purchase rises." },
-        { kind: "confidential", text: "This portfolio preview uses an illustrative single-game scenario and sample quotes. It is not connected to live market data, and the example transitions are not a payout calculator." },
-    ],
-})
-
-export const bySlug = (slug: string) =>
-    caseStudies.find((study) => study.slug === slug)
+export const bySlug = (slug: string) => caseStudies.find(study => study.slug === slug)

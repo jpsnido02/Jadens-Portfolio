@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react"
+import { AgentReviewScene } from "./ProjectEvidence"
 import useStudySequence from "./useStudySequence"
 import { SiteIcon, RoktWordmark } from "./icons"
 import "./portfolio-workbench.css"
@@ -35,7 +36,7 @@ function Action({ children, interactive, onClick, className = "", disabled = fal
 
 export { default as ShoppableDashboard } from "./ShoppableDemoBuilder"
 
-const AGENT_TIMING = [4500, 1400, 6500, 1600]
+const AGENT_TIMING = [2200, 1400, 4200, 2600, 400]
 const STAGES = ["Queue", "Building", "For review", "Complete"] as const
 type TaskStage = typeof STAGES[number]
 const ACCOUNT_LOGOS: Record<string, string> = { OpenTable: "/projects/agent-logos/opentable.svg", Shutterfly: "/projects/agent-logos/shutterfly.svg", eBay: "/projects/agent-logos/ebay.svg" }
@@ -50,7 +51,7 @@ const SAMPLE_TASKS = [
 const buildTime = (seconds: number) => `${Math.floor(seconds / 60)}m ${String(seconds % 60).padStart(2, "0")}s`
 const stageClass = (stage: TaskStage) => stage.toLowerCase().replaceAll(" ", "-")
 export function AgentDashboard({ playing, interactive = false }: { playing: boolean; interactive?: boolean }) {
-    const phase = useStudySequence(AGENT_TIMING, playing && !interactive, 0)
+    const phase = useStudySequence(AGENT_TIMING, playing && !interactive, 2)
     const [tasks, setTasks] = useState(SAMPLE_TASKS)
     const [selected, setSelected] = useState<string | null>(null)
     const [closing, setClosing] = useState(false)
@@ -75,7 +76,7 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
     const sourceRect = useRef<DOMRect | null>(null)
     const detailAnimation = useRef<Animation | null>(null)
     const opener = useRef<HTMLElement | null>(null)
-    const rows = interactive ? tasks : SAMPLE_TASKS.map(task => task.id === "DS-103" ? { ...task, stage: phase === 0 ? "Building" as TaskStage : "For review" as TaskStage } : task)
+    const rows = interactive ? tasks : SAMPLE_TASKS.map(task => task.id === "DS-103" ? { ...task, stage: phase === 0 || phase === 4 ? "Building" as TaskStage : phase === 3 ? "Complete" as TaskStage : "For review" as TaskStage } : task)
     const active = rows.find(task => task.id === selected)
     const visible = rows.filter(task => (filter === "All tickets" || task.stage === filter) && `${task.title} ${task.account}`.toLowerCase().includes(search.toLowerCase()))
     const stageKey = rows.map(task => `${task.id}:${task.stage}`).join("|")
@@ -198,6 +199,7 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
         <section className="pw-task-panel"><div className="pw-task-toolbar"><div className="pw-view-tabs">{(["board", "table"] as const).map(mode => <Action key={mode} interactive={interactive} className={view === mode ? "is-active" : ""} onClick={() => setView(mode)}><SiteIcon name={mode === "table" ? "tasks" : "board"} size={10}/>{mode === "table" ? "Ticket list" : "Board"}</Action>)}</div>{interactive ? <input aria-label="Search tickets" value={search} onChange={event => setSearch(event.target.value)} placeholder="Search tickets…"/> : <span className="pw-search-placeholder"><SiteIcon name="search" size={9}/> Search tickets…</span>}</div><div className="pw-filter-tabs">{(["All tickets", ...STAGES] as const).map(stage => <Action key={stage} interactive={interactive} className={filter === stage ? "is-active" : ""} onClick={() => setFilter(stage)}>{stage}<b>{stage === "All tickets" ? rows.length : rows.filter(task => task.stage === stage).length}</b></Action>)}</div>
         {view === "table" ? <div className="pw-task-table"><div className="pw-table-head"><span>BRAND / TICKET</span><span>PROGRESS</span><span>DESIGNS MADE</span><span>BUILD TIME</span><span>ACTION</span></div>{visible.map(task => <div ref={element => { if (element) ticketCards.current.set(task.id, element) }} className="pw-task-row" key={task.id}><div className="pw-task-title"><i><img src={ACCOUNT_LOGOS[task.account]} alt=""/></i><div><strong>{task.title}</strong><small>{task.account} · {task.id}</small></div></div><span><b className={`pw-status ${stageClass(task.stage)}`}>{task.stage}</b></span><span className="ops-table-count">{designsMade(task)}/30</span><span className="pw-task-time">{buildTime(task.buildSeconds + (elapsed[task.id] ?? 0))}</span>{rowAction(task.id, task.stage)}</div>)}{!visible.length && <p className="pw-empty">No tickets match this search.</p>}</div> : <div className={`pw-kanban ${moving ? "is-moving" : ""}`}>{STAGES.map(stage => <section key={stage}><h4><WorkbenchIcon name={stage === "Queue" ? "queue" : stage === "Building" ? "building" : stage === "For review" ? "review" : "check"} size={11}/>{stage}<span>{visible.filter(task => task.stage === stage).length}</span></h4>{visible.filter(task => task.stage === stage).map(task => <article data-ticket={task.id} onClick={interactive ? event => { if (!(event.target as Element).closest("button")) act(task.id, task.stage) } : undefined} ref={element => { if (element) ticketCards.current.set(task.id, element) }} key={task.id} className={`${task.stage === "For review" ? "ops-card-needs-review" : ""} ${attention[task.id] && task.stage === "For review" ? "ops-needs-attention" : ""} ${task.id === selected ? "ops-card-open" : ""}`}><div className="ops-card-account"><img src={ACCOUNT_LOGOS[task.account]} alt=""/><strong>{task.account}</strong><span>{task.id}</span></div><h5>{task.title}</h5><span className={`pw-status ops-card-stage ${stageClass(task.stage)}`}>{attention[task.id] && task.stage === "For review" && <i className="ops-attention-dot"/>}{task.stage === "For review" && attention[task.id] ? "Ready for your review" : task.stage}</span><div className="ops-build-checks">{["Tokens", "Layout", "QA"].map((label, index) => <span key={label} className={task.stage === "Complete" || task.stage === "For review" || task.stage === "Building" && index === 0 ? "is-done" : ""}><WorkbenchIcon name="check" size={8}/>{label}</span>)}</div><div className="ops-card-progress"><div><span>Designs made</span><b>{designsMade(task)}<em>/30</em></b></div><div className="ops-progress-track" role="progressbar" aria-label={`Designs made for ${task.id}`} aria-valuenow={designsMade(task)} aria-valuemin={0} aria-valuemax={30}><i style={{width:`${designsMade(task) / 30 * 100}%`}}/></div></div><div className="ops-card-time"><span>Total time building</span><b>{buildTime(task.buildSeconds + (elapsed[task.id] ?? 0))}</b></div>{rowAction(task.id, task.stage)}</article>)}{!visible.some(task => task.stage === stage) && <div className="ops-empty-column"><WorkbenchIcon name={stage === "For review" ? "review" : "queue"} size={14}/><span>{stage === "For review" ? "Nothing waiting on you" : "No tickets here"}</span></div>}</section>)}</div>}
         <footer className="pw-table-footer"><span role="status">{notice || "Illustrative tickets · local preview"}</span><span>{visible.length} tickets</span></footer></section>
+        {!interactive && phase === 2 && <div className="ops-auto-review"><AgentReviewScene /></div>}
         {active && <><div className={`ops-detail-backdrop ${closing ? "is-closing" : ""}`} onClick={() => void closeTicket()}/><div className="ops-review-slot"><aside ref={detailPanel} role="dialog" aria-modal="true" aria-label={`${active.id}: ${active.title}`} onKeyDown={event => {
             if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); void closeTicket() }
             if (event.key === "Tab") {

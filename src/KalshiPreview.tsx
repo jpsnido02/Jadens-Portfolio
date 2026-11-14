@@ -8,10 +8,10 @@ const QUOTES = [
     { probability: 18, payout: "131.16" },
     { probability: 16, payout: "147.56" },
 ]
-// Line up → five-yard loss → finish → quote update → reverse → settle.
-const PLAY_TIMING = [1400, 2400, 550, 3000, 1800, 600]
+// Line up → five-yard loss → finish → quote update → quiet reset → settle.
+const PLAY_TIMING = [1400, 2400, 550, 3600, 450, 350]
 function FootballPlay({ phase }: { phase: number }) {
-    const finished = phase === 2 || phase === 3
+    const finished = phase === 2 || phase === 3 || phase === 4
     return <div className={`kalshi-football ${finished ? "is-finished" : ""}`} data-play-phase={phase}>
         <div className="kalshi-game-context"><span>SF 17 · SEA 24</span><span className="kalshi-example-label">ILLUSTRATIVE GAME</span><span>Q4 · {finished ? "1:58 · 3RD & 15 · SF 25" : "2:10 · 2ND & 10 · SF 30"}</span></div>
         <svg viewBox="0 0 1200 174" role="img" aria-label="San Francisco loses 5 yards, from the 30-yard line to the 25-yard line.">
@@ -45,7 +45,7 @@ function RollingValue({ value, previous, revision }: { value: string; previous: 
         return <span key={index} className={`kalshi-digit ${digit === "." ? "is-point" : ""}`} aria-hidden="true">{digit === old ? digit : <span key={revision} className="kalshi-number-track" data-direction={down ? "down" : "up"}>{(down ? [digit, old] : [old, digit]).map((character, position) => <span key={position}>{character}</span>)}</span>}</span>
     })}</span>
 }
-export default function KalshiPreview({ playing }: { playing: boolean }) {
+export default function KalshiPreview({ playing, compact = false }: { playing: boolean; compact?: boolean }) {
     const root = useRef<HTMLDivElement>(null)
     const [scale, setScale] = useState(0)
     const phase = useStudySequence(PLAY_TIMING, playing, 3)
@@ -54,9 +54,10 @@ export default function KalshiPreview({ playing }: { playing: boolean }) {
         observer.observe(root.current!)
         return () => observer.disconnect()
     }, [])
-    const quote = phase === 3 ? QUOTES[1] : QUOTES[0]
-    const previous = phase === 3 ? QUOTES[0] : phase === 4 ? QUOTES[1] : quote
+    const quote = phase === 3 || phase === 4 ? QUOTES[1] : QUOTES[0]
+    const previous = phase === 3 ? QUOTES[0] : quote
     const revision = phase
+    if (compact) return <div ref={root} className="kalshi-compact" data-play-phase={phase} aria-hidden="true"><div className="kc-content"><div className="kc-header"><span>PRO FOOTBALL</span><strong>Kalshi</strong></div><div className="kc-play"><span>SF 17 · SEA 24</span><span>{phase >= 2 && phase <= 4 ? "−5 YDS · 3RD & 15" : "Q4 · 2ND & 10"}</span></div><div className="kc-event">SAN FRANCISCO VS SEATTLE · GAME WINNER</div><div className="kc-team"><strong>San Francisco</strong><div><span>MARKET CHANCE</span><b><RollingValue value={String(quote.probability)} previous={String(previous.probability)} revision={revision}/>%</b></div></div><div className="kc-values"><div><span>YOU PAY</span><strong>$25.00</strong><small>CODE: FREE50</small></div><div><span>POTENTIAL PAYOUT</span><strong>$<RollingValue value={quote.payout} previous={previous.payout} revision={revision}/></strong><p>if San Francisco wins this game</p></div></div><p className="kc-terms">Illustrative scenario and prices for a new $25 entry.<br/>Trading involves risk of loss. Not available in all states. 18+.</p></div></div>
     return <div ref={root} className="kalshi-preview" data-playing={playing} data-quote={quote.probability} data-play-phase={phase}>
         <div className="kalshi-stage" style={{ transform: `translate(-50%, -50%) scale(${scale})` }}>
             <FootballPlay phase={phase} />

@@ -114,7 +114,7 @@ export const projects: ProjectData[] = [
         link: "work/agent-design-operations/",
     },
     {
-        title: "Branded Layouts",
+        title: "Branded Offers",
         image: { src: "/projects/project-03.jpg", alt: "Branded Layouts" },
         // The hero pane shuffles one placement through six partners' brands.
         mediaType: "component",
@@ -126,7 +126,7 @@ export const projects: ProjectData[] = [
         },
         year: "2026",
         description:
-            "Offers restyled to the brand showing them. A two-client test won, so I built an agentic pipeline to scale it across our network. Value per transaction rose 20%.",
+            "One offer system adapted to each partner’s brand. A verified 20% value-per-transaction lift in tested accounts.",
         tags: [],
         link: "work/branded-layouts/",
     },

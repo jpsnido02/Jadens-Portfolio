@@ -6,7 +6,7 @@ import "./pantry-notes.css"
  * 00 home · 01 open camera pressed · 02 iPhone camera · 03 shutter · 04 flash · 05 loading
  * 06 photo renders · 07 Post-its drop · 08 notes · 09 tap · 10 note → card · 11 recipe · 12 scrolled · 13 curtain
  */
-const TIMING = [1600,260,2200,260,380,1900,700,900,3400,360,850,2600,3300,600]
+const TIMING = [900,180,900,180,160,650,400,650,4200,260,700,3400,3400,450]
 const POSTER = 8
 
 const icon = { fill:"none", stroke:"currentColor", strokeLinecap:"round", strokeLinejoin:"round" } as const

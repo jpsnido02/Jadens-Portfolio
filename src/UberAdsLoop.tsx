@@ -882,7 +882,7 @@ export default function UberAdsLoop({
                                     position: "absolute",
                                     inset: 0,
                                     backgroundColor: "#000000",
-                                    opacity: cut ? 1 : 0,
+                                    opacity: cut && !paused ? 1 : 0,
                                     transition: gallery && animate
                                         ? `opacity ${cut ? LOOP_BLACKOUT_MS : LOOP_REVEAL_MS}ms ease-in-out`
                                         : "none",

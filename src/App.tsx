@@ -1,7 +1,8 @@
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react"
 import { flushSync } from "react-dom"
 import { intro, projects as workProjects } from "./content"
-import { personalProjects, personalMeta } from "./personalProjects"
+import { personalMeta } from "./personalProjects"
+import { visibleProjects, projectLabels } from "./portfolioCatalog"
 import { bySlug } from "./caseStudies"
 import CaseStudyPage from "./CaseStudyPage"
 import ProjectCover from "./ProjectCover"
@@ -10,19 +11,9 @@ import { IntroIcon, SiteIcon, resolveIntroIcon } from "./icons"
 import { useTheme } from "./useTheme"
 import "./gallery.css"
 
-// Temporarily hidden from the gallery and reader rail; keep the project content.
-const hiddenProjectLinks = new Set(["work/mcdonalds-kiosk/", "work/build-view/", "work/shoppable-config/"])
-const projects = [
-    ...workProjects.slice(0, 1),
-    ...workProjects.filter(project => project.component === "kalshi-live"),
-    ...workProjects.slice(1).filter(project => project.component !== "kalshi-live"),
-    ...personalProjects,
-].filter(project => !hiddenProjectLinks.has(project.link ?? ""))
+const projects = visibleProjects
 const workCount = projects.filter(project => workProjects.includes(project)).length
 const slugs = projects.map(p => p.link?.split("/").filter(Boolean).pop() ?? "")
-const clients = ["Uber Eats", "Macy’s", "Rokt", "Multi-brand / Rokt", "Rokt", "McDonald’s", "Expedia", "Kalshi"]
-const shortTitles = ["Uber Eats, right on time", "A better bag at Macy’s", "From prompt to prototype", "Same system. Different brands.", "Build it before the call ends", "A little extra with your order", "The rest of the trip"]
-const oneLiners = ["Contextual offers that relate to your UberEats order", "Creating an incentive for second cart adds through an exclusive discount", "A completely autonomous designer to manage over 5,000 active account pages’ UX", "Branded offer experiences, tested across partner accounts", "Configure a shoppable journey, then play the complete checkout demo", "Rewards that reach beyond the kiosk", "Connecting bookings to what comes next", "An advertisement that updates as the prediction market moves"]
 function selectedFromURL() {
     const slug = new URLSearchParams(location.search).get("project")
     return slug && bySlug(slug) ? slug : null
@@ -69,6 +60,7 @@ export default function App() {
         } else transition(() => setSelected(slug))
         if (push) {
             const url = new URL(location.href)
+            url.hash = ""
             if (slug) url.searchParams.set("project", slug)
             else url.searchParams.delete("project")
             history.pushState({ portfolio: true }, "", url)
@@ -147,7 +139,7 @@ export default function App() {
     }, [selected])
     useEffect(() => {
         const key = (event: KeyboardEvent) => {
-            if (event.key === "Escape") { if (about) setAbout(false); else if (selected) select(null) }
+            if (event.key === "Escape" && !document.querySelector("dialog[open]")) { if (about) setAbout(false); else if (selected) select(null) }
         }
         window.addEventListener("keydown", key)
         return () => window.removeEventListener("keydown", key)
@@ -163,7 +155,7 @@ export default function App() {
         <div ref={gallery} className="gallery-scroll" inert={about} aria-label={selected ? "Choose another project" : "Portfolio"}>
             <header className="gallery-header">
                 <a className="wordmark" href="./" aria-label="Jaden Snyder home"><img src="/favicon.png" alt="" width="42" height="42" /></a>
-                <nav aria-label="Main navigation"><button onClick={() => setAbout(true)}>About</button><a href={intro.links.find(l => l.label === "Resume")?.url} target="_blank" rel="noreferrer">Résumé</a><a className="contact-link" href="mailto:jadenpsnyder02@gmail.com">Let’s talk <SiteIcon name="external" size={13} /></a></nav>
+                <nav aria-label="Main navigation"><button onClick={() => setAbout(true)}>About</button><a href={intro.links.find(l => l.label === "Resume")?.url} target="_blank" rel="noreferrer">Resume</a><a className="contact-link" href="mailto:jadenpsnyder02@gmail.com">Let’s talk <SiteIcon name="external" size={13} /></a></nav>
             </header>
             <section className="gallery-intro">
                 <div><h1>Hi, I’m Jaden<br /><span>I create designs that</span>{" "}<ClickWord /></h1></div>
@@ -172,7 +164,7 @@ export default function App() {
             <div className="work-heading"><span>WORK PROJECTS <span className="project-count">{String(workCount).padStart(2, "0")}</span></span><button className="motion-control" aria-pressed={motion} onClick={() => setMotion(!motion)}><SiteIcon name={motion ? "pause" : "play"} size={12} /> <span>{motion ? "Motion on" : "Motion paused"}</span></button></div>
             <div className="project-grid">
                 {projects.map((project, index) => <Fragment key={project.title}>{index === workCount && <h2 className="project-group-heading">PERSONAL PROJECTS <span>{String(projects.length - workCount).padStart(2, "0")}</span></h2>}<a ref={element => { if (element) projectTiles.current.set(slugs[index], element); else projectTiles.current.delete(slugs[index]) }} data-project={slugs[index]} href={`?project=${slugs[index]}`} className={`project-tile ${selected === slugs[index] ? "is-selected" : ""}`} onClick={event => open(event, slugs[index])} onPointerEnter={project.component === "macys-bag" ? () => setMacysReplay(value => value + 1) : undefined} onFocus={project.component === "macys-bag" ? () => setMacysReplay(value => value + 1) : undefined} aria-current={selected === slugs[index] ? "page" : undefined} aria-label={`${project.title}${project.comingSoon ? ", case study in progress" : ""}`} style={{ "--tile-index": index, viewTransitionName: `project-${index}` } as CSSProperties}>
-                    <div className="tile-visual"><ProjectCover project={project} index={Math.max(0, workProjects.indexOf(project))} live={motion && !selected} focused={!selected} replayKey={macysReplay} /><div className="tile-caption"><div className="tile-caption-line"><strong>{personalMeta[slugs[index]]?.label ?? clients[workProjects.indexOf(project)] ?? project.thumb?.alt ?? project.category}</strong><span className="tile-caption-separator">: </span><span>{personalMeta[slugs[index]]?.summary ?? oneLiners[workProjects.indexOf(project)] ?? project.description}</span></div>{project.comingSoon && <span className="tile-wip">Case study in progress</span>}</div></div>
+                    <div className="tile-visual"><ProjectCover project={project} index={Math.max(0, workProjects.indexOf(project))} live={motion && !selected} focused={!selected} replayKey={macysReplay} /><div className="tile-caption"><div className="tile-caption-line"><strong>{projectLabels[slugs[index]] ?? personalMeta[slugs[index]]?.label ?? project.title}</strong><span className="tile-caption-separator">: </span><span>{personalMeta[slugs[index]]?.summary ?? project.description}</span></div>{project.comingSoon && <span className="tile-wip">Case study in progress</span>}</div></div>
                 </a></Fragment>)}
             </div>
             <footer className="gallery-footer"><div className="footer-links">{intro.links.map(link => <a key={link.label} href={link.url} target={link.url.startsWith("mailto:") ? undefined : "_blank"} rel="noreferrer">{link.label}</a>)}<button onClick={toggle}>{theme === "dark" ? "Light" : "Dark"} mode <SiteIcon name={theme === "dark" ? "sun" : "moon"} size={13} /></button></div><p>Jaden Snyder · Product designer · 2026</p></footer>
@@ -186,8 +178,8 @@ export default function App() {
                 if (match && bySlug(match[1]) && !event.metaKey && !event.ctrlKey) { event.preventDefault(); select(match[1]) }
             }}>
                 <div key={selected} className="reader-content">
-                    {selectedIndex >= 0 && <div className="reader-hero"><ProjectCover project={projects[selectedIndex]} index={Math.max(0, workProjects.indexOf(projects[selectedIndex]))} live={motion} interactive /></div>}
-                    <CaseStudyPage slug={selected} embedded appearance={{ theme, palette: { ...palette, background: theme === "dark" ? "#111111" : "#ffffff", text: theme === "dark" ? "#ffffff" : "#171717", textMuted: theme === "dark" ? "#b5b5b5" : "#707070", cardBorder: theme === "dark" ? "#353535" : "#e5e5e5", cardThumbBackground: theme === "dark" ? "#222222" : "#f5f5f5" } }} />
+                    
+                    <CaseStudyPage slug={selected} embedded playing={motion} appearance={{ theme, palette: { ...palette, background: theme === "dark" ? "#111111" : "#ffffff", text: theme === "dark" ? "#ffffff" : "#171717", textMuted: theme === "dark" ? "#b5b5b5" : "#707070", cardBorder: theme === "dark" ? "#353535" : "#e5e5e5", cardThumbBackground: theme === "dark" ? "#222222" : "#f5f5f5" } }} />
                 </div>
             </div>
         </section>}

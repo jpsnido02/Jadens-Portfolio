@@ -42,8 +42,8 @@
 .kalshi-ball-marker { transform:translate(420px,104px); }
 .kalshi-football[data-play-phase="1"] .kalshi-ball-marker { animation:kalshi-five-yard-loss 2400ms cubic-bezier(.35,0,.3,1) both; }
 .kalshi-football[data-play-phase="1"] .kalshi-yard-progress { animation:kalshi-yard-progress 2400ms cubic-bezier(.35,0,.3,1) both; }
-.kalshi-football[data-play-phase="4"] .kalshi-ball-marker { animation:kalshi-five-yard-loss 1800ms cubic-bezier(.35,0,.3,1) reverse both; }
-.kalshi-football[data-play-phase="4"] .kalshi-yard-progress { animation:kalshi-yard-progress 1800ms cubic-bezier(.35,0,.3,1) reverse both; }
+
+
 .kalshi-football.is-finished .kalshi-ball-marker { transform:translate(260px,104px); }
 .kalshi-football.is-finished .kalshi-yard-progress { stroke-dashoffset:0; }
 .kalshi-run-gain { fill:#00d49b; font-family:"Kalshi Sans",sans-serif; font-size:25px; font-weight:600; letter-spacing:.03em; opacity:0; transition:opacity 200ms; }
@@ -56,3 +56,7 @@
 
 .kalshi-game-context { display:flex; align-items:center; justify-content:space-between; height:44px; color:#d3e4da; font-size:22px; font-weight:500; }
 .kalshi-game-context .kalshi-example-label { color:#a8beb3; font-size:16px; letter-spacing:.08em; }
+
+.kalshi-stage { transition:opacity 250ms; }.kalshi-preview[data-play-phase="4"] .kalshi-stage,.kalshi-preview[data-play-phase="5"] .kalshi-stage { opacity:0; }
+.kalshi-compact { position:absolute; inset:0; container-type:inline-size; display:flex; align-items:center; justify-content:center; padding:clamp(16px,4cqw,28px); background:#111c17; font-family:"Kalshi Sans",Arial,sans-serif; color:#fff; overflow:hidden; }.kc-content { width:100%; transition:opacity 250ms; }.kalshi-compact[data-play-phase="4"] .kc-content,.kalshi-compact[data-play-phase="5"] .kc-content { opacity:0; }.kc-header { display:flex; align-items:center; justify-content:space-between; }.kc-header>span { font-size:clamp(10px,2cqw,13px); letter-spacing:.08em; color:#b0c3b8; }.kc-header>strong { font-size:clamp(27px,6cqw,39px); color:#00d49b; letter-spacing:-.07em; }.kc-play { display:flex; justify-content:space-between; font-size:clamp(10px,2.1cqw,13px); color:#b9cec1; padding:12px 0; border-bottom:1px solid #ffffff20; }.kc-play>span:last-child { color:#00d49b; }.kc-event { font-size:clamp(8px,1.8cqw,12px); letter-spacing:.035em; color:#acbfb3; margin:18px 0 12px; }.kc-team { display:flex; justify-content:space-between; align-items:center; gap:16px; }.kc-team>strong { font-size:clamp(25px,5.5cqw,38px); line-height:1.1; max-width:7ch; letter-spacing:-.025em; }.kc-team>div { text-align:right; }.kc-team>div>span { display:block; color:#afc3b7; font-size:clamp(8px,1.8cqw,11px); }.kc-team b { display:flex; justify-content:flex-end; font-size:clamp(35px,7.2cqw,50px); font-weight:700; margin-top:6px; line-height:1; }.kc-values { display:flex; justify-content:space-between; align-items:flex-start; gap:15px; margin-top:20px; padding-top:18px; border-top:1px solid #ffffff20; }.kc-values>div:last-child { text-align:right; }.kc-values>div>span { font-size:clamp(9px,1.8cqw,12px); color:#afc3b7; display:block; }.kc-values strong { display:flex; font-size:clamp(30px,6.4cqw,44px); font-weight:700; margin-top:6px; line-height:1; }.kc-values>div:last-child>strong { color:#00d49b; justify-content:flex-end; }.kc-values small { font-size:clamp(8px,1.8cqw,11px); color:#05261c; background:#00d49b; padding:6px 8px; margin-top:14px; display:inline-block; border-radius:4px; font-weight:700; }.kc-values p { font-size:clamp(9px,1.8cqw,12px); color:#c2d3c9; margin:8px 0 0; }.kc-terms { font-size:clamp(8px,1.65cqw,10px); line-height:1.6; color:#9fb2a5; margin:18px 0 0; }
+@media(prefers-reduced-motion:reduce) { .kalshi-stage,.kc-content { transition:none; } }

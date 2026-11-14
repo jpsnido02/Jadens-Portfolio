@@ -348,3 +348,5 @@
 @keyframes ops-review-attention { 0%,100% { box-shadow:0 0 0 0 #ed9a4e00; } 45% { box-shadow:0 0 0 5px #ed9a4e30; } }
 @keyframes ops-review-reveal { 0%,32% { opacity:0; transform:translateY(6px); } 100% { opacity:1; transform:none; } }
 @media(prefers-reduced-motion:reduce) { .ops-review-content,.ops-needs-attention { animation:none!important; } }
+
+.ops-auto-review { position:absolute; inset:24px; z-index:20; display:flex; align-items:center; justify-content:center; background:#f2f4f8ee; padding:20px; }.ops-auto-review>.agent-story { width:min(100%,820px); max-height:100%; overflow:hidden; }

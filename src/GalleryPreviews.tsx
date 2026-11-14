@@ -35,11 +35,11 @@ const MACYS_BEATS = [
     { name: "press-upper", ms: 360 },
     { name: "confirm-upper", ms: 1150 },
     { name: "unlock", ms: 900 },
-    { name: "read-offer", ms: 1700 },
+    { name: "read-offer", ms: 2800 },
     { name: "approach-lower", ms: 1100 },
     { name: "aim-lower", ms: 350 },
     { name: "press-lower", ms: 360 },
-    { name: "result", ms: 2400 },
+    { name: "result", ms: 3400 },
     { name: "leave", ms: 900 },
 ] as const
 
@@ -112,7 +112,7 @@ export function MacysPreview({ playing }: { playing: boolean }) {
     }
 
     return <Scene width={520} height={340}><div ref={root} className={`macys-focus ${unlocked ? "is-unlocked" : ""} ${thirdAdded ? "is-complete" : ""}`} data-attention={attention} data-beat={beat} data-phase={phase.name}>
-        <div className="mock-heading"><strong>Unlock 50% off a third shirt.</strong></div>
+        <div className="mock-heading"><strong>Unlock 50% off a third shirt.</strong><span>{thirdAdded ? "3 items in bag" : secondAdded ? "2 items in bag" : "1 item in bag"}</span></div>
         <div className="bag-product"><img src="/projects/macys/shirt-white.webp" alt="" /><div><strong>Add one more for a deal.</strong><span>Tommy Hilfiger stretch dress shirt</span><b>$79.99</b></div><span className="mock-button" data-cued={beat === 0} data-pressed={beat === 3}>{secondAdded ? "✓ Added" : "Add to bag"}</span></div>
         <div className="discount-card discount-card--original">
             <div className="discount-product-photo"><img src="/projects/macys/shirt-blue.webp" alt="" /><span className="discount-offer-badge"><svg width="12" height="14" viewBox="0 0 20 22" fill="none" aria-hidden="true"><rect x="4" y="9" width="12" height="10" rx="2" fill="currentColor" /><path d={unlocked ? "M6 9V6a4 4 0 0 1 7.5-2" : "M6 9V6a4 4 0 0 1 8 0v3"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>50% OFF</span></div>
