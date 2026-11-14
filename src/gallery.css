@@ -501,6 +501,6 @@ html[data-page="home"] #root { overflow:hidden; }
 .wordmark img { display:block; width:42px; height:42px; object-fit:contain; }
 .intro-details { width:340px; max-width:36%; display:flex; flex-direction:column; gap:18px; padding-bottom:3px; }
 .intro-details .intro-description { max-width:none; margin:0; font-size:13px; line-height:1.8; font-weight:500; }
-.intro-details .building-status { border-top:1px solid var(--gallery-line); padding-top:14px; margin:0; color:var(--gallery-muted); font-size:10px; font-weight:500; line-height:1.65; letter-spacing:0; }
+.intro-details .building-status { border-top:0; padding-top:14px; margin:0; color:var(--gallery-muted); font-size:10px; font-weight:500; line-height:1.65; letter-spacing:0; }
 @media(max-width:1000px) and (min-width:721px) { .intro-details { width:280px; max-width:34%; }.intro-details .intro-description { font-size:12px; } }
 @media(max-width:720px) { .intro-details { width:100%; max-width:none; margin-top:22px; gap:16px; }.intro-details .intro-description { font-size:12px; max-width:48ch; }.intro-details .building-status { font-size:10px; padding-top:12px; }.wordmark img { width:36px; height:36px; } }
