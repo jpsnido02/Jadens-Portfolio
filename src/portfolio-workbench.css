@@ -348,3 +348,31 @@
 @keyframes ops-review-attention { 0%,100% { box-shadow:0 0 0 0 #ed9a4e00; } 45% { box-shadow:0 0 0 5px #ed9a4e30; } }
 @keyframes ops-review-reveal { 0%,32% { opacity:0; transform:translateY(6px); } 100% { opacity:1; transform:none; } }
 @media(prefers-reduced-motion:reduce) { .ops-review-content,.ops-needs-attention { animation:none!important; } }
+
+/* Keep board chrome above its tickets and reserve room for complete cards. */
+.pw-stage--agent .pw-task-toolbar,.pw-stage--agent .pw-filter-tabs { position:relative; z-index:5; background:var(--ops-card); }
+.pw-stage--agent .pw-kanban { position:relative; isolation:isolate; overflow:hidden; padding:0 10px 12px; gap:8px; }
+.pw-stage--agent .pw-kanban>section { padding:12px 6px 6px; overflow:visible; }
+.pw-stage--agent .pw-kanban h4 { z-index:4; }
+.pw-stage--agent .pw-kanban article { position:relative; padding:12px; }
+.pw-stage--agent .pw-kanban h5 { font-size:13px; min-height:36px; margin:10px 0; }
+.pw-stage--agent .ops-card-stage { margin-bottom:8px; }
+.pw-stage--agent .ops-card-time { margin:10px 0; padding-top:10px; }
+.pw-stage--agent .pw-kanban.is-moving { z-index:auto; }
+.pw-stage--agent .ops-needs-attention { animation:ops-review-attention 1200ms ease 900ms 1; }
+@keyframes ops-review-attention { 0%,100% { box-shadow:inset 0 0 0 0 #ed9a4e00; } 45% { box-shadow:inset 0 0 0 3px #ed9a4e80; } }
+.ops-autoplay .ops-review-content { animation:none; }
+.ops-autoplay .ops-review-slot { pointer-events:none; }
+.ops-autoplay .ops-review-card { pointer-events:none!important; }
+.ops-demo-open::after,.ops-demo-approve::after { content:""; position:absolute; width:18px; height:24px; background:#202630; clip-path:polygon(0 0,0 85%,27% 65%,48% 100%,66% 90%,46% 57%,80% 57%); filter:drop-shadow(0 0 2px white); animation:ops-demo-tap 650ms ease both; }
+.ops-demo-open::after { right:22px; bottom:24px; }
+.ops-demo-approve { position:relative; }
+.ops-demo-approve::after { right:22px; bottom:4px; }
+@keyframes ops-demo-tap { 0% { opacity:0; transform:translate(20px,25px); } 45% { opacity:1; transform:none; } 70% { transform:scale(.85); opacity:1; } 100% { transform:none; opacity:1; } }
+.ops-phase-7 { opacity:0; transition:opacity 220ms ease; }
+@media(prefers-reduced-motion:reduce) { .ops-demo-open::after,.ops-demo-approve::after { animation:none; } }
+
+.pw-stage--agent .pw-app { left:50%; right:auto; transform-origin:center; }
+.pw-stage--agent .pw-kanban article:has(.pw-status.complete) .ops-build-checks,.pw-stage--agent .pw-kanban article:has(.pw-status.complete) .ops-card-progress,.pw-stage--agent .pw-kanban article:has(.pw-status.complete) .ops-card-time { display:none; }
+.ops-demo-approve .pw-primary { animation:ops-approve-press 650ms ease both; }
+@keyframes ops-approve-press { 0%,45%,100% { transform:none; } 70% { transform:scale(.95); background:#3043b0; } }
