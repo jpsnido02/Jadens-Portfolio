@@ -6,7 +6,7 @@ import "./pantry-notes.css"
  * 00 home · 01 open camera pressed · 02 iPhone camera · 03 shutter · 04 flash · 05 loading
  * 06 photo renders · 07 Post-its drop · 08 notes · 09 tap · 10 note → card · 11 recipe · 12 scrolled · 13 curtain
  */
-const TIMING = [1600,260,2200,260,380,1900,700,900,3400,360,850,2600,3300,600]
+const TIMING = [1600,260,2200,260,380,1900,700,900,3400,360,850,3500,4500,600]
 const POSTER = 8
 
 const icon = { fill:"none", stroke:"currentColor", strokeLinecap:"round", strokeLinejoin:"round" } as const
@@ -68,7 +68,7 @@ export default function PantryNotes({playing}:{playing:boolean}) {
 
                 {/* 05–12 · App */}
                 <section className="pnt-app-screen">
-                    <header className="pnt-app-header"><svg width="24" height="24" viewBox="0 0 24 24" {...icon} strokeWidth="1.8" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><strong>pantry notes</strong><svg width="24" height="24" viewBox="0 0 24 24" {...icon} strokeWidth="1.6" aria-hidden="true"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.3a4.3 4.3 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20Z"/></svg></header>
+                    <header className="pnt-app-header"><svg width="24" height="24" viewBox="0 0 24 24" {...icon} strokeWidth="1.8" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><strong>pantry notes</strong></header>
                     <header className="pnt-recipe-header"><span><svg width="10" height="17" viewBox="0 0 12 20" {...icon} strokeWidth="2" aria-hidden="true"><path d="M10 2 2 10l8 8"/></svg>Back</span><span>Today’s haul<i/><b>Recipe</b></span></header>
                     <div className="pnt-results">
                         <h3 className="pnt-results-title">Dinner on the board.</h3>
@@ -76,36 +76,18 @@ export default function PantryNotes({playing}:{playing:boolean}) {
                             <img src="/projects/pantry/grocery-haul.jpg" alt="A photographed grocery haul, with recipe notes placed over matching ingredients"/>
                             <div className="pnt-veil"/>
                             <div className="pnt-loader"><span className="pnt-spinner"/><strong>Finding some yummy ideas…</strong></div>
-                            <span className="pnt-photo-credit">Photo · Sam / The Kitchn</span>
+                            
                         </div>
                         {NOTES.map(note=><article key={note.id} className={`pnt-note pnt-note-${note.id} ${note.id==="pasta"&&phase===9?"is-tapped":""}`} style={{left:note.x,top:note.y,background:note.fill,"--note-rotate":`${note.rotate}deg`,"--note-delay":`${note.delay}ms`} as CSSProperties}>
                             <h4>{note.title}</h4><span className="pnt-note-meta">{note.meta}<ArrowUpRight/></span><i className="pnt-fold"/>{note.id==="pasta"&&<i className="pnt-tap-ring"/>}
                         </article>)}
                         <div className="pnt-results-footer"><span>We’ve found possibilities</span><b>Tap a note to make it yours<ArrowUpRight size={13}/></b></div>
                     </div>
-                    {/* 10–11 · The pasta Post-it grows into the recipe card and stays on as its tab. */}
-                    <div className="pnt-recipe-cards">
-                        <article className="pnt-recipe-card">
-                            <img src="/projects/pantry/grocery-haul.jpg" alt=""/>
-                            <span className="pnt-recipe-tab"><i/>Tonight’s little possibility</span>
-                            <div className="pnt-recipe-body">
-                                <h3>Lemony spinach pasta</h3>
-                                <div className="pnt-recipe-meta"><span>2 servings</span><u>Save this recipe</u></div>
-                                <div className="pnt-recipe-stats"><span><b>20 min</b>Time</span><i/><span><b>For two</b>Serves</span><i/><span><b>5 items</b>From your photo</span></div>
-                            </div>
-                        </article>
-                        <article className="pnt-ingredients-peek"><div><span>Your ingredients</span><span>Scroll down</span></div><p>Fusilli, spinach, tomatoes,<br/>lemon & Pepper Jack.</p></article>
-                    </div>
-                    {/* 12 · Auto-scroll to ingredients and steps */}
-                    <article className="pnt-recipe-scrolled">
-                        <div className="pnt-sticky-title"><h3>Lemony spinach pasta</h3><span>20 min · for two</span></div>
-                        <h4>Right there in your photo</h4>
-                        <ul>{INGREDIENTS.map(item=><li key={item}><i><Check/></i>{item}</li>)}</ul>
-                        <span className="pnt-cupboard">You’ll need olive oil, salt & a little butter.</span>
-                        <h4>A very good dinner</h4>
-                        <ol>{STEPS.map((step,i)=><li key={step}><b>{i+1}</b>{step}</li>)}</ol>
-                        <div className="pnt-save">Save this recipe</div>
-                    </article>
+                    <div className="pnt-recipe-cards"><article className="pnt-recipe-card"><div className="pnt-recipe-track">
+                        <div className="pnt-recipe-hero"><img src="/projects/pantry/lemony-spinach-pasta.jpg" alt="Lemony fusilli with spinach and tomatoes"/><span className="pnt-saved"><svg width="12" height="16" viewBox="0 0 12 16" fill="currentColor" aria-hidden="true"><path d="M1 0h10v16l-5-3-5 3Z"/></svg>Saved</span></div>
+                        <div className="pnt-recipe-body"><h3>Lemony spinach pasta</h3><dl className="pnt-recipe-meta"><div><dt>Yield</dt><dd>2 servings</dd></div><div><dt>Time</dt><dd>20 minutes</dd></div></dl><div className="pnt-start-cooking">Start Cooking</div>
+                        <h4>Ingredients</h4><ul>{INGREDIENTS.map(item=><li key={item}><i><Check/></i>{item}</li>)}</ul><p className="pnt-cupboard">Plus olive oil, salt & a little butter.</p><h4>Preparation</h4><ol>{STEPS.map((step,i)=><li key={step}><b>{i+1}</b>{step}</li>)}</ol></div>
+                    </div></article></div>
                 </section>
 
                 {/* 02–04 · The system camera slides up over the app */}
