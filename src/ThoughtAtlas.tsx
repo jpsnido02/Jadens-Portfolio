@@ -31,7 +31,7 @@ function Brain() {
             <path className="atlas-structure-dots" d={GEOMETRY[zone].structure}/>
             <path className="atlas-links" d={GEOMETRY[zone].fileLinks}/>
             <path className="atlas-nodes" d={GEOMETRY[zone].files}/>
-            {ZONES[zone].files.filter((_,i)=>i%19===0).map(([x,y,r],i)=><circle key={i} className="atlas-activity-node" cx={x} cy={y} r={r} style={{animationDelay:`${-(zone*0.7+i*1.3)}s`}}/>)}
+            {ZONES[zone].files.filter((_,i)=>i%11===0).map(([x,y,r],i)=><circle key={i} className="atlas-activity-node" cx={x} cy={y} r={r} style={{animationDelay:`${-(zone*0.7+i*1.3)}s`,animationDuration:`${3.6+(i%3)*0.6}s`}}/>)}
         </g>)}
     </>
 }

@@ -21,7 +21,7 @@
 .atlas-zoom-label { display:flex; align-items:center; }
 .atlas-zoom-label>span { display:inline-flex; gap:10px; margin-left:12px; color:#aaa; }
 .atlas-icon { flex:none; display:block; }
-.atlas-activity-node { fill:var(--zone); opacity:.75; }
+.atlas-activity-node { fill:var(--zone); opacity:.75; transform-box:fill-box; transform-origin:center; }
 .atlas-active .atlas-activity-node { animation:atlas-activity 4.8s ease-in-out infinite; }
-@keyframes atlas-activity { 0%,100% { opacity:.65; } 50% { opacity:1; filter:drop-shadow(0 0 2px var(--zone)); } }
+@keyframes atlas-activity { 0%,100% { opacity:.6; transform:scale(1); filter:drop-shadow(0 0 0 var(--zone)); } 50% { opacity:1; transform:scale(1.65); filter:drop-shadow(0 0 3px var(--zone)); } }
 @media(prefers-reduced-motion:reduce) { .atlas-activity-node { animation:none!important; } }
