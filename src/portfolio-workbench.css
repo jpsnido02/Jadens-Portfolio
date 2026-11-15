@@ -339,15 +339,12 @@
 .ops-variant-preview>span { padding:5px 8px; background:#293345; color:white; font-size:7px; }
 .ops-variant-preview.variant-1 { background:#f0f4fa; }
 .ops-variant-preview.variant-2 { background:#edf4ee; }
-.ops-needs-attention { position:relative; z-index:2; animation:ops-review-attention 1100ms ease 850ms 3; }
-.pw-stage--agent .pw-kanban article.ops-needs-attention { border-color:#e7ad73; }
 .ops-attention-dot { width:5px; height:5px; border-radius:50%; background:#e88c35; margin-right:4px; }
 .ops-card-stage:has(.ops-attention-dot) { color:#996124!important; background:#fff4e7!important; }
 .pw-stage--agent .pw-kanban.is-moving>section { overflow:visible; }
 .pw-stage--agent .pw-kanban.is-moving { position:relative; z-index:2; }
-@keyframes ops-review-attention { 0%,100% { box-shadow:0 0 0 0 #ed9a4e00; } 45% { box-shadow:0 0 0 5px #ed9a4e30; } }
 @keyframes ops-review-reveal { 0%,32% { opacity:0; transform:translateY(6px); } 100% { opacity:1; transform:none; } }
-@media(prefers-reduced-motion:reduce) { .ops-review-content,.ops-needs-attention { animation:none!important; } }
+@media(prefers-reduced-motion:reduce) { .ops-review-content { animation:none!important; } }
 
 /* Keep board chrome above its tickets and reserve room for complete cards. */
 .pw-stage--agent .pw-task-toolbar,.pw-stage--agent .pw-filter-tabs { position:relative; z-index:5; background:var(--ops-card); }
@@ -359,8 +356,6 @@
 .pw-stage--agent .ops-card-stage { margin-bottom:8px; }
 .pw-stage--agent .ops-card-time { margin:10px 0; padding-top:10px; }
 .pw-stage--agent .pw-kanban.is-moving { z-index:auto; }
-.pw-stage--agent .ops-needs-attention { animation:ops-review-attention 1200ms ease 900ms 1; }
-@keyframes ops-review-attention { 0%,100% { box-shadow:inset 0 0 0 0 #ed9a4e00; } 45% { box-shadow:inset 0 0 0 3px #ed9a4e80; } }
 .ops-autoplay .ops-review-content { animation:none; }
 .ops-autoplay .ops-review-slot { pointer-events:none; }
 .ops-autoplay .ops-review-card { pointer-events:none!important; }
@@ -410,3 +405,8 @@
 .ops-autoplay .pw-kanban article:not([data-ticket="DS-103"]):has(.pw-status.queue) :is(.ops-card-progress,.ops-card-time,.ops-build-checks,.pw-row-action) { display:none; }
 .ops-autoplay.ops-phase-0 [data-ticket="DS-103"] { animation:ops-queue-spawn 450ms cubic-bezier(.22,1,.36,1) 200ms both; }
 @keyframes ops-queue-spawn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+/* A single press makes the review modal's trigger legible. */
+.pw-stage--agent .pw-kanban article.ops-demo-open { transform-origin:center; animation:ops-ticket-press 300ms cubic-bezier(.22,1,.36,1) both; }
+@keyframes ops-ticket-press { 0% { transform:scale(1); } 40% { transform:scale(.975); } 100% { transform:scale(1); } }
+@media(prefers-reduced-motion:reduce) { .pw-stage--agent .pw-kanban article.ops-demo-open { animation:none; } }
