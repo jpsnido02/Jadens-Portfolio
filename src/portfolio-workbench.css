@@ -369,7 +369,7 @@
 .ops-demo-approve { position:relative; }
 .ops-demo-approve::after { right:22px; bottom:4px; }
 @keyframes ops-demo-tap { 0% { opacity:0; transform:translate(20px,25px); } 45% { opacity:1; transform:none; } 70% { transform:scale(.85); opacity:1; } 100% { transform:none; opacity:1; } }
-.ops-phase-10 { opacity:0; transition:opacity 180ms ease; }
+.ops-phase-12 { opacity:0; transition:opacity 180ms ease; }
 @media(prefers-reduced-motion:reduce) { .ops-demo-open::after,.ops-demo-approve::after { animation:none; } }
 
 .pw-stage--agent .pw-app { left:50%; right:auto; transform-origin:center; }
@@ -386,5 +386,11 @@
 .ops-autoplay .ops-review-card { transition:width 900ms cubic-bezier(.22,1,.36,1); }
 .ops-autoplay .ops-review-resources button { min-width:100px; justify-content:center; }
 
-.pw-stage--agent:has(.ops-phase-10) .pw-app { opacity:0; }
+.pw-stage--agent:has(.ops-phase-12) .pw-app { opacity:0; }
 .pw-stage--agent .pw-app { transition:transform 900ms cubic-bezier(.22,1,.36,1),opacity 180ms ease; }
+
+/* One camera: hold the ticket's anchor through the column change. */
+.pw-stage--agent .pw-app { left:50%; right:auto; transform-origin:center; transition:transform 1000ms cubic-bezier(.45,0,.2,1),opacity 180ms ease; }
+.pw-stage--agent .ops-approved { background:#21845a!important; border-color:#21845a!important; color:white!important; }
+.ops-autoplay.ops-phase-9 .ops-review-content { opacity:1; transition:none; }
+.ops-autoplay.ops-phase-5 .ops-review-card { width:880px; }
