@@ -126,7 +126,7 @@ export const projects: ProjectData[] = [
         },
         year: "2026",
         description:
-            "One offer system adapted to each partner’s brand. A verified 20% value-per-transaction lift in tested accounts.",
+            "Branded offer UX that drove $30 million in revenue, tailored to each customer’s transaction and the brand’s logo, styling, and language.",
         tags: [],
         link: "work/branded-layouts/",
     },

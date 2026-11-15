@@ -260,8 +260,8 @@ export const caseStudies: CaseStudy[] = [
         "paletteIndex": 0,
         "numbered": false,
         "next": "",
-        "preview": "One offer system adapted to the identity of the partner showing it.",
-        "result": "20% value-per-transaction lift in tested accounts.",
+        "preview": "Branded offer UX that drove $30 million in revenue.",
+        "result": "$30 million in revenue; 20% value-per-transaction lift in tested accounts.",
         "status": "Verified test result",
         "blocks": [
             {
@@ -282,8 +282,8 @@ export const caseStudies: CaseStudy[] = [
             {
                 "kind": "section",
                 "label": "The outcome",
-                "thesis": "20% more value per transaction.",
-                "body": "The branded treatments delivered a verified 20% value-per-transaction lift in the accounts tested. That result is scoped to those tests; it is not presented as a network-wide result."
+                "thesis": "$30 million in revenue.",
+                "body": "The branded UX iteration drove $30 million in revenue by adapting the offer experience to the customer’s transaction and the partner’s brand. In tested accounts, it also delivered a verified 20% value-per-transaction lift."
             },
             {
                 "kind": "takeaway",

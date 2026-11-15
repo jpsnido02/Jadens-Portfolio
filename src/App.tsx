@@ -39,7 +39,6 @@ export default function App() {
     const gallery = useRef<HTMLDivElement>(null)
     const reader = useRef<HTMLDivElement>(null)
     const casePanel = useRef<HTMLElement>(null)
-    const projectOrigin = useRef<DOMRect | null>(null)
     const closeButton = useRef<HTMLButtonElement>(null)
     const opener = useRef<HTMLAnchorElement | null>(null)
     const galleryPosition = useRef(0)
@@ -49,11 +48,10 @@ export default function App() {
     const select = (slug: string | null, push = true) => {
         if (slug === selectedRef.current) return
         const opening = Boolean(slug && !selectedRef.current)
-        if (opening && slug) projectOrigin.current = projectTiles.current.get(slug)?.querySelector(".tile-visual")?.getBoundingClientRect() ?? null
         if (!selectedRef.current) galleryPosition.current = gallery.current?.scrollTop ?? 0
         if (slug) hasOpenedProject.current = true
         selectedRef.current = slug
-        if (opening && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        if (slug && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
             activeTransition?.skipTransition()
             activeTransition = undefined
             flushSync(() => setSelected(slug))
@@ -82,15 +80,11 @@ export default function App() {
         reader.current?.scrollTo(0, 0)
         if (selected) {
             const panel = casePanel.current
-            const source = projectOrigin.current
-            if (!previousSelected.current && panel && source && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
-                const target = panel.getBoundingClientRect()
+            if (panel && selected !== previousSelected.current && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
                 panel.animate([
-                    { transform: `translate(${source.left - target.left}px,${source.top - target.top}px) scale(${source.width / target.width},${source.height / target.height})`, borderRadius: "18px" },
-                    { transform: "none", borderRadius: "24px" }
-                ], { duration:650, easing:"cubic-bezier(.22,.8,.2,1)" })
-                for (const child of panel.children) child.animate([{opacity:0},{opacity:1}], {duration:450,delay:150,fill:"backwards"})
-                projectOrigin.current = null
+                    { transform: "scale(.88)", opacity: .35 },
+                    { transform: "scale(1)", opacity: 1 }
+                ], { duration:460, easing:"cubic-bezier(.22,.8,.2,1)" })
             }
             if (!previousSelected.current) gallery.current?.scrollTo({ top: 0, behavior: "instant" })
             closeButton.current?.focus({ preventScroll: true })
@@ -159,7 +153,7 @@ export default function App() {
             </header>
             <section className="gallery-intro">
                 <div><h1>Hi, I’m Jaden<br /><span>I create designs that</span>{" "}<ClickWord /></h1></div>
-                <div className="intro-details"><p className="intro-description">A product designer rethinking commerce through craft and curiosity. From idea to concept to engagement uplift.</p><p className="building-status">Currently building AI systems for advertisements at Rokt</p></div>
+                <div className="intro-details"><p className="intro-description">A product designer rethinking commerce through craft and curiosity. From idea to concept to engagement uplift.</p><p className="building-status"><span className="current-work-dot" aria-hidden="true"/><span>Currently building AI systems for advertisements at Rokt</span></p></div>
             </section>
             <div className="work-heading"><span>WORK PROJECTS <span className="project-count">{String(workCount).padStart(2, "0")}</span></span><button className="motion-control" aria-pressed={motion} onClick={() => setMotion(!motion)}><SiteIcon name={motion ? "pause" : "play"} size={12} /> <span>{motion ? "Motion on" : "Motion paused"}</span></button></div>
             <div className="project-grid">
@@ -170,14 +164,14 @@ export default function App() {
             <footer className="gallery-footer"><div className="footer-links">{intro.links.map(link => <a key={link.label} href={link.url} target={link.url.startsWith("mailto:") ? undefined : "_blank"} rel="noreferrer">{link.label}</a>)}<button onClick={toggle}>{theme === "dark" ? "Light" : "Dark"} mode <SiteIcon name={theme === "dark" ? "sun" : "moon"} size={13} /></button></div><p>Jaden Snyder · Product designer · 2026</p></footer>
         </div>
         {selected && <button ref={closeButton} className="project-close" onClick={() => select(null)} aria-label="Close project and return to all work" inert={about}><SiteIcon name="close" size={21} /></button>}
-        {selected && <section ref={casePanel} className="case-reader" style={{animation:"none",transformOrigin:"top left"}} inert={about} aria-label="Case study">
+        {selected && <section ref={casePanel} className="case-reader" style={{animation:"none",transformOrigin:"center center"}} inert={about} aria-label="Case study">
             <div className="reader-toolbar"><button onClick={() => select(null)} aria-label="Back to all work"><SiteIcon name="back" size={12} /> <span>All work</span></button><span>{selectedIndex >= 0 ? projects[selectedIndex].title : bySlug(selected)?.title}</span><button onClick={() => setMotion(!motion)} aria-label={motion ? "Pause animations" : "Play animations"} aria-pressed={!motion}><SiteIcon name={motion ? "pause" : "play"} size={12} /></button><button onClick={toggle} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}><SiteIcon name={theme === "dark" ? "sun" : "moon"} /></button></div>
             <div className="reader-scroll" ref={reader} onClick={event => {
                 const link = (event.target as HTMLElement).closest("a")
                 const match = link?.getAttribute("href")?.match(/^\.\.\/([^/]+)\/$/)
                 if (match && bySlug(match[1]) && !event.metaKey && !event.ctrlKey) { event.preventDefault(); select(match[1]) }
             }}>
-                <div key={selected} className="reader-content">
+                <div key={selected} className="reader-content" style={{animation:"none"}}>
                     
                     <CaseStudyPage slug={selected} embedded playing={motion} appearance={{ theme, palette: { ...palette, background: theme === "dark" ? "#111111" : "#ffffff", text: theme === "dark" ? "#ffffff" : "#171717", textMuted: theme === "dark" ? "#b5b5b5" : "#707070", cardBorder: theme === "dark" ? "#353535" : "#e5e5e5", cardThumbBackground: theme === "dark" ? "#222222" : "#f5f5f5" } }} />
                 </div>
