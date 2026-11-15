@@ -37,7 +37,7 @@ function Workbench({ children, kind, camera = "queue" }: { children: ReactNode; 
         while (node && node !== app) { x += node.offsetLeft; y += node.offsetTop; node = node.offsetParent as HTMLElement | null }
         setPan({x:app.offsetWidth/2-x,y:app.offsetHeight/2-y})
     }, [camera, scale, appHeight])
-    return <div ref={root} className={`pw-stage pw-stage--${kind}`}>{scale > 0 && <div className="pw-app" style={{ height: kind === "agent" ? appHeight : undefined, transform: kind === "agent" ? `translate(-50%,-50%) scale(${scale * (camera === "building" || camera === "tracking" ? 1.8 : 1)}) translate(${pan.x}px,${pan.y}px)` : `translate(-50%,-50%) scale(${scale})` }}>{children}</div>}</div>
+    return <div ref={root} className={`pw-stage pw-stage--${kind}`}>{scale > 0 && <div className="pw-app" style={{ height: kind === "agent" ? appHeight : undefined, transform: kind === "agent" ? `translate(-50%,-50%) scale(${scale * (camera === "building" || camera === "tracking" ? 1.95 : 1)}) translate(${pan.x}px,${pan.y}px)` : `translate(-50%,-50%) scale(${scale})` }}>{children}</div>}</div>
 }
 
 function Action({ children, interactive, onClick, className = "", disabled = false, label }: { children: ReactNode; interactive: boolean; onClick?: () => void; className?: string; disabled?: boolean; label?: string }) {
@@ -46,7 +46,7 @@ function Action({ children, interactive, onClick, className = "", disabled = fal
 
 export { default as ShoppableDashboard } from "./ShoppableDemoBuilder"
 
-const AGENT_TIMING = [1800, 1400, 4200, 1800, 650, 1200, 3000, 650, 1100, 650, 1500, 2400, 450]
+const AGENT_TIMING = [1800, 1400, 4200, 3300, 650, 1200, 3000, 650, 1100, 220, 1500, 2400, 450]
 const STAGES = ["Queue", "Building", "For review", "Complete"] as const
 type TaskStage = typeof STAGES[number]
 const ACCOUNT_LOGOS: Record<string, string> = { OpenTable: "/projects/agent-logos/opentable.svg", Shutterfly: "/projects/agent-logos/shutterfly.svg", eBay: "/projects/agent-logos/ebay.svg" }
@@ -112,6 +112,15 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
             const after = card.getBoundingClientRect()
             const before = positions.current.get(task.id)
             const oldStage = stagesBefore.current.get(task.id)
+            const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+            if (!interactive && phase === 10 && before && oldStage && !reduced) {
+                if (task.id === "DS-103") {
+                    card.animate([{opacity:0,transform:"translateY(8px)",offset:0},{opacity:0,transform:"translateY(8px)",offset:.65},{opacity:1,transform:"none",offset:1}],{duration:650,easing:"cubic-bezier(.22,1,.36,1)"})
+                } else if (task.stage === "Complete" && Math.abs(before.top-after.top)>1) {
+                    const scale=after.width/card.offsetWidth
+                    card.animate([{transform:`translateY(${(before.top-after.top)/scale}px)`},{transform:"none"}],{duration:450,easing:"cubic-bezier(.22,1,.36,1)"})
+                }
+            } else {
             if ((interactive || phase !== 0 && phase !== 12) && changedStage && before && oldStage && oldStage !== task.stage && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
                 didMove = true
                 const scale = after.width / card.offsetWidth
@@ -119,6 +128,7 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
                     { transform: `translate(${(before.left - after.left) / scale}px,${(before.top - after.top) / scale}px)`, boxShadow: "0 12px 28px #20263022", zIndex: 6 },
                     { transform: "translate(0,0)", boxShadow: "0 0 0 #20263000", zIndex: 6 }
                 ], { duration: 1000, easing: "cubic-bezier(.45,0,.2,1)" })
+            }
             }
             if (oldStage === "Building" && task.stage === "For review") newlyReady.push(task.id)
             next.set(task.id, after)
@@ -162,18 +172,12 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
         }, 1100)
         return () => window.clearTimeout(timer)
     }, [phase, interactive])
-    const morphFrame = (panel: HTMLElement, card: HTMLElement, opening = false) => {
-        const target = panel.getBoundingClientRect()
-        const source = opening && sourceRect.current ? sourceRect.current : card.getBoundingClientRect()
-        const scale = target.width / panel.offsetWidth
-        return { transform: `translate(${(source.left - target.left) / scale}px,${(source.top - target.top) / scale}px) scale(${source.width / target.width},${source.height / target.height})`, borderRadius: "7px" }
-    }
     useLayoutEffect(() => {
         const panel = detailPanel.current
         const card = selected ? ticketCards.current.get(selected) : null
         if (!panel || !card) return
         if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-            detailAnimation.current = panel.animate([morphFrame(panel, card, true), { transform: "none", borderRadius: "16px" }], { duration: interactive ? 560 : 1000, easing: interactive ? "cubic-bezier(.22,.8,.2,1)" : "cubic-bezier(.45,0,.2,1)" })
+            detailAnimation.current = panel.animate([{ opacity:0, transform:"translateY(8px) scale(.97)" }, { opacity:1, transform:"none" }], { duration:280, easing:"cubic-bezier(.22,1,.36,1)" })
         }
         if (interactive) panel.querySelector<HTMLButtonElement>(".pw-close")?.focus({ preventScroll: true })
         return () => detailAnimation.current?.cancel()
@@ -183,7 +187,7 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
         const panel = detailPanel.current, card = ticketCards.current.get("DS-103")
         if (!panel || !card || matchMedia("(prefers-reduced-motion: reduce)").matches) return
         detailAnimation.current?.cancel()
-        detailAnimation.current = panel.animate([{transform:"none",borderRadius:"16px"},morphFrame(panel,card)],{duration:650,easing:"cubic-bezier(.45,0,.2,1)",fill:"forwards"})
+        detailAnimation.current = panel.animate([{opacity:1,transform:"none"},{opacity:0,transform:"translateY(4px) scale(.98)"}],{duration:200,easing:"ease-in",fill:"forwards"})
     }, [phase, interactive])
     const closeTicket = async () => {
         if (closing) return
@@ -192,7 +196,7 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
         setClosing(true)
         if (panel && card && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
             detailAnimation.current?.cancel()
-            detailAnimation.current = panel.animate([{ transform: "none", borderRadius: "16px" }, morphFrame(panel, card)], { duration: 420, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" })
+            detailAnimation.current = panel.animate([{opacity:1,transform:"none"},{opacity:0,transform:"translateY(4px) scale(.98)"}], { duration:200,easing:"ease-in",fill:"forwards" })
             await detailAnimation.current.finished.catch(() => {})
         }
         setSelected(null)

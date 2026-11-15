@@ -394,3 +394,11 @@
 .pw-stage--agent .ops-approved { background:#21845a!important; border-color:#21845a!important; color:white!important; }
 .ops-autoplay.ops-phase-9 .ops-review-content { opacity:1; transition:none; }
 .ops-autoplay.ops-phase-5 .ops-review-card { width:880px; }
+
+/* Dashboard modal: no stretching, travel into a ticket, or content choreography. */
+.ops-autoplay .ops-card-open { visibility:visible; }
+.ops-autoplay .ops-review-card { transform-origin:center; transition:none; }
+.ops-autoplay .ops-review-slot { transition:none; }
+.ops-autoplay .ops-detail-backdrop { animation-duration:280ms; }
+.ops-autoplay .ops-detail-backdrop.is-closing { transition-duration:200ms; }
+.ops-autoplay .ops-review-card.is-closing .ops-review-content { opacity:1; }
