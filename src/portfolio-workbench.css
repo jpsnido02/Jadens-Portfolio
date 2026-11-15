@@ -296,7 +296,7 @@
 .ops-review-timeline>div>div { font-size:10px; color:var(--ops-meta); }
 .ops-review-timeline i { display:block; height:9px; border-radius:3px; background:var(--ops-line); margin-bottom:10px; }
 .ops-review-timeline .is-done i { background:#25a777; }
-.ops-review-timeline .is-current i { background:repeating-linear-gradient(135deg,#ee8c42 0 8px,#f9c89d 8px 16px); }
+.ops-review-timeline .is-current i { background:#ee8c42; }
 .ops-review-timeline .is-done,.ops-review-timeline .is-current { color:var(--ops-ink); font-weight:500; }
 .ops-review-timeline>aside { border-left:1px solid var(--ops-line); padding-left:24px; display:grid; gap:6px; text-align:right; }
 .ops-review-timeline>aside>strong { font-size:17px; font-weight:600; color:#a65b25; }
@@ -369,7 +369,7 @@
 .ops-demo-approve { position:relative; }
 .ops-demo-approve::after { right:22px; bottom:4px; }
 @keyframes ops-demo-tap { 0% { opacity:0; transform:scale(1.25); } 30% { opacity:1; transform:scale(1); } 65% { opacity:1; transform:scale(.78); } 100% { opacity:0; transform:scale(1.35); } }
-.ops-phase-12 { opacity:0; transition:opacity 180ms ease; }
+.ops-phase-14 { opacity:0; transition:opacity 180ms ease; }
 @media(prefers-reduced-motion:reduce) { .ops-demo-open::after,.ops-demo-approve::after { animation:none; } }
 
 .pw-stage--agent .pw-app { left:50%; right:auto; transform-origin:center; }
@@ -381,19 +381,19 @@
 .pw-stage--agent .pw-app { left:auto; right:24px; transform-origin:right center; transition:transform 900ms cubic-bezier(.22,1,.36,1); }
 .ops-autoplay .ops-card-progress b { font-variant-numeric:tabular-nums; }
 .ops-autoplay .ops-review-slot { transition:padding 900ms cubic-bezier(.22,1,.36,1); }
-.ops-autoplay.ops-phase-5 .ops-review-slot { padding:32px; }
-.ops-autoplay.ops-phase-5 .ops-review-card { width:960px; }
+.ops-autoplay.ops-phase-7 .ops-review-slot { padding:32px; }
+.ops-autoplay.ops-phase-7 .ops-review-card { width:960px; }
 .ops-autoplay .ops-review-card { transition:width 900ms cubic-bezier(.22,1,.36,1); }
 .ops-autoplay .ops-review-resources button { min-width:100px; justify-content:center; }
 
-.pw-stage--agent:has(.ops-phase-12) .pw-app { opacity:0; }
+.pw-stage--agent:has(.ops-phase-14) .pw-app { opacity:0; }
 .pw-stage--agent .pw-app { transition:transform 900ms cubic-bezier(.22,1,.36,1),opacity 180ms ease; }
 
 /* One camera: hold the ticket's anchor through the column change. */
 .pw-stage--agent .pw-app { left:50%; right:auto; transform-origin:center; transition:transform 1000ms cubic-bezier(.45,0,.2,1),opacity 180ms ease; }
 .pw-stage--agent .ops-approved { background:#21845a!important; border-color:#21845a!important; color:white!important; }
-.ops-autoplay.ops-phase-9 .ops-review-content { opacity:1; transition:none; }
-.ops-autoplay.ops-phase-5 .ops-review-card { width:880px; }
+.ops-autoplay.ops-phase-11 .ops-review-content { opacity:1; transition:none; }
+.ops-autoplay.ops-phase-7 .ops-review-card { width:880px; }
 
 /* Dashboard modal: no stretching, travel into a ticket, or content choreography. */
 .ops-autoplay .ops-card-open { visibility:visible; }
@@ -402,3 +402,11 @@
 .ops-autoplay .ops-detail-backdrop { animation-duration:280ms; }
 .ops-autoplay .ops-detail-backdrop.is-closing { transition-duration:200ms; }
 .ops-autoplay .ops-review-card.is-closing .ops-review-content { opacity:1; }
+
+/* Reuse the Uber Eats tap ripple, including its shared animation. */
+.ops-demo-open::after,.ops-demo-approve::after { content:none; }
+.pw-stage--agent .pw-row-action,.ops-review-decisions .pw-primary { position:relative; }
+.ops-click-ripple { left:50%; top:50%; width:44px; height:44px; margin-left:-22px; margin-top:-22px; }
+.ops-autoplay .pw-kanban article:not([data-ticket="DS-103"]):has(.pw-status.queue) :is(.ops-card-progress,.ops-card-time,.ops-build-checks,.pw-row-action) { display:none; }
+.ops-autoplay.ops-phase-0 [data-ticket="DS-103"] { animation:ops-queue-spawn 350ms ease-out both; }
+@keyframes ops-queue-spawn { from { opacity:0; } to { opacity:1; } }
