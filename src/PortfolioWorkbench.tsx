@@ -50,7 +50,7 @@ function Action({ children, interactive, onClick, className = "", disabled = fal
 
 export { default as ShoppableDashboard } from "./ShoppableDemoBuilder"
 
-const AGENT_TIMING = [1800, 1400, 1400, 2600, 450, 3300, 900, 1200, 3000, 650, 1100, 220, 1500, 2400, 450]
+const AGENT_TIMING = [2600, 1400, 1400, 5200, 450, 3300, 900, 1200, 3000, 650, 1100, 220, 1500, 2400, 450]
 const STAGES = ["Queue", "Building", "For review", "Complete"] as const
 type TaskStage = typeof STAGES[number]
 const ACCOUNT_LOGOS: Record<string, string> = { OpenTable: "/projects/agent-logos/opentable.svg", Shutterfly: "/projects/agent-logos/shutterfly.svg", eBay: "/projects/agent-logos/ebay.svg" }
@@ -66,6 +66,19 @@ const buildTime = (seconds: number) => `${Math.floor(seconds / 60)}m ${String(se
 const stageClass = (stage: TaskStage) => stage.toLowerCase().replaceAll(" ", "-")
 export function AgentDashboard({ playing, interactive = false }: { playing: boolean; interactive?: boolean }) {
     const phase = useStudySequence(AGENT_TIMING, playing && !interactive, 0)
+    const [arrived, setArrived] = useState(() => matchMedia("(prefers-reduced-motion: reduce)").matches)
+    useEffect(() => {
+        if (interactive) return
+        if (matchMedia("(prefers-reduced-motion: reduce)").matches) { setArrived(true); return }
+        if (phase === 14) { setArrived(false); return }
+        if (phase !== 0 || !playing) return
+        const timer = window.setTimeout(() => {
+            positions.current = new Map(Array.from(ticketCards.current.entries()).filter(([,card]) => card.isConnected).map(([id,card]) => [id,card.getBoundingClientRect()]))
+            stagesBefore.current = new Map(rows.map(task => [task.id,task.stage]))
+            setArrived(true)
+        }, 700)
+        return () => window.clearTimeout(timer)
+    }, [phase, playing, interactive])
     const [tasks, setTasks] = useState(SAMPLE_TASKS)
     const [manualSelected, setSelected] = useState<string | null>(null)
     const selected = interactive ? manualSelected : phase >= 7 && phase <= 11 ? "DS-103" : null
@@ -94,6 +107,7 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
     const detailAnimation = useRef<Animation | null>(null)
     const opener = useRef<HTMLElement | null>(null)
     const rows = interactive ? tasks : SAMPLE_TASKS.map(task => task.id === "DS-103" ? { ...task, stage: phase <= 1 || phase === 14 ? "Queue" as TaskStage : phase <= 4 ? "Building" as TaskStage : phase >= 12 ? "Complete" as TaskStage : "For review" as TaskStage } : task)
+    if (!interactive && !arrived) rows.splice(rows.findIndex(task => task.id === "DS-103"), 1)
     if (!interactive) rows.sort((a,b) => Number(b.id === "DS-103")-Number(a.id === "DS-103"))
     const active = rows.find(task => task.id === selected)
     const visible = rows.filter(task => (filter === "All tickets" || task.stage === filter) && `${task.title} ${task.account}`.toLowerCase().includes(search.toLowerCase()))
@@ -101,7 +115,7 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
     const [demoCount, setDemoCount] = useState(0)
     useEffect(() => {
         if (interactive || phase !== 3 || !playing) return
-        const timer = window.setInterval(() => setDemoCount(value => Math.min(14, value + 1)), 160)
+        const timer = window.setInterval(() => setDemoCount(value => Math.min(14, value + 1)), 340)
         return () => window.clearInterval(timer)
     }, [phase, playing, interactive])
     useEffect(() => { if (phase === 14) setDemoCount(0) }, [phase])
@@ -110,7 +124,7 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
     useLayoutEffect(() => {
         const next = new Map<string, DOMRect>()
         const newlyReady: string[] = []
-        const changedStage = rows.some(task => stagesBefore.current.has(task.id) && stagesBefore.current.get(task.id) !== task.stage)
+        const changedStage = rows.some(task => !stagesBefore.current.has(task.id) || stagesBefore.current.get(task.id) !== task.stage)
         let didMove = false
         for (const task of rows) {
             const card = ticketCards.current.get(task.id)
@@ -127,7 +141,7 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
                     card.animate([{transform:`translateY(${(before.top-after.top)/scale}px)`},{transform:"none"}],{duration:450,easing:"cubic-bezier(.22,1,.36,1)"})
                 }
             } else {
-            if (!interactive && changedStage && before && oldStage === task.stage && Math.abs(before.top-after.top)>1 && !reduced && phase !== 0 && phase !== 14) {
+            if (!interactive && changedStage && before && oldStage === task.stage && Math.abs(before.top-after.top)>1 && !reduced && phase !== 14) {
                 const scale = after.width / card.offsetWidth
                 // Keep the old slot occupied until the departing ticket has cleared it.
                 card.animate([{transform:`translateY(${(before.top-after.top)/scale}px)`},{transform:"none"}], {

@@ -408,5 +408,5 @@
 .pw-stage--agent .pw-row-action,.ops-review-decisions .pw-primary { position:relative; }
 .ops-click-ripple { left:50%; top:50%; width:44px; height:44px; margin-left:-22px; margin-top:-22px; }
 .ops-autoplay .pw-kanban article:not([data-ticket="DS-103"]):has(.pw-status.queue) :is(.ops-card-progress,.ops-card-time,.ops-build-checks,.pw-row-action) { display:none; }
-.ops-autoplay.ops-phase-0 [data-ticket="DS-103"] { animation:ops-queue-spawn 350ms ease-out both; }
-@keyframes ops-queue-spawn { from { opacity:0; } to { opacity:1; } }
+.ops-autoplay.ops-phase-0 [data-ticket="DS-103"] { animation:ops-queue-spawn 450ms cubic-bezier(.22,1,.36,1) 200ms both; }
+@keyframes ops-queue-spawn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
