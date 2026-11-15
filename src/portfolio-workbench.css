@@ -364,11 +364,11 @@
 .ops-autoplay .ops-review-content { animation:none; }
 .ops-autoplay .ops-review-slot { pointer-events:none; }
 .ops-autoplay .ops-review-card { pointer-events:none!important; }
-.ops-demo-open::after,.ops-demo-approve::after { content:""; position:absolute; width:18px; height:24px; background:#202630; clip-path:polygon(0 0,0 85%,27% 65%,48% 100%,66% 90%,46% 57%,80% 57%); filter:drop-shadow(0 0 2px white); animation:ops-demo-tap 650ms ease both; }
+.ops-demo-open::after,.ops-demo-approve::after { content:""; position:absolute; width:26px; height:26px; border-radius:50%; background:#77777750; border:1px solid #66666660; pointer-events:none; animation:ops-demo-tap 650ms ease both; }
 .ops-demo-open::after { right:22px; bottom:24px; }
 .ops-demo-approve { position:relative; }
 .ops-demo-approve::after { right:22px; bottom:4px; }
-@keyframes ops-demo-tap { 0% { opacity:0; transform:translate(20px,25px); } 45% { opacity:1; transform:none; } 70% { transform:scale(.85); opacity:1; } 100% { transform:none; opacity:1; } }
+@keyframes ops-demo-tap { 0% { opacity:0; transform:scale(1.25); } 30% { opacity:1; transform:scale(1); } 65% { opacity:1; transform:scale(.78); } 100% { opacity:0; transform:scale(1.35); } }
 .ops-phase-12 { opacity:0; transition:opacity 180ms ease; }
 @media(prefers-reduced-motion:reduce) { .ops-demo-open::after,.ops-demo-approve::after { animation:none; } }
 
