@@ -6,7 +6,7 @@ import "./pantry-notes.css"
  * 00 home · 01 open camera pressed · 02 iPhone camera · 03 shutter · 04 flash · 05 loading
  * 06 photo renders · 07 Post-its drop · 08 notes · 09 tap · 10 note → card · 11 recipe · 12 scrolled · 13 curtain
  */
-const TIMING = [1600,260,2200,260,380,1900,700,900,3400,360,850,3500,4500,600]
+const TIMING = [1600,260,2200,260,380,1900,700,900,3400,360,850,4500,14000,600]
 const POSTER = 8
 
 const icon = { fill:"none", stroke:"currentColor", strokeLinecap:"round", strokeLinejoin:"round" } as const
@@ -25,8 +25,14 @@ const NOTES = [
     {id:"spinach",title:"Spinach & egg skillet",meta:"15 min",x:206,y:206,rotate:5,fill:"#f7df88",delay:280},
     {id:"pasta",title:"Lemony spinach pasta",meta:"20 min · for two",x:172,y:452,rotate:-4,fill:"#ffe487",delay:480},
 ]
-const INGREDIENTS = ["Fusilli","Spinach","Tomatoes","Lemon","Pepper Jack"]
-const STEPS = ["Cook pasta; save a splash of water.","Soften tomatoes. Fold in spinach.","Toss with lemon, cheese & water."]
+const INGREDIENTS = ["180 g fusilli", "100 g baby spinach", "200 g cherry tomatoes, halved", "1 lemon, zested and juiced", "60 g Pepper Jack, finely grated", "1 tbsp olive oil", "1 tbsp butter", "Salt and freshly ground black pepper"]
+const STEPS = [
+    "Bring a large pot of generously salted water to a boil. Add the fusilli and cook until just al dente, following the packet timing. Before draining, scoop out a mug of the starchy cooking water and set it aside.",
+    "While the pasta cooks, warm the olive oil in a wide skillet over medium heat. Add the halved tomatoes with a pinch of salt. Cook for 5–7 minutes, stirring occasionally, until they soften and begin to release their juices.",
+    "Stir the spinach into the tomatoes a handful at a time. Let each handful wilt before adding the next. Add the butter, lemon zest and 2 tablespoons of lemon juice, then turn the heat down low.",
+    "Add the drained pasta and a splash of the reserved cooking water. Toss until the juices coat the fusilli, then take the pan off the heat. Stir in the finely grated Pepper Jack a little at a time, adding more pasta water as needed for a glossy sauce.",
+    "Taste and adjust with salt, black pepper and more lemon juice if you like. Divide between two bowls and serve straight away, with a little extra lemon zest over the top."
+]
 
 export default function PantryNotes({playing}:{playing:boolean}) {
     const phase=useStudySequence(TIMING,playing,POSTER)
@@ -69,7 +75,7 @@ export default function PantryNotes({playing}:{playing:boolean}) {
                 {/* 05–12 · App */}
                 <section className="pnt-app-screen">
                     <header className="pnt-app-header"><svg width="24" height="24" viewBox="0 0 24 24" {...icon} strokeWidth="1.8" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><strong>pantry notes</strong></header>
-                    <header className="pnt-recipe-header"><span><svg width="10" height="17" viewBox="0 0 12 20" {...icon} strokeWidth="2" aria-hidden="true"><path d="M10 2 2 10l8 8"/></svg>Back</span><span>Today’s haul<i/><b>Recipe</b></span></header>
+
                     <div className="pnt-results">
                         <h3 className="pnt-results-title">Dinner on the board.</h3>
                         <div className="pnt-photo">
@@ -85,8 +91,8 @@ export default function PantryNotes({playing}:{playing:boolean}) {
                     </div>
                     <div className="pnt-recipe-cards"><article className="pnt-recipe-card"><div className="pnt-recipe-track">
                         <div className="pnt-recipe-hero"><img src="/projects/pantry/lemony-spinach-pasta.jpg" alt="Lemony fusilli with spinach and tomatoes"/><span className="pnt-saved"><svg width="12" height="16" viewBox="0 0 12 16" fill="currentColor" aria-hidden="true"><path d="M1 0h10v16l-5-3-5 3Z"/></svg>Saved</span></div>
-                        <div className="pnt-recipe-body"><h3>Lemony spinach pasta</h3><dl className="pnt-recipe-meta"><div><dt>Yield</dt><dd>2 servings</dd></div><div><dt>Time</dt><dd>20 minutes</dd></div></dl><div className="pnt-start-cooking">Start Cooking</div>
-                        <h4>Ingredients</h4><ul>{INGREDIENTS.map(item=><li key={item}><i><Check/></i>{item}</li>)}</ul><p className="pnt-cupboard">Plus olive oil, salt & a little butter.</p><h4>Preparation</h4><ol>{STEPS.map((step,i)=><li key={step}><b>{i+1}</b>{step}</li>)}</ol></div>
+                        <div className="pnt-recipe-body"><h3>Lemony spinach pasta</h3><dl className="pnt-recipe-meta"><div><dt>Yield</dt><dd>2 servings</dd></div><div><dt>Time</dt><dd>20 minutes</dd></div></dl><p className="pnt-recipe-intro">A bright, comforting dinner from the groceries already on your counter. Sweet tomatoes and wilted spinach tuck into the pasta, while lemon and a little Pepper Jack make a silky, gently warming sauce.</p><div className="pnt-start-cooking">Start Cooking</div>
+                        <h4>Ingredients</h4><ul>{INGREDIENTS.map(item=><li key={item}><i><Check/></i>{item}</li>)}</ul><h4>Preparation</h4><ol>{STEPS.map((step,i)=><li key={step}><b>Step {i+1}</b><p>{step}</p></li>)}</ol></div>
                     </div></article></div>
                 </section>
 

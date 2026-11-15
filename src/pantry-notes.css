@@ -1,6 +1,6 @@
-@import url("https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Newsreader:ital,opsz,wght@0,6..72,400..500;1,6..72,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Kalam:wght@400&family=Newsreader:ital,opsz,wght@0,6..72,400..500;1,6..72,400&display=swap");
 /* Pantry Notes, v2: true black pages, white cards, a newspaper serif, and yellow Post-its. */
-.pantry-phone-study { --pn-serif:"Newsreader",Georgia,"Times New Roman",serif; --pn-sans:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif; --pn-hand:"Caveat","Pantry Hand",cursive; --pn-ease:cubic-bezier(.22,1,.36,1);
+.pantry-phone-study { --pn-serif:"Newsreader",Georgia,"Times New Roman",serif; --pn-sans:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif; --pn-hand:"Kalam",cursive; --pn-ease:cubic-bezier(.22,1,.36,1);
     position:absolute; inset:0; overflow:hidden; background:#eeeeec; font-family:var(--pn-sans); color:#fff; }
 .pnt-device { position:absolute; top:50%; left:50%; width:473px; height:932px; transform-origin:center; filter:drop-shadow(0 14px 15px #0002); }
 /* The screen runs 6 px under the bezel on every side: the frame's opening has continuous (squircle) corners. */
@@ -26,7 +26,7 @@
 /* 00–01 · Home */
 .pnt-home-screen { position:absolute; inset:0; z-index:1; background:#000; visibility:hidden; }
 .pnt-home .pnt-home-screen { visibility:visible; }
-.pnt-wordmark { position:absolute; left:24px; top:62px; font:500 22px/22px var(--pn-serif); letter-spacing:-.02em; }
+.pnt-wordmark { position:absolute; left:0; right:0; text-align:center; top:62px; font:500 22px/22px var(--pn-serif); letter-spacing:-.02em; }
 .pnt-home-title { position:absolute; left:24px; top:144px; margin:0; width:345px; font:400 44px/46px var(--pn-serif); letter-spacing:-.02em; }
 .pnt-home-body { position:absolute; left:24px; top:252px; margin:0; width:345px; font:400 16px/22px var(--pn-sans); color:#a7a7a7; }
 .pnt-capture { position:absolute; left:16px; top:368px; width:361px; height:228px; color:#fff; }
@@ -62,13 +62,13 @@
 .pnt-app-screen { position:absolute; inset:0; z-index:3; background:#000; visibility:hidden; }
 .pnt-app .pnt-app-screen { visibility:visible; }
 .pnt-app-header { position:absolute; left:18px; right:18px; top:62px; height:30px; display:flex; align-items:center; justify-content:space-between; transition:opacity .45s; }
-.pnt-app-header>strong { font:500 20px/20px var(--pn-serif); letter-spacing:-.02em; }
+.pnt-app-header>strong { position:absolute; left:0; right:0; text-align:center; font:500 20px/20px var(--pn-serif); letter-spacing:-.02em; }
 .pnt-recipe-header { position:absolute; left:20px; right:20px; top:62px; display:flex; justify-content:space-between; align-items:center; opacity:0; transition:opacity .45s; color:#9a9a9a; }
 .pnt-recipe-header>span { display:flex; align-items:center; gap:6px; font:400 17px/20px var(--pn-sans); }
 .pnt-recipe-header>span:last-child { gap:8px; font-size:15px; line-height:18px; }
 .pnt-recipe-header i { width:1px; height:14px; background:#5a5a5a; }
 .pnt-recipe-header b { font-weight:400; color:#fff; }
-.pnt-recipe .pnt-app-header { opacity:0; }
+.pnt-recipe .pnt-app-header { opacity:1; }
 .pnt-recipe .pnt-recipe-header { opacity:1; }
 .pnt-results { position:absolute; inset:0; transition:opacity .6s; }
 .pnt-recipe .pnt-results { opacity:.4; }
@@ -110,7 +110,7 @@
 .pnt-recipe .pnt-recipe-cards { opacity:1; transform:none; }
 .pnt-recipe-card { width:100%; margin:0; background:#fff; }
 .pnt-recipe-track { transform:translateY(0); transition:transform 1600ms cubic-bezier(.45,0,.2,1); }
-.pnt-scrolled .pnt-recipe-track { transform:translateY(-350px); }
+.pnt-scrolled .pnt-recipe-track { animation:pnt-read-recipe 14s linear both; }
 .pnt-recipe-hero { position:relative; height:290px; }
 .pnt-recipe-hero>img { width:100%; height:100%; object-fit:cover; display:block; }
 .pnt-saved { position:absolute; right:14px; bottom:14px; display:flex; align-items:center; gap:8px; padding:11px 14px; border-radius:24px; background:#242424e8; color:#fff; font:600 12px/16px var(--pn-sans); text-transform:uppercase; letter-spacing:.05em; }
@@ -126,7 +126,12 @@
 .pnt-recipe-body li { display:flex; align-items:flex-start; gap:12px; font:400 16px/22px var(--pn-sans); }
 .pnt-recipe-body ul i { width:18px; height:18px; flex-shrink:0; border-radius:2px; background:#ffe487; color:#5b4519; }
 .pnt-cupboard { margin:18px 0 0; font:400 13px/19px var(--pn-sans); color:#777; }
-.pnt-recipe-body ol b { font:400 22px/24px var(--pn-serif); }
+ .pnt-recipe-intro { margin:0 0 20px; font:400 18px/26px var(--pn-serif); color:#444; }
+.pnt-recipe-body ol { gap:24px; }
+.pnt-recipe-body ol>li { display:block; }
+.pnt-recipe-body ol b { display:block; margin-bottom:8px; font:600 12px/18px var(--pn-sans); text-transform:uppercase; letter-spacing:.07em; }
+.pnt-recipe-body ol p { margin:0; font:400 19px/28px var(--pn-serif); }
+@keyframes pnt-read-recipe { 0% { transform:translateY(0); } 22% { transform:translateY(-480px); } 35% { transform:translateY(-480px); } 87%,100% { transform:translateY(calc(650px - 100%)); } }
 @keyframes pnt-flash { 0% { opacity:.9; } 100% { opacity:0; } }
 @keyframes pnt-spin { to { rotate:360deg; } }
 @keyframes pnt-tap { from { opacity:.8; scale:.7; } to { opacity:0; scale:2.4; } }
