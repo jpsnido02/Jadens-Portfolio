@@ -50,7 +50,7 @@ function Action({ children, interactive, onClick, className = "", disabled = fal
 
 export { default as ShoppableDashboard } from "./ShoppableDemoBuilder"
 
-const AGENT_TIMING = [2600, 1400, 1400, 5200, 450, 3300, 900, 1200, 3000, 650, 1100, 220, 1500, 2400, 450]
+const AGENT_TIMING = [3300, 1400, 1400, 5200, 450, 3300, 900, 1200, 3000, 650, 1100, 220, 1500, 2400, 450]
 const STAGES = ["Queue", "Building", "For review", "Complete"] as const
 type TaskStage = typeof STAGES[number]
 const ACCOUNT_LOGOS: Record<string, string> = { OpenTable: "/projects/agent-logos/opentable.svg", Shutterfly: "/projects/agent-logos/shutterfly.svg", eBay: "/projects/agent-logos/ebay.svg" }
@@ -145,7 +145,7 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
                 const scale = after.width / card.offsetWidth
                 // Keep the old slot occupied until the departing ticket has cleared it.
                 card.animate([{transform:`translateY(${(before.top-after.top)/scale}px)`},{transform:"none"}], {
-                    duration:phase === 2 ? 550 : 600,
+                    duration:phase === 0 ? 850 : phase === 2 ? 550 : 600,
                     delay:phase === 2 ? 450 : 0,
                     easing:"cubic-bezier(.22,1,.36,1)", fill:"backwards"
                 })
