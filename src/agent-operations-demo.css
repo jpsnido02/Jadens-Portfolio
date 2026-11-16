@@ -80,3 +80,13 @@
 .ado-rail,.ado-sidebar{top:56px}.ado-main-head{top:56px}.ado-action-bar{top:118px}.ado-view-bar{top:176px}
 /* Review is an action, not an outlined tag. */
 .ado-task-action.review{background:#6265df;color:#fff;border:0;padding:4px 7px}
+
+/* Keep review a contained dialog with visible board context. */
+.ado-modal{width:620px;height:480px;padding:22px 24px}
+.ado-modal-title{font-size:21px;line-height:27px}
+.ado-review-stages{margin-top:16px}
+.ado-review-summary{padding:14px 0}
+.ado-review-links{margin-bottom:12px}
+.ado-review-checks{padding:10px 13px;gap:6px}
+.ado-modal-footer{margin-top:14px}
+.ado-rail>i{background:#737780}

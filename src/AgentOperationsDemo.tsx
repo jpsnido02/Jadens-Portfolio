@@ -31,13 +31,20 @@ const TASKS:Task[]=[
 
 ]
 // Establish → arrive → pick up → drag → inspect/build → review → approve → drag to complete.
-const DURATIONS=[650,1800,450,1100,400,1000,5200,1000,400,1100,1900,700,3200,450,1000,250,400,1100,2300,350,100]
+const DURATIONS=[650,1800,450,1300,400,1000,5200,1000,400,1300,1900,700,3200,450,1000,250,400,1300,2300,350,100]
 const STARTS=DURATIONS.reduce<number[]>((a,d)=>[...a,a[a.length-1]+d],[0])
 const TOTAL=STARTS[STARTS.length-1]
 const clamp=(n:number)=>Math.max(0,Math.min(1,n))
 const mix=(a:number,b:number,t:number)=>a+(b-a)*t
 function ease(t:number) { t=clamp(t); return t*t*(3-2*t) }
 function out(t:number) { return 1-Math.pow(1-clamp(t),3) }
+// Asymmetric pickup/transfer/deceleration, rather than a uniform slide.
+function dragEase(t:number) {
+ const bez=(v:number,a:number,b:number)=>3*(1-v)*(1-v)*v*a+3*(1-v)*v*v*b+v*v*v
+ let lo=0,hi=1
+ for(let i=0;i<12;i++){const m=(lo+hi)/2;if(bez(m,.3,.24)<t)lo=m;else hi=m}
+ return bez((lo+hi)/2,.06,1)
+}
 function Icon({icon,size=14}:{icon:IconDefinition;size?:number}) {return <FontAwesomeIcon icon={icon} style={{width:size,height:size}} aria-hidden="true"/>}
 function FigmaMark() {return <svg width="13" height="19" viewBox="0 0 38 57" aria-hidden="true"><path fill="#0acf83" d="M9.5 57A9.5 9.5 0 0 1 9.5 38H19v9.5A9.5 9.5 0 0 1 9.5 57Z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 1 9.5 19H19v19H9.5A9.5 9.5 0 0 1 0 28.5Z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 1 9.5 0H19v19H9.5A9.5 9.5 0 0 1 0 9.5Z"/><path fill="#ff7262" d="M19 0h9.5a9.5 9.5 0 0 1 0 19H19Z"/><circle fill="#1abcfe" cx="28.5" cy="28.5" r="9.5"/></svg>}
 function ChatMark() {return <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#34a853" d="M3 3h18v14H9l-6 5Z"/><path fill="#188038" d="M3 3h6v14l-6 5Z"/><path fill="#fff" d="M7 7h10v2H7zm0 4h7v2H7z"/></svg>}
@@ -87,16 +94,16 @@ function frame(time:number,size:{w:number;h:number}) {
  const occupancy=[0,0,0,0]
  let col=0,dragProgress=0,rotation=0,lift=0,held=false
  if(phase<=2){occupancy[0]=arrival;col=0}
- else if(phase===3){dragProgress=ease(p);occupancy[0]=1-dragProgress;occupancy[1]=dragProgress;col=dragProgress}
+ else if(phase===3){dragProgress=dragEase(p);occupancy[0]=1-dragProgress;occupancy[1]=dragProgress;col=dragProgress}
  else if(phase<=8){occupancy[1]=1;col=1}
- else if(phase===9){dragProgress=ease(p);occupancy[1]=1-dragProgress;occupancy[2]=dragProgress;col=1+dragProgress}
+ else if(phase===9){dragProgress=dragEase(p);occupancy[1]=1-dragProgress;occupancy[2]=dragProgress;col=1+dragProgress}
  else if(phase<=16){occupancy[2]=1;col=2}
- else if(phase===17){dragProgress=ease(p);occupancy[2]=1-dragProgress;occupancy[3]=dragProgress;col=2+dragProgress}
+ else if(phase===17){dragProgress=dragEase(p);occupancy[2]=1-dragProgress;occupancy[3]=dragProgress;col=2+dragProgress}
  else if(phase<=19){occupancy[3]=1;col=3}
  if([2,8,16].includes(phase)){held=true;rotation=-2.7*out(local/180);lift=-5*out(local/180)}
- if([3,9,17].includes(phase)){held=true;rotation=mix(-2.7,-.7,dragProgress);lift=-5-6*Math.sin(Math.PI*dragProgress)}
+ if([3,9,17].includes(phase)){held=true;rotation=mix(-2.7,-.7,dragProgress)-1.4*Math.sin(2*Math.PI*dragProgress);lift=-5-24*Math.sin(Math.PI*dragProgress)}
  if([4,10,18].includes(phase)){rotation=-.7*(1-out(local/220));lift=-5*(1-out(local/220))}
- const stage:Stage=phase<3||phase===20?"Queue":phase<9?"Building":phase<17?"For review":"Complete"
+ const stage:Stage=phase<4||phase===20?"Queue":phase<10?"Building":phase<18?"For review":"Complete"
  const made=phase<6||phase===20?0:Math.min(14,Math.floor(Math.max(0,time-STARTS[6])/340))
  let zoom=0;if(phase===5)zoom=ease(p);else if(phase===6)zoom=1;else if(phase===7)zoom=1-ease(p)
  const compact=size.w>0&&size.w<500
@@ -109,7 +116,7 @@ function frame(time:number,size:{w:number;h:number}) {
  const opacity=phase===19?1-ease(p):phase===20?0:phase===0?out(local/250):1
  const modal=phase>=12&&phase<=15,approved=phase>=14
  const modalIn=phase===12?out(local/280):phase===15?1-ease(local/220):1
- const modalScale=compact?Math.min(1,(size.w-36)/326,(size.h-36)/340):Math.min(1,(size.w-56)/710,(size.h-48)/520)
+ const modalScale=compact?Math.min(1,(size.w-36)/326,(size.h-36)/340):Math.min(.82,(size.w*.68)/620,(size.h*.8)/480)
  const focalPress=phase===11?Math.sin(clamp(local/300)*Math.PI):0
  const focusX=BOARD_X+8+col*COL_STEP,focusY=CARD_Y+lift
  return {phase,local,p,present,arrival,occupancy,col,held,stage,made,compact,s,tx,ty,opacity,modal,approved,modalIn,modalScale,focalPress,focusX,focusY,rotation}
@@ -147,7 +154,7 @@ export function AgentDashboard({playing,interactive:_interactive=false}:{playing
   <div ref={scene} className="ado-scene" style={{width:W,height:H,opacity,transform:`matrix(${s},0,0,${s},${tx},${ty})`}}>
    <Shell/>
    <div className="ado-board" style={{left:BOARD_X,top:BOARD_Y,width:COL_W*4+14*3}}>
-    {COLUMNS.map((name,i)=><div key={name} className={`ado-column ado-column-${i}`} style={{left:i*COL_STEP,width:COL_W}}><div className="ado-column-head"><Icon icon={faGripVertical} size={12}/><span className="ado-column-name">{name}</span><b>{TASKS.filter(t=>t.stage===name).length+(present&&Math.round(col)===i?1:0)}</b><Icon icon={faEllipsis} size={14}/><Icon icon={faPlus} size={14}/></div>{held&&[3,9,17].includes(phase)&&i===Math.ceil(col)&&<div className="ado-drop-slot" style={{height:CARD_H}}/>}</div>)}
+    {COLUMNS.map((name,i)=><div key={name} className={`ado-column ado-column-${i}`} style={{left:i*COL_STEP,width:COL_W}}><div className="ado-column-head"><Icon icon={faGripVertical} size={12}/><span className="ado-column-name">{name}</span><b>{TASKS.filter(t=>t.stage===name).length+(present&&COLUMNS.indexOf(stage)===i?1:0)}</b><Icon icon={faEllipsis} size={14}/><Icon icon={faPlus} size={14}/></div>{held&&[3,9,17].includes(phase)&&i===Math.ceil(col)&&<div className="ado-drop-slot" style={{height:CARD_H}}/>}</div>)}
    </div>
    {TASKS.map((task,index)=>{const i=COLUMNS.indexOf(task.stage),row=TASKS.filter(t=>t.stage===task.stage).findIndex(t=>t.id===task.id);return <div ref={el=>{slots.current[index]=el}} key={task.id} className="ado-ticket-slot" data-ticket={task.id} style={{width:CARD_W,height:CARD_H,transform:`translate(${BOARD_X+8+i*COL_STEP}px,${CARD_Y+(row+occupancy[i])*ROW_STEP}px)`}}><Ticket task={task} made={task.made} stage={task.stage} click={false}/></div>})}
    <div ref={focal} className={`ado-ticket-slot ado-focal ${held?"ado-held":""}`} data-ticket="DS-103" style={{width:CARD_W,height:CARD_H,opacity:arrival,transform:`translate(${focusX}px,${focusY+(phase===1?8*(1-arrival):0)}px) rotate(${rotation}deg)`,zIndex:held?10:3}}>
