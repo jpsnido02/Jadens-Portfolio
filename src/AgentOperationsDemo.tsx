@@ -43,7 +43,7 @@ function FigmaMark() {return <svg width="13" height="19" viewBox="0 0 38 57" ari
 function ChatMark() {return <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#34a853" d="M3 3h18v14H9l-6 5Z"/><path fill="#188038" d="M3 3h6v14l-6 5Z"/><path fill="#fff" d="M7 7h10v2H7zm0 4h7v2H7z"/></svg>}
 
 // Shared optical weight and 24px grid; each mark describes its app's job.
-function AppMark({kind}:{kind:"agents"|"brands"|"demos"}) {return <svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true">{kind==="agents"?<>
+function AppMark({kind}:{kind:"agents"|"brands"|"demos"}) {return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">{kind==="agents"?<>
  <path d="m4 19 8-15 8 15M7.5 13h9" stroke="white" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/>
  <circle cx="4" cy="19" r="2.3" fill="white"/><circle cx="20" cy="19" r="2.3" fill="white"/><circle cx="12" cy="4" r="2.3" fill="white"/>
  </>:kind==="brands"?<>
@@ -54,7 +54,7 @@ function AppMark({kind}:{kind:"agents"|"brands"|"demos"}) {return <svg width="23
  <path d="M3 8h18" stroke="white" strokeWidth="2"/><path d="m10 11 6 3.5-6 3.5v-7Z" fill="white"/>
  </>}</svg>}
 const Shell=memo(function Shell(){return <>
- <div className="ado-browser"><span className="ado-lights"><i/><i/><i/></span><Icon icon={faTableColumns} size={12}/><Icon icon={faChevronLeft} size={10}/><Icon icon={faChevronRight} size={10}/><span className="ado-address"><Icon icon={faLock} size={8}/>design.rokt.demo/workspace<Icon icon={faArrowRotateRight} size={10}/></span><Icon icon={faPlus} size={12}/><Icon icon={faExpand} size={11}/></div>
+ <div className="ado-browser"><span className="ado-lights"><i/><i/><i/></span><span className="ado-safari-nav"><Icon icon={faTableColumns} size={12}/><Icon icon={faChevronLeft} size={11}/><Icon icon={faChevronRight} size={11}/></span><span className="ado-address"><span><Icon icon={faLock} size={8}/>design.rokt.demo</span><Icon icon={faArrowRotateRight} size={10}/></span><span className="ado-safari-tools"><Icon icon={faShareNodes} size={12}/><Icon icon={faPlus} size={13}/><Icon icon={faTableCellsLarge} size={12}/></span></div>
  <div className="ado-rail"><span className="ado-rail-rokt" title="Rokt ecosystem"><RoktWordmark height={10}/></span><span className="ado-rail-app selected" title="Design Agents — automated design workflows"><AppMark kind="agents"/></span><span className="ado-rail-app" title="Brand Studio — partner brand systems"><AppMark kind="brands"/></span><span className="ado-rail-app" title="Demo Builder — commerce experience previews"><AppMark kind="demos"/></span><i/><span className="ado-rail-plus"><Icon icon={faPlus} size={19}/></span><span className="ado-rail-bottom"><Icon icon={faLightbulb} size={19}/><Icon icon={faMoon} size={19}/></span></div>
  <aside className="ado-sidebar">
   <div className="ado-product"><span className="ado-product-icon"><AppMark kind="agents"/></span><div><strong>Rokt</strong><span>Design Agents</span></div><Icon icon={faChevronLeft} size={13}/></div>
