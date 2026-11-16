@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "re
 import useStudySequence from "./useStudySequence"
 import { SiteIcon, RoktWordmark } from "./icons"
 import "./portfolio-workbench.css"
+import "./agent-workspace.css"
 import { faGoogleDrive } from "@fortawesome/free-brands-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { config } from "@fortawesome/fontawesome-svg-core"
@@ -20,7 +21,7 @@ function Workbench({ children, kind, camera = "queue" }: { children: ReactNode; 
     const [appHeight, setAppHeight] = useState(660)
     useEffect(() => {
         const observer = new ResizeObserver(([entry]) => {
-            const nextScale = Math.max(0, kind === "agent" ? Math.min((entry.contentRect.width - 48) / 1400, (entry.contentRect.height - 40) / 860) : Math.min((entry.contentRect.width - 30) / 1000, (entry.contentRect.height - 30) / 660))
+            const nextScale = Math.max(0, kind === "agent" ? Math.min((entry.contentRect.width - 48) / 1600, (entry.contentRect.height - 40) / 740) : Math.min((entry.contentRect.width - 30) / 1000, (entry.contentRect.height - 30) / 660))
             setScale(nextScale)
             if (kind === "agent" && nextScale > 0) setAppHeight((entry.contentRect.height - 40) / nextScale)
         })
@@ -41,7 +42,7 @@ function Workbench({ children, kind, camera = "queue" }: { children: ReactNode; 
     const cameraScale = scale * (focused ? 1.95 : 1)
     const cameraX = focused ? pan.x * cameraScale : 0
     const cameraY = focused ? pan.y * cameraScale : 0
-    return <div ref={root} className={`pw-stage pw-stage--${kind}`}>{scale > 0 && <div className="pw-app" style={{ height: kind === "agent" ? appHeight : undefined, transform: kind === "agent" ? `translate(calc(-50% + ${cameraX}px),calc(-50% + ${cameraY}px)) scale(${cameraScale})` : `translate(-50%,-50%) scale(${scale})` }}>{children}</div>}</div>
+    return <div ref={root} className={`pw-stage pw-stage--${kind}`}>{scale > 0 && <div className="pw-app" style={{ height: kind === "agent" ? appHeight : undefined, transform: kind === "agent" ? `translate(calc(-50% + ${cameraX}px),calc(-50% + ${cameraY}px)) scale(${cameraScale})` : `translate(-50%,-50%) scale(${scale})` }}>{kind === "agent" && <div className="ops-browser-bar"><div className="ops-window-controls"><i/><i/><i/></div><span className="ops-browser-navigation"><WorkbenchIcon name="arrow" size={10}/><WorkbenchIcon name="arrow" size={10}/></span><span className="ops-browser-address">design-operations.demo</span><WorkbenchIcon name="plus" size={11}/></div>}{children}</div>}</div>
 }
 
 function Action({ children, interactive, onClick, className = "", disabled = false, label }: { children: ReactNode; interactive: boolean; onClick?: () => void; className?: string; disabled?: boolean; label?: string }) {
@@ -50,7 +51,7 @@ function Action({ children, interactive, onClick, className = "", disabled = fal
 
 export { default as ShoppableDashboard } from "./ShoppableDemoBuilder"
 
-const AGENT_TIMING = [3300, 1400, 1400, 5200, 450, 3300, 900, 1200, 3000, 650, 1100, 220, 1500, 2400, 450]
+const AGENT_TIMING = [3300, 650, 1200, 1200, 5200, 1200, 1200, 2200, 700, 1200, 3000, 650, 1100, 220, 1200, 2400, 450]
 const STAGES = ["Queue", "Building", "For review", "Complete"] as const
 type TaskStage = typeof STAGES[number]
 const ACCOUNT_LOGOS: Record<string, string> = { OpenTable: "/projects/agent-logos/opentable.svg", Shutterfly: "/projects/agent-logos/shutterfly.svg", eBay: "/projects/agent-logos/ebay.svg" }
@@ -70,7 +71,7 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
     useEffect(() => {
         if (interactive) return
         if (matchMedia("(prefers-reduced-motion: reduce)").matches) { setArrived(true); return }
-        if (phase === 14) { setArrived(false); return }
+        if (phase === 16) { setArrived(false); return }
         if (phase !== 0 || !playing) return
         const timer = window.setTimeout(() => {
             positions.current = new Map(Array.from(ticketCards.current.entries()).filter(([,card]) => card.isConnected).map(([id,card]) => [id,card.getBoundingClientRect()]))
@@ -81,9 +82,9 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
     }, [phase, playing, interactive])
     const [tasks, setTasks] = useState(SAMPLE_TASKS)
     const [manualSelected, setSelected] = useState<string | null>(null)
-    const selected = interactive ? manualSelected : phase >= 7 && phase <= 11 ? "DS-103" : null
+    const selected = interactive ? manualSelected : phase >= 9 && phase <= 13 ? "DS-103" : null
     const [manualClosing, setClosing] = useState(false)
-    const closing = interactive ? manualClosing : phase === 11
+    const closing = interactive ? manualClosing : phase === 13
     const [filter, setFilter] = useState<TaskStage | "All tickets">("All tickets")
     const [view, setView] = useState<"table" | "board">("board")
     const [search, setSearch] = useState("")
@@ -103,10 +104,19 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
     const positions = useRef(new Map<string, DOMRect>())
     const stagesBefore = useRef(new Map<string, TaskStage>())
     const detailPanel = useRef<HTMLElement>(null)
+    useEffect(() => {
+        for (const node of [...ticketCards.current.values(), detailPanel.current]) {
+            if (!node?.isConnected) continue
+            for (const animation of node.getAnimations()) {
+                if (!playing && animation.playState === "running") animation.pause()
+                else if (playing && animation.playState === "paused") animation.play()
+            }
+        }
+    }, [playing])
     const sourceRect = useRef<DOMRect | null>(null)
     const detailAnimation = useRef<Animation | null>(null)
     const opener = useRef<HTMLElement | null>(null)
-    const rows = interactive ? tasks : SAMPLE_TASKS.map(task => task.id === "DS-103" ? { ...task, stage: phase <= 1 || phase === 14 ? "Queue" as TaskStage : phase <= 4 ? "Building" as TaskStage : phase >= 12 ? "Complete" as TaskStage : "For review" as TaskStage } : task)
+    const rows = interactive ? tasks : SAMPLE_TASKS.map(task => task.id === "DS-103" ? { ...task, stage: phase <= 1 || phase === 16 ? "Queue" as TaskStage : phase <= 5 ? "Building" as TaskStage : phase >= 14 ? "Complete" as TaskStage : "For review" as TaskStage } : task)
     if (!interactive && !arrived) rows.splice(rows.findIndex(task => task.id === "DS-103"), 1)
     if (!interactive) rows.sort((a,b) => Number(b.id === "DS-103")-Number(a.id === "DS-103"))
     const active = rows.find(task => task.id === selected)
@@ -114,11 +124,11 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
     const stageKey = rows.map(task => `${task.id}:${task.stage}`).join("|")
     const [demoCount, setDemoCount] = useState(0)
     useEffect(() => {
-        if (interactive || phase !== 3 || !playing) return
+        if (interactive || phase !== 4 || !playing) return
         const timer = window.setInterval(() => setDemoCount(value => Math.min(14, value + 1)), 340)
         return () => window.clearInterval(timer)
     }, [phase, playing, interactive])
-    useEffect(() => { if (phase === 14) setDemoCount(0) }, [phase])
+    useEffect(() => { if (phase === 16) setDemoCount(0) }, [phase])
     const designTarget = (task: typeof SAMPLE_TASKS[number]) => task.id === "DS-103" ? 14 : 30
     const designsMade = (task: typeof SAMPLE_TASKS[number]) => task.stage === "Queue" ? 0 : task.stage === "Building" ? interactive ? Math.min(designTarget(task), Math.max(0, (elapsed[task.id] ?? 0) - (buildStart[task.id] ?? 0)) * 2) : Math.min(14, demoCount) : designTarget(task)
     useLayoutEffect(() => {
@@ -133,31 +143,23 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
             const before = positions.current.get(task.id)
             const oldStage = stagesBefore.current.get(task.id)
             const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-            if (!interactive && phase === 12 && before && oldStage && !reduced) {
-                if (task.id === "DS-103") {
-                    card.animate([{opacity:0,transform:"translateY(8px)",offset:0},{opacity:0,transform:"translateY(8px)",offset:.65},{opacity:1,transform:"none",offset:1}],{duration:650,easing:"cubic-bezier(.22,1,.36,1)"})
-                } else if (task.stage === "Complete" && Math.abs(before.top-after.top)>1) {
-                    const scale=after.width/card.offsetWidth
-                    card.animate([{transform:`translateY(${(before.top-after.top)/scale}px)`},{transform:"none"}],{duration:450,easing:"cubic-bezier(.22,1,.36,1)"})
-                }
-            } else {
-            if (!interactive && changedStage && before && oldStage === task.stage && Math.abs(before.top-after.top)>1 && !reduced && phase !== 14) {
-                const scale = after.width / card.offsetWidth
-                // Keep the old slot occupied until the departing ticket has cleared it.
-                card.animate([{transform:`translateY(${(before.top-after.top)/scale}px)`},{transform:"none"}], {
-                    duration:phase === 0 ? 850 : phase === 2 ? 550 : 600,
-                    delay:phase === 2 ? 450 : 0,
+            if (!interactive && changedStage && before && oldStage === task.stage && Math.abs(before.top-after.top)>1 && !reduced && phase !== 16) {
+                const unit = after.width / card.offsetWidth
+                card.animate([{transform:`translateY(${(before.top-after.top)/unit}px)`},{transform:"none"}], {
+                    duration:phase === 0 ? 850 : 900, delay:phase === 2 ? 220 : 0,
                     easing:"cubic-bezier(.22,1,.36,1)", fill:"backwards"
                 })
             }
-            if ((interactive || phase !== 0 && phase !== 14) && changedStage && before && oldStage && oldStage !== task.stage && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            if ((interactive || phase !== 0 && phase !== 16) && changedStage && before && oldStage && oldStage !== task.stage && !reduced) {
                 didMove = true
-                const scale = after.width / card.offsetWidth
+                const unit = after.width / card.offsetWidth
+                const dx=(before.left-after.left)/unit, dy=(before.top-after.top)/unit
                 card.animate([
-                    { transform: `translate(${(before.left - after.left) / scale}px,${(before.top - after.top) / scale}px)`, boxShadow: "0 12px 28px #20263022", zIndex: 6 },
-                    { transform: "translate(0,0)", boxShadow: "0 0 0 #20263000", zIndex: 6 }
-                ], { duration: 1000, easing: "cubic-bezier(.45,0,.2,1)" })
-            }
+                    {transform:`translate(${dx}px,${dy}px) rotate(0deg)`,boxShadow:"0 2px 4px #20263012",zIndex:6,offset:0},
+                    {transform:`translate(${dx*.97}px,${dy-5}px) rotate(-2.5deg)`,boxShadow:"0 14px 28px #20263026",zIndex:6,offset:.15},
+                    {transform:`translate(${dx*.04}px,-4px) rotate(1deg)`,boxShadow:"0 10px 20px #20263020",zIndex:6,offset:.85},
+                    {transform:"translate(0,0) rotate(0deg)",boxShadow:"0 1px 2px #20263008",zIndex:6,offset:1}
+                ],{duration:1100,easing:"cubic-bezier(.4,0,.2,1)"})
             }
             if (oldStage === "Building" && task.stage === "For review") newlyReady.push(task.id)
             next.set(task.id, after)
@@ -165,7 +167,7 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
         if (didMove) {
             setMoving(true)
             window.clearTimeout(moveTimer.current)
-            moveTimer.current = window.setTimeout(() => setMoving(false), 1050)
+            moveTimer.current = window.setTimeout(() => setMoving(false), 1150)
         }
         positions.current = next
         stagesBefore.current = new Map(rows.map(task => [task.id, task.stage]))
@@ -212,7 +214,7 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
         return () => detailAnimation.current?.cancel()
     }, [selected])
     useLayoutEffect(() => {
-        if (interactive || phase !== 11) return
+        if (interactive || phase !== 13) return
         const panel = detailPanel.current, card = ticketCards.current.get("DS-103")
         if (!panel || !card || matchMedia("(prefers-reduced-motion: reduce)").matches) return
         detailAnimation.current?.cancel()
@@ -262,12 +264,19 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
         setSelected(id)
         setNotice("")
     }
-    const rowAction = (id: string, stage: TaskStage) => <Action interactive={interactive} className={`pw-row-action ${stage === "For review" ? "pw-primary" : ""} ${!interactive && id === "DS-103" && phase === 1 ? "ops-start-click" : ""}`} onClick={() => act(id, stage)}>{stage === "Queue" ? "Start build" : stage === "For review" ? "Review build" : "View build"}{!interactive && id === "DS-103" && (phase === 1 || phase === 6) && <span className="uber-tap ops-click-ripple" style={{animationDelay:phase === 1 ? "950ms" : "0ms"}}/>}</Action>
-    return <Workbench kind="agent" camera={interactive || phase >= 6 ? "review" : phase === 1 ? "queued" : phase >= 2 && phase <= 4 ? "building" : phase === 5 || phase === 6 ? "tracking" : "queue"}><div className={`ops-demo-sequence ops-demo-phase-${phase}`} aria-hidden="true"/><aside className="pw-sidebar"><b className="pw-brand"><RoktWordmark height={22}/></b><span><SiteIcon name="overview" size={10}/> Overview</span><span className="is-active"><SiteIcon name="tasks" size={10}/> Ticket queue</span><span><SiteIcon name="library" size={10}/> Account library</span><span><SiteIcon name="activity" size={10}/> Activity</span><div className="pw-sidebar-bottom"><i>JS</i><span>Jaden Snyder<small>Designer · reviewer</small></span></div></aside><div className={`pw-main ${!interactive ? `ops-autoplay ops-phase-${phase}` : ""}`}>
-        <div className="pw-page-heading"><div><h3>Ticket queue</h3></div><span className="pw-avatar">JS</span></div>
-        <section className="pw-task-panel"><div className="pw-task-toolbar"><div className="pw-view-tabs">{(["board", "table"] as const).map(mode => <Action key={mode} interactive={interactive} className={view === mode ? "is-active" : ""} onClick={() => setView(mode)}><SiteIcon name={mode === "table" ? "tasks" : "board"} size={10}/>{mode === "table" ? "Ticket list" : "Board"}</Action>)}</div>{interactive ? <input aria-label="Search tickets" value={search} onChange={event => setSearch(event.target.value)} placeholder="Search tickets…"/> : <span className="pw-search-placeholder"><SiteIcon name="search" size={9}/> Search tickets…</span>}</div><div className="pw-filter-tabs">{(["All tickets", ...STAGES] as const).map(stage => <Action key={stage} interactive={interactive} className={filter === stage ? "is-active" : ""} onClick={() => setFilter(stage)}>{stage}<b>{stage === "All tickets" ? rows.length : rows.filter(task => task.stage === stage).length}</b></Action>)}</div>
-        {view === "table" ? <div className="pw-task-table"><div className="pw-table-head"><span>BRAND / TICKET</span><span>PROGRESS</span><span>DESIGNS MADE</span><span>BUILD TIME</span><span>ACTION</span></div>{visible.map(task => <div ref={element => { if (element) ticketCards.current.set(task.id, element) }} className="pw-task-row" key={task.id}><div className="pw-task-title"><i><img src={ACCOUNT_LOGOS[task.account]} alt=""/></i><div><strong>{task.title}</strong><small>{task.account} · {task.id}</small></div></div><span><b className={`pw-status ${stageClass(task.stage)}`}>{task.stage}</b></span><span className="ops-table-count">{designsMade(task)}/{designTarget(task)}</span><span className="pw-task-time">{buildTime(!interactive && task.id === "DS-103" ? Math.round(demoCount * 25.6) : task.buildSeconds + (elapsed[task.id] ?? 0))}</span>{rowAction(task.id, task.stage)}</div>)}{!visible.length && <p className="pw-empty">No tickets match this search.</p>}</div> : <div className={`pw-kanban ${moving ? "is-moving" : ""}`}>{STAGES.map(stage => <section key={stage}><h4><WorkbenchIcon name={stage === "Queue" ? "queue" : stage === "Building" ? "building" : stage === "For review" ? "review" : "check"} size={11}/>{stage}<span>{visible.filter(task => task.stage === stage).length}</span></h4>{visible.filter(task => task.stage === stage).map(task => <article data-ticket={task.id} onClick={interactive ? event => { if (!(event.target as Element).closest("button")) act(task.id, task.stage) } : undefined} ref={element => { if (element) ticketCards.current.set(task.id, element) }} key={task.id} className={`${!interactive && task.id === "DS-103" && phase === 6 ? "ops-demo-open" : ""} ${task.stage === "For review" ? "ops-card-needs-review" : ""} ${task.id === selected ? "ops-card-open" : ""}`}><div className="ops-card-account"><img src={ACCOUNT_LOGOS[task.account]} alt=""/><strong>{task.account}</strong><span>{task.id}</span></div><h5>{task.title}</h5><div className="ops-request-meta"><span>Requested by Jaden Snyder</span><span>Due today</span></div><div className="ops-card-progress"><div><span>Mock status</span><b>{designsMade(task)}<em>/{designTarget(task)}</em></b></div><div className="ops-progress-track" role="progressbar" aria-label={`Designs made for ${task.id}`} aria-valuenow={designsMade(task)} aria-valuemin={0} aria-valuemax={designTarget(task)}><i style={{width:`${designsMade(task) / designTarget(task) * 100}%`}}/></div></div>{rowAction(task.id, task.stage)}</article>)}{!visible.some(task => task.stage === stage) && <div className="ops-empty-column"><WorkbenchIcon name={stage === "For review" ? "review" : "queue"} size={14}/><span>{stage === "For review" ? "Nothing waiting on you" : "No tickets here"}</span></div>}</section>)}</div>}
-        <footer className="pw-table-footer"><span role="status">{interactive ? notice : phase >= 12 && phase <= 13 ? "Approved. Shutterfly is complete." : ""}</span><span>{visible.length} tickets</span></footer></section>
+    const rowAction = (id: string, stage: TaskStage) => <Action interactive={interactive} className={`pw-row-action ${stage === "For review" ? "pw-primary" : ""} ${!interactive && id === "DS-103" && phase === 1 ? "ops-pickup-card" : ""}`} onClick={() => act(id, stage)}>{stage === "Queue" ? "Start build" : stage === "For review" ? "Review build" : "View build"}{!interactive && id === "DS-103" && phase === 8 && <span className="uber-tap ops-click-ripple" />}</Action>
+    return <Workbench kind="agent" camera={!interactive && (phase === 3 || phase === 4) ? "building" : "review"}>
+        <nav className="ops-app-rail" aria-label="Workspace apps"><span className="ops-rail-mark"><RoktWordmark height={12}/></span><span className="is-active" title="Design Operations"><WorkbenchIcon name="tasks" size={17}/></span><span title="Account Library"><WorkbenchIcon name="library" size={17}/></span><span title="Brand Systems"><WorkbenchIcon name="palette" size={17}/></span><span className="ops-rail-add"><WorkbenchIcon name="plus" size={13}/></span><span className="ops-rail-settings"><WorkbenchIcon name="sliders" size={15}/></span></nav>
+        <aside className="pw-sidebar ops-sidebar"><div className="ops-workspace-switcher"><span><WorkbenchIcon name="robot" size={17}/></span><div><strong>Design Operations</strong><small>Rokt · Design team</small></div><WorkbenchIcon name="chevron" size={9}/></div>
+        <div className="ops-sidebar-search"><WorkbenchIcon name="search" size={11}/><span>Search workspace</span><kbd>⌘ K</kbd></div>
+        <div className="ops-nav-group"><span><WorkbenchIcon name="home" size={13}/>Overview</span><span className="is-active"><WorkbenchIcon name="board" size={13}/>Ticket queue<b>{rows.length}</b></span><span><WorkbenchIcon name="review" size={13}/>Review inbox<b>{rows.filter(t=>t.stage === "For review").length}</b></span><span><WorkbenchIcon name="activity" size={13}/>Build history</span></div>
+        <div className="ops-nav-group"><h4>Accounts<WorkbenchIcon name="plus" size={10}/></h4>{["Shutterfly","OpenTable","eBay"].map(name=><span key={name}><img src={ACCOUNT_LOGOS[name]} alt=""/>{name}</span>)}</div>
+        <div className="ops-nav-group ops-nav-bottom"><span><WorkbenchIcon name="library" size={13}/>Integrations</span><span><WorkbenchIcon name="sliders" size={13}/>Settings</span></div>
+        <div className="pw-sidebar-bottom"><i>JS</i><span>Jaden Snyder<small>Designer · reviewer</small></span><WorkbenchIcon name="chevron" size={9}/></div></aside><div className={`pw-main ${!interactive ? `ops-autoplay ops-phase-${phase}` : ""}`}>
+        <div className="pw-page-heading"><div className="ops-page-title"><WorkbenchIcon name="board" size={16}/><h3>Ticket queue</h3></div><div className="ops-heading-actions"><WorkbenchIcon name="search" size={14}/><WorkbenchIcon name="bell" size={14}/><span className="pw-avatar">JS</span></div></div>
+        <section className="pw-task-panel"><div className="pw-task-toolbar"><div className="pw-view-tabs">{(["board", "table"] as const).map(mode => <Action key={mode} interactive={interactive} className={view === mode ? "is-active" : ""} onClick={() => setView(mode)}><SiteIcon name={mode === "table" ? "tasks" : "board"} size={10}/>{mode === "table" ? "Ticket list" : "Board"}</Action>)}</div>{interactive ? <input aria-label="Search tickets" value={search} onChange={event => setSearch(event.target.value)} placeholder="Search tickets…"/> : <span className="pw-search-placeholder"><SiteIcon name="search" size={9}/> Search tickets…</span>}</div><div className="ops-board-controls"><span><WorkbenchIcon name="sliders" size={10}/>Filter</span><span><WorkbenchIcon name="table" size={10}/>Group by status</span><span className="ops-new-request"><WorkbenchIcon name="plus" size={10}/>New request</span></div><div className="pw-filter-tabs">{(["All tickets", ...STAGES] as const).map(stage => <Action key={stage} interactive={interactive} className={filter === stage ? "is-active" : ""} onClick={() => setFilter(stage)}>{stage}<b>{stage === "All tickets" ? rows.length : rows.filter(task => task.stage === stage).length}</b></Action>)}</div>
+        {view === "table" ? <div className="pw-task-table"><div className="pw-table-head"><span>BRAND / TICKET</span><span>PROGRESS</span><span>DESIGNS MADE</span><span>BUILD TIME</span><span>ACTION</span></div>{visible.map(task => <div ref={element => { if (element) ticketCards.current.set(task.id, element) }} className="pw-task-row" key={task.id}><div className="pw-task-title"><i><img src={ACCOUNT_LOGOS[task.account]} alt=""/></i><div><strong>{task.title}</strong><small>{task.account} · {task.id}</small></div></div><span><b className={`pw-status ${stageClass(task.stage)}`}>{task.stage}</b></span><span className="ops-table-count">{designsMade(task)}/{designTarget(task)}</span><span className="pw-task-time">{buildTime(!interactive && task.id === "DS-103" ? Math.round(demoCount * 25.6) : task.buildSeconds + (elapsed[task.id] ?? 0))}</span>{rowAction(task.id, task.stage)}</div>)}{!visible.length && <p className="pw-empty">No tickets match this search.</p>}</div> : <div className={`pw-kanban ${moving ? "is-moving" : ""}`}>{STAGES.map(stage => <section key={stage} data-stage={stage}><h4><WorkbenchIcon name={stage === "Queue" ? "queue" : stage === "Building" ? "building" : stage === "For review" ? "review" : "check"} size={11}/>{stage}<span>{visible.filter(task => task.stage === stage).length}</span><i className="ops-column-actions"><WorkbenchIcon name="more" size={11}/><WorkbenchIcon name="plus" size={10}/></i></h4>{visible.filter(task => task.stage === stage).map(task => <article data-ticket={task.id} data-task-stage={task.stage} onClick={interactive ? event => { if (!(event.target as Element).closest("button")) act(task.id, task.stage) } : undefined} ref={element => { if (element) ticketCards.current.set(task.id, element) }} key={task.id} className={`${!interactive && task.id === "DS-103" && moving ? "ops-dragging" : ""} ${!interactive && task.id === "DS-103" && phase === 1 ? "ops-picked-up" : ""} ${!interactive && task.id === "DS-103" && phase === 8 ? "ops-demo-open" : ""} ${task.stage === "For review" ? "ops-card-needs-review" : ""} ${task.id === selected ? "ops-card-open" : ""}`}><div className="ops-card-account"><img src={ACCOUNT_LOGOS[task.account]} alt=""/><strong>{task.account}</strong><span>{task.id}</span></div><h5>{task.title}</h5><div className="ops-request-meta"><span>Requested by Jaden Snyder</span><span>Due today</span></div><div className="ops-card-progress"><div><span>Mock status</span><b>{designsMade(task)}<em>/{designTarget(task)}</em></b></div><div className="ops-progress-track" role="progressbar" aria-label={`Designs made for ${task.id}`} aria-valuenow={designsMade(task)} aria-valuemin={0} aria-valuemax={designTarget(task)}><i style={{width:`${designsMade(task) / designTarget(task) * 100}%`}}/></div></div>{rowAction(task.id, task.stage)}</article>)}{!visible.some(task => task.stage === stage) && <div className="ops-empty-column"><WorkbenchIcon name={stage === "For review" ? "review" : "queue"} size={14}/><span>{stage === "For review" ? "Nothing waiting on you" : "No tickets here"}</span></div>}</section>)}</div>}
+        <footer className="pw-table-footer"><span role="status">{interactive ? notice : phase >= 14 && phase <= 15 ? "Approved. Shutterfly is complete." : ""}</span><span>{visible.length} tickets</span></footer></section>
         {active && <><div className={`ops-detail-backdrop ${closing ? "is-closing" : ""}`} onClick={() => void closeTicket()}/><div className="ops-review-slot"><aside ref={detailPanel} role="dialog" aria-modal="true" aria-label={`${active.id}: ${active.title}`} onKeyDown={event => {
             if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); void closeTicket() }
             if (event.key === "Tab") {
@@ -282,7 +291,7 @@ export function AgentDashboard({ playing, interactive = false }: { playing: bool
 
             <div className="ops-expanded-build-time"><span>Total time building</span><strong>{buildTime(!interactive && active.id === "DS-103" ? Math.round(demoCount * 25.6) : active.buildSeconds + (elapsed[active.id] ?? 0))}</strong></div>
             <div className="ops-review-timeline"><div>{STAGES.map((stage, index) => <div key={stage} className={index < STAGES.indexOf(active.stage) ? "is-done" : stage === active.stage ? "is-current" : ""}><i/><span>{stage}</span></div>)}</div><aside><strong>{active.stage === "Complete" ? "Approved" : "6h 25m left"}</strong><span>{active.stage === "Complete" ? "Ready to hand off" : "Due today"}</span></aside></div>
-            <div className="ops-review-commandbar"><div className="ops-review-resources"><button type="button" onClick={() => setSection(section === "designs" ? null : "designs")} aria-expanded={section === "designs"}><svg width="16" height="24" viewBox="0 0 38 57" aria-label="Figma" role="img"><path fill="#0acf83" d="M9.5 57A9.5 9.5 0 0 1 9.5 38H19v9.5A9.5 9.5 0 0 1 9.5 57Z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 1 9.5 19H19v19H9.5A9.5 9.5 0 0 1 0 28.5Z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 1 9.5 0H19v19H9.5A9.5 9.5 0 0 1 0 9.5Z"/><path fill="#ff7262" d="M19 0h9.5a9.5 9.5 0 0 1 0 19H19Z"/><circle fill="#1abcfe" cx="28.5" cy="28.5" r="9.5"/></svg>Figma</button><button type="button" onClick={() => setSection(section === "request" ? null : "request")} aria-expanded={section === "request"}><FontAwesomeIcon icon={faGoogleDrive} style={{width:16,height:16,color:"#1a9f68"}}/>Google Drive</button><button type="button" onClick={() => setFeedbackOpen(!feedbackOpen)} aria-expanded={feedbackOpen}><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#34a853" d="M3 3h18v14H9l-6 5Z"/><path fill="#188038" d="M3 3h6v14l-6 5Z"/><path fill="#fff" d="M7 7h10v2H7zm0 4h7v2H7z"/></svg>Google Chat</button></div>{active.stage === "For review" && <div className={`ops-review-decisions ${!interactive && phase === 9 ? "ops-demo-approve" : ""}`}><button type="button" className="ops-request-changes" onClick={() => setFeedbackOpen(true)}>Request changes</button><button type="button" className={`pw-primary ${!interactive && phase >= 10 ? "ops-approved" : ""}`} onClick={() => void update("Complete")}><WorkbenchIcon name="check" size={13}/>{!interactive && phase >= 10 ? "Approved" : "Approve"}{!interactive && phase === 9 && <span className="uber-tap ops-click-ripple"/>}</button></div>}</div>
+            <div className="ops-review-commandbar"><div className="ops-review-resources"><button type="button" onClick={() => setSection(section === "designs" ? null : "designs")} aria-expanded={section === "designs"}><svg width="16" height="24" viewBox="0 0 38 57" aria-label="Figma" role="img"><path fill="#0acf83" d="M9.5 57A9.5 9.5 0 0 1 9.5 38H19v9.5A9.5 9.5 0 0 1 9.5 57Z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 1 9.5 19H19v19H9.5A9.5 9.5 0 0 1 0 28.5Z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 1 9.5 0H19v19H9.5A9.5 9.5 0 0 1 0 9.5Z"/><path fill="#ff7262" d="M19 0h9.5a9.5 9.5 0 0 1 0 19H19Z"/><circle fill="#1abcfe" cx="28.5" cy="28.5" r="9.5"/></svg>Figma</button><button type="button" onClick={() => setSection(section === "request" ? null : "request")} aria-expanded={section === "request"}><FontAwesomeIcon icon={faGoogleDrive} style={{width:16,height:16,color:"#1a9f68"}}/>Google Drive</button><button type="button" onClick={() => setFeedbackOpen(!feedbackOpen)} aria-expanded={feedbackOpen}><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#34a853" d="M3 3h18v14H9l-6 5Z"/><path fill="#188038" d="M3 3h6v14l-6 5Z"/><path fill="#fff" d="M7 7h10v2H7zm0 4h7v2H7z"/></svg>Google Chat</button></div>{active.stage === "For review" && <div className={`ops-review-decisions ${!interactive && phase === 11 ? "ops-demo-approve" : ""}`}><button type="button" className="ops-request-changes" onClick={() => setFeedbackOpen(true)}>Request changes</button><button type="button" className={`pw-primary ${!interactive && phase >= 12 ? "ops-approved" : ""}`} onClick={() => void update("Complete")}><WorkbenchIcon name="check" size={13}/>{!interactive && phase >= 12 ? "Approved" : "Approve"}{!interactive && phase === 11 && <span className="uber-tap ops-click-ripple"/>}</button></div>}</div>
 
             {feedbackOpen && <div className="ops-review-conversation">{reviewNotes[active.id] && <p><strong>Your last feedback</strong><br/>{reviewNotes[active.id]}</p>}<label>Your feedback<textarea aria-label="Review feedback" value={feedback} onChange={event => setFeedback(event.target.value)} placeholder="What should the agent refine?"/></label>{active.stage === "For review" && <button type="button" className="pw-primary" disabled={!feedback.trim()} onClick={() => void update("Building")}>Send feedback & request changes</button>}</div>}
             <div className="ops-review-accordions">{([{id:"checks", label:"Before you approve", meta:`${designsMade(active)} designs · 3 checks`}, {id:"request", label:"Request", meta:"Due today"}, {id:"log", label:"Fleet log", meta:"Build history"}] as const).map(item => <section key={item.id}><button type="button" aria-expanded={section === item.id} onClick={() => setSection(section === item.id ? null : item.id)}><strong>{item.label}</strong><span>{item.meta}</span><WorkbenchIcon name="chevron" size={12}/></button>{section === item.id && <div className="ops-review-accordion-body">{item.id === "checks" ? <><p><WorkbenchIcon name="check" size={11}/>Brand tokens matched</p><p><WorkbenchIcon name="check" size={11}/>Mobile, desktop, and tablet layouts checked</p><p><WorkbenchIcon name="check" size={11}/>Contrast and layout QA completed</p><small>Open designs to inspect the generated variants before approving.</small></> : item.id === "request" ? <><h5>{active.title}</h5><p>Build {designTarget(active)} responsive offer designs using {active.account}’s brand system.</p><dl><div><dt>Requested by</dt><dd>Jaden Snyder</dd></div><div><dt>Placement</dt><dd>{active.type}</dd></div><div><dt>Deliverables</dt><dd>{active.id === "DS-103" ? "14 responsive variants" : "10 mobile · 10 desktop · 10 tablet"}</dd></div></dl></> : <><p><WorkbenchIcon name="queue" size={11}/>Request added to the queue</p><p><WorkbenchIcon name="building" size={11}/>Brand system applied · designs generated</p><p><WorkbenchIcon name="review" size={11}/>{active.stage === "Complete" ? "Approved by Jaden" : active.stage === "For review" ? "Build complete · waiting for your review" : "Build in progress"}</p>{reviewNotes[active.id] && <p>Revision requested: {reviewNotes[active.id]}</p>}</>}</div>}</section>)}</div>
