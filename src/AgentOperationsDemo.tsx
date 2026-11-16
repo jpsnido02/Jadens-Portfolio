@@ -42,12 +42,22 @@ function Icon({icon,size=14}:{icon:IconDefinition;size?:number}) {return <FontAw
 function FigmaMark() {return <svg width="13" height="19" viewBox="0 0 38 57" aria-hidden="true"><path fill="#0acf83" d="M9.5 57A9.5 9.5 0 0 1 9.5 38H19v9.5A9.5 9.5 0 0 1 9.5 57Z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 1 9.5 19H19v19H9.5A9.5 9.5 0 0 1 0 28.5Z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 1 9.5 0H19v19H9.5A9.5 9.5 0 0 1 0 9.5Z"/><path fill="#ff7262" d="M19 0h9.5a9.5 9.5 0 0 1 0 19H19Z"/><circle fill="#1abcfe" cx="28.5" cy="28.5" r="9.5"/></svg>}
 function ChatMark() {return <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#34a853" d="M3 3h18v14H9l-6 5Z"/><path fill="#188038" d="M3 3h6v14l-6 5Z"/><path fill="#fff" d="M7 7h10v2H7zm0 4h7v2H7z"/></svg>}
 
-function AppMark({kind}:{kind:"orbit"|"petal"|"weave"}) {return <svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true">{kind==="orbit"?<><ellipse cx="12" cy="12" rx="10" ry="5" stroke="white" strokeWidth="2" transform="rotate(-45 12 12)"/><circle cx="12" cy="12" r="3" fill="white"/></>:kind==="petal"?<path fill="white" d="M12 2c5 0 5 6 0 10 4-5 10-5 10 0s-6 5-10 0c5 4 5 10 0 10S7 16 12 12C8 17 2 17 2 12S8 7 12 12C7 8 7 2 12 2Z"/>:<><path d="m4 5 8 14 8-14M4 12h16" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></>}</svg>}
+// Shared optical weight and 24px grid; each mark describes its app's job.
+function AppMark({kind}:{kind:"agents"|"brands"|"demos"}) {return <svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true">{kind==="agents"?<>
+ <path d="m4 19 8-15 8 15M7.5 13h9" stroke="white" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/>
+ <circle cx="4" cy="19" r="2.3" fill="white"/><circle cx="20" cy="19" r="2.3" fill="white"/><circle cx="12" cy="4" r="2.3" fill="white"/>
+ </>:kind==="brands"?<>
+ <path d="M5 3h6a4 4 0 0 1 0 8H5V3Zm0 10h8a4 4 0 0 1 0 8H5v-8Z" fill="white"/>
+ <path d="m18 2 1.3 2.7L22 6l-2.7 1.3L18 10l-1.3-2.7L14 6l2.7-1.3L18 2Z" fill="white"/>
+ </>:<>
+ <rect x="3" y="4" width="18" height="16" rx="3" stroke="white" strokeWidth="2.2"/>
+ <path d="M3 8h18" stroke="white" strokeWidth="2"/><path d="m10 11 6 3.5-6 3.5v-7Z" fill="white"/>
+ </>}</svg>}
 const Shell=memo(function Shell(){return <>
  <div className="ado-browser"><span className="ado-lights"><i/><i/><i/></span><Icon icon={faTableColumns} size={12}/><Icon icon={faChevronLeft} size={10}/><Icon icon={faChevronRight} size={10}/><span className="ado-address"><Icon icon={faLock} size={8}/>design.rokt.demo/workspace<Icon icon={faArrowRotateRight} size={10}/></span><Icon icon={faPlus} size={12}/><Icon icon={faExpand} size={11}/></div>
- <div className="ado-rail"><span className="ado-rail-rokt"><RoktWordmark height={10}/></span><span className="ado-rail-app selected"><AppMark kind="orbit"/></span><span className="ado-rail-app purple"><AppMark kind="petal"/></span><span className="ado-rail-app gold"><AppMark kind="weave"/></span><i/><span className="ado-rail-plus"><Icon icon={faPlus} size={19}/></span><span className="ado-rail-bottom"><Icon icon={faLightbulb} size={19}/><Icon icon={faMoon} size={19}/></span></div>
+ <div className="ado-rail"><span className="ado-rail-rokt" title="Rokt ecosystem"><RoktWordmark height={10}/></span><span className="ado-rail-app selected" title="Design Agents — automated design workflows"><AppMark kind="agents"/></span><span className="ado-rail-app" title="Brand Studio — partner brand systems"><AppMark kind="brands"/></span><span className="ado-rail-app" title="Demo Builder — commerce experience previews"><AppMark kind="demos"/></span><i/><span className="ado-rail-plus"><Icon icon={faPlus} size={19}/></span><span className="ado-rail-bottom"><Icon icon={faLightbulb} size={19}/><Icon icon={faMoon} size={19}/></span></div>
  <aside className="ado-sidebar">
-  <div className="ado-product"><span className="ado-product-icon"><AppMark kind="orbit"/></span><div><strong>Rokt</strong><span>Design Operations</span></div><Icon icon={faChevronLeft} size={13}/></div>
+  <div className="ado-product"><span className="ado-product-icon"><AppMark kind="agents"/></span><div><strong>Rokt</strong><span>Design Agents</span></div><Icon icon={faChevronLeft} size={13}/></div>
 
   <nav className="ado-nav"><span><Icon icon={faTableCellsLarge}/>Overview</span><span className="selected"><Icon icon={faTableColumns}/>Ticket queue</span><span><Icon icon={faFileLines}/>Brand systems</span><span><Icon icon={faEnvelope}/>Review inbox</span><span><Icon icon={faChartColumn}/>Build history</span></nav>
   <div className="ado-nav-group"><div className="ado-nav-group-title"><Icon icon={faChevronDown} size={10}/><span>Favorites</span><Icon icon={faEllipsis}/><Icon icon={faPlus} size={12}/></div><span><Icon icon={faBuilding}/>Account library<Icon icon={faStar} size={10}/></span><span><Icon icon={faLayerGroup}/>Brand guidelines<Icon icon={faStar} size={10}/></span><span><Icon icon={faClipboardCheck}/>Ready for review<Icon icon={faStar} size={10}/></span></div>
@@ -140,7 +150,7 @@ export function AgentDashboard({playing,interactive:_interactive=false}:{playing
     <Ticket task={FOCAL} made={made} stage={stage} click={phase===11} press={focalPress}/>{held&&<span className="ado-grab"/>}
    </div>
   </div>
-  {compact&&<div className="ado-mini-browser"><span className="ado-lights"><i/><i/><i/></span><span>Design Operations</span><Icon icon={faEllipsis} size={12}/></div>}
+  {compact&&<div className="ado-mini-browser"><span className="ado-lights"><i/><i/><i/></span><span>Design Agents</span><Icon icon={faEllipsis} size={12}/></div>}
   {modal&&<div ref={modalLayer} className="ado-modal-layer" style={{opacity:modalIn}}><div className="ado-modal-backdrop"/><div ref={modalBox} className="ado-modal" role="img" aria-label="Shutterfly design review" style={{transform:`scale(${modalScale*mix(.98,1,modalIn)}) translateY(${8*(1-modalIn)}px)`}}>
    <div className="ado-modal-top"><img src={LOGOS.Shutterfly} alt="Shutterfly"/><span>DS-103</span><Icon icon={faXmark} size={15}/></div>
    <div className="ado-modal-title">Create photo book checkout designs</div><div className="ado-modal-sub">Requested by Elena Park<span>Due today</span></div>
