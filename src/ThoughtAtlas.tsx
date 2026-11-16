@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react"
-import { brainSilhouette, brainZones } from "./brainNetwork"
+import { brainZones } from "./brainNetwork"
 import "./thought-atlas.css"
 
 const COLLECTIONS = [
@@ -19,13 +19,9 @@ const GEOMETRY = ZONES.map(z => {
     const all = (z.files as number[][]).concat(z.structure)
     return { files: dots(z.files), structure: dots(z.structure, .95), fileLinks: lines(z.files, z.fileLinks), structLinks: lines(all, z.structLinks) }
 })
-const SILHOUETTE = dots(brainSilhouette, .85)
-function Minus() { return <svg className="atlas-icon" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M5 12h14"/></svg> }
-function Plus() { return <svg className="atlas-icon" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> }
 
 function Brain() {
     return <>
-        <path className="atlas-silhouette" d={SILHOUETTE}/>
         {COLLECTIONS.map((collection,zone)=><g key={collection.id} className={`atlas-region ${zone===0?"is-selected":""}`} data-collection={collection.id} data-node-count={ZONES[zone].files.length} style={{"--zone":collection.color} as CSSProperties}>
             <path className="atlas-structure-links" d={GEOMETRY[zone].structLinks}/>
             <path className="atlas-structure-dots" d={GEOMETRY[zone].structure}/>
@@ -48,8 +44,7 @@ export default function ThoughtAtlas({playing}:{playing:boolean}) {
                     <g className="atlas-map-labels">{COLLECTIONS.map((c,zone)=><g key={c.id} transform={`translate(${ZONES[zone].label[0]},${ZONES[zone].label[1]})`}><rect x="-45.5" y="-12.5" width="91" height="25" rx="4"/><text x="-35.5" y="3" fill={c.color}>{c.name} <tspan>{c.count}</tspan></text></g>)}</g>
                 </g>
             </svg>
-            <footer className="atlas-legend">{COLLECTIONS.map(c=><span key={c.id}><i style={{backgroundColor:c.color}}/>{c.name} <b>{c.count}</b></span>)}</footer>
-            <div className="atlas-zoom-label">100% <span><Minus/><Plus/></span></div>
+
         </div>
     </div>
 }
