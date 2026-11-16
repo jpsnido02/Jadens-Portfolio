@@ -1,12 +1,12 @@
 import { memo, useEffect, useRef, useState } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowRotateRight, faBell, faBuilding, faChartColumn, faCheck, faChevronDown, faChevronLeft, faChevronRight, faCircleQuestion, faClipboardCheck, faEllipsis, faEnvelope, faExpand, faFileLines, faFilter, faGear, faGripVertical, faLayerGroup, faLightbulb, faList, faLock, faMagnifyingGlass, faMoon, faPlus, faShareNodes, faSliders, faSort, faStar, faTableColumns, faTableCellsLarge, faXmark } from "@fortawesome/free-solid-svg-icons"
+import { faBell, faBuilding, faChartColumn, faCheck, faChevronDown, faChevronLeft, faChevronRight, faCircleQuestion, faClipboardCheck, faEllipsis, faEnvelope, faExpand, faFileLines, faFilter, faGear, faGripVertical, faLayerGroup, faLightbulb, faList, faLock, faMagnifyingGlass, faMoon, faPlus, faShareNodes, faSliders, faSort, faStar, faTableColumns, faTableCellsLarge, faXmark } from "@fortawesome/free-solid-svg-icons"
 import { faGoogleDrive } from "@fortawesome/free-brands-svg-icons"
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core"
 import { RoktWordmark } from "./icons"
 import "./agent-operations-demo.css"
 
-const W=1440, H=1000, RAIL=52, SIDE=240, MAIN_X=RAIL+SIDE, BOARD_X=MAIN_X+18, BOARD_Y=38+172
+const W=1440, H=1000, RAIL=52, SIDE=240, MAIN_X=RAIL+SIDE, BOARD_X=MAIN_X+18, BOARD_Y=56+172
 const COL_W=267.5, COL_STEP=281.5, CARD_W=251.5, CARD_H=148, ROW_STEP=157, CARD_Y=BOARD_Y+50
 const COLUMNS=["Queue","Building","For review","Complete"] as const
 type Stage=typeof COLUMNS[number]
@@ -53,8 +53,12 @@ function AppMark({kind}:{kind:"agents"|"brands"|"demos"}) {return <svg width="17
  <rect x="3" y="4" width="18" height="16" rx="3" stroke="white" strokeWidth="2.2"/>
  <path d="M3 8h18" stroke="white" strokeWidth="2"/><path d="m10 11 6 3.5-6 3.5v-7Z" fill="white"/>
  </>}</svg>}
+// Safari frame adapted from Eren's Safari Desktop and Mobile Browser (CC BY 4.0).
+// https://www.figma.com/community/file/881126482834000423/safari-desktop-and-mobile-browser
+// Recreated in SVG/CSS; address and dimensions adapted to this demo.
+function SafariGlyph({kind}:{kind:"sidebar"|"back"|"forward"|"shield"|"share"|"tabs"|"reload"|"plus"}) {return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{kind==="sidebar"?<><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M9 5v14"/></>:kind==="back"?<path d="m14 5-7 7 7 7"/>:kind==="forward"?<path d="m10 5 7 7-7 7"/>:kind==="shield"?<><path d="M12 3 5 5v6c0 5 7 10 7 10s7-5 7-10V5l-7-2Z"/><path d="M12 3v18c-3-2-7-6-7-10V5l7-2Z" fill="currentColor" stroke="none"/></>:kind==="share"?<><path d="M8 9H5v12h14V9h-3M12 15V2m-4 4 4-4 4 4"/></>:kind==="tabs"?<><rect x="7" y="3" width="14" height="14" rx="1.5"/><path d="M17 17v4H3V7h4"/></>:kind==="reload"?<><path d="M18.5 7a8 8 0 1 0 1 9M16 3l4 4-4 4M20 7h-8"/></>:<path d="M12 4v16M4 12h16"/>}</svg>}
 const Shell=memo(function Shell(){return <>
- <div className="ado-browser"><span className="ado-lights"><i/><i/><i/></span><span className="ado-safari-nav"><Icon icon={faTableColumns} size={12}/><Icon icon={faChevronLeft} size={11}/><Icon icon={faChevronRight} size={11}/></span><span className="ado-address"><span><Icon icon={faLock} size={8}/>design.rokt.demo</span><Icon icon={faArrowRotateRight} size={10}/></span><span className="ado-safari-tools"><Icon icon={faShareNodes} size={12}/><Icon icon={faPlus} size={13}/><Icon icon={faTableCellsLarge} size={12}/></span></div>
+ <div className="ado-browser"><span className="ado-lights"><i/><i/><i/></span><span className="ado-safari-nav"><SafariGlyph kind="sidebar"/><SafariGlyph kind="back"/><SafariGlyph kind="forward"/></span><span className="ado-safari-privacy"><SafariGlyph kind="shield"/></span><span className="ado-address"><span><Icon icon={faLock} size={10}/>https://design.rokt.demo</span><SafariGlyph kind="reload"/></span><span className="ado-safari-tools"><SafariGlyph kind="share"/><SafariGlyph kind="plus"/><SafariGlyph kind="tabs"/></span></div>
  <div className="ado-rail"><span className="ado-rail-rokt" title="Rokt ecosystem"><RoktWordmark height={10}/></span><span className="ado-rail-app selected" title="Design Agents — automated design workflows"><AppMark kind="agents"/></span><span className="ado-rail-app" title="Brand Studio — partner brand systems"><AppMark kind="brands"/></span><span className="ado-rail-app" title="Demo Builder — commerce experience previews"><AppMark kind="demos"/></span><i/><span className="ado-rail-plus"><Icon icon={faPlus} size={19}/></span><span className="ado-rail-bottom"><Icon icon={faLightbulb} size={19}/><Icon icon={faMoon} size={19}/></span></div>
  <aside className="ado-sidebar">
   <div className="ado-product"><span className="ado-product-icon"><AppMark kind="agents"/></span><div><strong>Rokt</strong><span>Design Agents</span></div><Icon icon={faChevronLeft} size={13}/></div>
