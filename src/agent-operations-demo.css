@@ -90,3 +90,9 @@
 .ado-review-checks{padding:10px 13px;gap:6px}
 .ado-modal-footer{margin-top:14px}
 .ado-rail>i{background:#737780}
+
+/* One carried entrance per major container; the Safari frame stays anchored. */
+.ado-entry-group{position:absolute;inset:0}
+.ado-stage[data-agent-phase="0"] .ado-board-group{opacity:0;transform:translateY(32px)}
+.ado-stage[data-agent-phase="0"] .ado-side-group{opacity:0;transform:translateY(20px)}
+.ado-stage[data-agent-phase="0"] .ado-controls-group{opacity:0;transform:translateY(16px)}
