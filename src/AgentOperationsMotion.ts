@@ -156,6 +156,8 @@ export function evaluateAgentWalkthrough(elapsed: number, viewport: Viewport, re
     const present = t >= BEATS.queueReveal[0] && !resetting
     const buildProgress = fraction(t, BEATS.build)
     const made = Math.min(14, Math.floor(14 * buildProgress))
+    const bestBuyMade = 8 + Math.min(3, Math.floor(3 * buildProgress))
+    const bestBuyProgress = (8 + 3 * buildProgress) / 18
     const workspaceOpacity = resetting ? 0 : 1 - enter(fraction(t, BEATS.exit))
     const entrances = Object.fromEntries(Object.entries(ENTRANCES).map(([name, spec]) => [name, {
         y: spec.y * (1 - cubicBezier(normalized(t, spec.start, spec.duration), MOTION_CURVES.carry)),
@@ -182,9 +184,9 @@ export function evaluateAgentWalkthrough(elapsed: number, viewport: Viewport, re
         confirmation,
     }
     const camera = validViewport ? cameraAt(t, viewport, card.pose) : { s: 1, tx: 0, ty: 0 }
-    const renderKey = [beat, stage, made, present, modal.visible, modal.approved, reviewRippleVisible, approveRippleVisible, card.held, card.dropTarget, compact, validViewport].join(":")
+    const renderKey = [beat, stage, made, bestBuyMade, present, modal.visible, modal.approved, reviewRippleVisible, approveRippleVisible, card.held, card.dropTarget, compact, validViewport].join(":")
     return {
-        time, beat, phase: beatOrder.findIndex(([name]) => name === beat), stage, made, buildProgress,
+        time, beat, phase: beatOrder.findIndex(([name]) => name === beat), stage, made, buildProgress, bestBuyMade, bestBuyProgress,
         cardPose: card.pose, cardOpacity: validViewport ? arrivalOpacity * workspaceOpacity : 0,
         cardPressScale: press(t, BEATS.reviewPress[0]), camera, contactOpacity: card.contact, shadowOpacity: card.contact,
         columnOccupancy: card.occupancy, entrances, modal, reviewRippleVisible, approveRippleVisible,
