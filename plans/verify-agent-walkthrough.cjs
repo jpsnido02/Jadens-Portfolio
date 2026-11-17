@@ -32,7 +32,7 @@ const sizes = [{ w: 1200, h: 900 }, { w: 1334, h: 520 }, { w: 655, h: 440 }, { w
 const matrixFields = ['s', 'tx', 'ty']
 const poseFields = ['x', 'y', 'scale', 'rotation']
 checkOpening()
-check(TOTAL_MS === 20890, 'exact complete cycle')
+check(TOTAL_MS === 21190, 'exact complete cycle')
 check(BEATS.readingHold[1] - BEATS.readingHold[0] === 4580, 'stationary read interval')
 for (const curve of Object.values(MOTION_CURVES)) {
  check(cubicBezier(0, curve) === 0 && cubicBezier(1, curve) === 1, 'exact bezier endpoints')
@@ -111,7 +111,14 @@ for (const size of sizes) {
  const travelStart = BEATS.completeTravel[0], travelDuration = BEATS.completeTravel[1]-travelStart;
  const first = f(travelStart+travelDuration*0.2).cardPose.x-f(travelStart).cardPose.x;
  const last = f(travelStart+travelDuration).cardPose.x-f(travelStart+travelDuration*0.8).cardPose.x;
- check(last > first*3, 'completion slide starts slowly and finishes quickly');
+ const middle = f(travelStart+travelDuration*0.6).cardPose.x-f(travelStart+travelDuration*0.4).cardPose.x;
+ check(middle > first*3 && last < middle/3, 'completion accelerates then settles softly');
+ const nearEnd = f(BEATS.completeTravel[1]-1).cardPose.x;
+ check(Math.abs(f(BEATS.completeTravel[1]).cardPose.x-nearEnd) < 0.01, 'completion reaches zero resting velocity');
+ check(f(BEATS.approvedHold[0]+240).modal.lifecycleProgress === 0, 'button confirms before lifecycle fill');
+ const progressMid=f((BEATS.lifecycleAdvance[0]+BEATS.lifecycleAdvance[1])/2).modal;
+ check(progressMid.lifecycleProgress > 0 && progressMid.lifecycleProgress < 1 && !progressMid.lifecycleComplete,'visible in-flight lifecycle progress');
+ check(f(BEATS.lifecycleAdvance[1]).modal.lifecycleComplete && f(BEATS.lifecycleAdvance[1]).modal.visible,'lifecycle finishes before panel closes');
  close(f((BEATS.queueReveal[0]+BEATS.queueReveal[1])/2).cardOpacity,0.5,0.001,'spawn stays visible halfway through fade')
  const settled = f(BEATS.readingHold[0])
  for (let t = BEATS.readingHold[0]; t < BEATS.readingHold[1]; t += 127) {
@@ -137,7 +144,7 @@ for (const size of [{ w:0,h:0 },{ w:100,h:0 },{ w:NaN,h:100 }]) {
 }
 // Clock/pause is a React integration behavior; assert the retained-clock architecture and let browser QA test scheduling.
 const component = fs.readFileSync(path.join(root,'src/AgentOperationsDemo.tsx'),'utf8')
-check(component.includes('f.modal.approved||i<2'), 'approval fills every review stage');
+check(component.includes('f.modal.lifecycleComplete||i<2'), 'approval fills every review stage');
 check(component.includes('return()=>cancelAnimationFrame(raf)'), 'rAF cleanup')
 check(component.includes('let raf=0,last=performance.now()'), 'fresh resume timestamp')
 check(component.includes('if(!playing||reduced)return'), 'no clock while paused or reduced')
