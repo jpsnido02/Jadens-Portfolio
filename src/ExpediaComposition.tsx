@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faBed, faCheck, faUmbrellaBeach, faXmark } from "@fortawesome/free-solid-svg-icons"
 import "./expedia-composition.css"
@@ -11,10 +12,21 @@ function Attribution() {
 
 /** Final-product UI recomposed without hardware, so each overlay can be read. */
 export default function ExpediaComposition() {
-    return <div className="expedia-bento" role="img" aria-label="Expedia confirmation, mobile offer sheet and desktop offer modal, arranged as three interface panels.">
+    const root = useRef<HTMLDivElement>(null)
+    const [scale, setScale] = useState(0)
+    useEffect(() => {
+        const observer = new ResizeObserver(([entry]) => {
+            const { width, height } = entry.contentRect
+            const inset = width < 500 ? 12 : 28
+            setScale(Math.max(0, Math.min((width - inset * 2) / 1032, (height - inset * 2) / 548)))
+        })
+        observer.observe(root.current!)
+        return () => observer.disconnect()
+    }, [])
+    return <div ref={root} className="expedia-bento" role="img" aria-label="Expedia confirmation, mobile offer sheet and desktop offer modal, arranged as three interface panels."><div className="expedia-scene" style={{ transform:`translate(-50%, -50%) scale(${scale})`, opacity:scale ? 1 : 0 }}>
         <div className="exp-confirmation">
             <div className="exp-confirmation-art" aria-hidden="true" />
-            <strong>You’re confirmed!</strong>
+            <strong>Your flight is confirmed</strong>
             <div className="exp-itinerary"><span>Itinerary #</span><b>123456789</b></div>
         </div>
         <div className="exp-mobile-sheet">
@@ -34,5 +46,5 @@ export default function ExpediaComposition() {
             </div>
             <div className="exp-desktop-body"><div className="exp-desktop-offer"><div className="exp-hotel-photo" role="img" aria-label="Open-air hotel lounge with wood ceilings and tropical seating"/><div className="exp-desktop-copy"><span className="exp-deal">★ Deals Available!</span><strong>A great trip starts with the right place to stay.</strong><p>Find a hotel that fits your Honolulu trip, handpicked options waiting for you.</p><Actions/></div></div><Attribution/></div>
         </div>
-    </div>
+    </div></div>
 }
