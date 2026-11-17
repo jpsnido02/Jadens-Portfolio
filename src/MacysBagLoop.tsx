@@ -581,11 +581,12 @@ export default function MacysBagLoop({
             if (!scale) return
             const bag = rows.getBoundingClientRect()
             const end = offer.getBoundingClientRect()
+            const inset = { left: 42, top: 14, right: 18 }
             const next = {
-                x: (bag.left - origin.left) / scale - 18,
-                y: (bag.top - origin.top) / scale + 10,
-                w: bag.width / scale + 36,
-                h: (end.bottom - bag.top) / scale - 10,
+                x: (bag.left - origin.left) / scale - inset.left,
+                y: (bag.top - origin.top) / scale - inset.top,
+                w: bag.width / scale + inset.left + inset.right,
+                h: (end.bottom - bag.top) / scale + inset.top,
             }
             setCrop(next)
         }
