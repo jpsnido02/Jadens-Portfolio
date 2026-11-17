@@ -6,7 +6,7 @@ import "./pantry-notes.css"
  * 00 home · 01 open camera pressed · 02 iPhone camera · 03 shutter · 04 flash · 05 loading
  * 06 photo renders · 07 Post-its drop · 08 notes · 09 tap · 10 note → card · 11 recipe · 12 scrolled · 13 curtain
  */
-const TIMING = [1600,260,2200,260,380,1900,700,900,3400,360,850,3500,6500,600]
+const TIMING = [1600,260,2200,260,380,1900,700,900,3400,360,850,500,6500,600]
 const POSTER = 8
 
 const icon = { fill:"none", stroke:"currentColor", strokeLinecap:"round", strokeLinejoin:"round" } as const
@@ -37,10 +37,23 @@ const STEPS = [
 export default function PantryNotes({playing}:{playing:boolean}) {
     const phase=useStudySequence(TIMING,playing,POSTER)
     const ref=useRef<HTMLDivElement>(null)
+    const stepOneRef=useRef<HTMLLIElement>(null)
     const [scale,setScale]=useState(0)
+    const [stepOneOffset,setStepOneOffset]=useState(0)
     useEffect(()=>{
         const observer=new ResizeObserver(([entry])=>setScale(Math.max(0,Math.min((entry.contentRect.width-28)/473,(entry.contentRect.height-22)/932))))
         observer.observe(ref.current!)
+        return()=>observer.disconnect()
+    },[])
+    useEffect(()=>{
+        const step=stepOneRef.current
+        if (!step) return
+        const measure=()=>setStepOneOffset(Math.max(0,step.offsetTop-180))
+        const observer=new ResizeObserver(measure)
+        observer.observe(step)
+        observer.observe(step.parentElement!)
+        document.fonts.ready.then(measure)
+        measure()
         return()=>observer.disconnect()
     },[])
     const flags = {
@@ -89,10 +102,10 @@ export default function PantryNotes({playing}:{playing:boolean}) {
                         </article>)}
                         <div className="pnt-results-footer"><span>We’ve found possibilities</span><b>Tap a note to make it yours<ArrowUpRight size={13}/></b></div>
                     </div>
-                    <div className="pnt-recipe-cards"><article className="pnt-recipe-card"><div className="pnt-recipe-track">
+                    <div className="pnt-recipe-cards"><article className="pnt-recipe-card"><div className="pnt-recipe-track" style={{"--pnt-step-one-offset":`${stepOneOffset}px`} as CSSProperties}>
                         <div className="pnt-recipe-hero"><img src="/projects/pantry/lemony-spinach-pasta.jpg" alt="Lemony fusilli with spinach and tomatoes"/><span className="pnt-saved"><svg width="12" height="16" viewBox="0 0 12 16" fill="currentColor" aria-hidden="true"><path d="M1 0h10v16l-5-3-5 3Z"/></svg>Saved</span></div>
                         <div className="pnt-recipe-body"><h3>Lemony spinach pasta</h3><dl className="pnt-recipe-meta"><div><dt>Yield</dt><dd>2 servings</dd></div><div><dt>Time</dt><dd>20 minutes</dd></div></dl><p className="pnt-recipe-intro">A bright, comforting dinner from the groceries already on your counter. Sweet tomatoes and wilted spinach tuck into the pasta, while lemon and a little Pepper Jack make a silky, gently warming sauce.</p><div className="pnt-start-cooking">Start Cooking</div>
-                        <h4>Ingredients</h4><ul>{INGREDIENTS.map(item=><li key={item}><i><Check/></i>{item}</li>)}</ul><h4>Preparation</h4><ol>{STEPS.map((step,i)=><li key={step}><b>Step {i+1}</b><p>{step}</p></li>)}</ol></div>
+                        <h4>Ingredients</h4><ul>{INGREDIENTS.map(item=><li key={item}><i><Check/></i>{item}</li>)}</ul><h4>Preparation</h4><ol>{STEPS.map((step,i)=><li key={step} ref={i===0?stepOneRef:undefined}><b>Step {i+1}</b><p>{step}</p></li>)}</ol></div>
                     </div></article></div>
                 </section>
 
