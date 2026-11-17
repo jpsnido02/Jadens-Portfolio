@@ -279,7 +279,6 @@ interface UberOfferCardProps {
     px: (v: number) => number
     swapMs: number
     animate: boolean
-    showOrderContext: boolean
     phase: SwapPhase
     pagerIndex: number
     tap?: "claim" | "notNow" | null
@@ -293,7 +292,7 @@ export function swapDurations(ms: number) {
 }
 
 /** The parent playhead advances the contents, shell and pager together. */
-export default function UberOfferCard({ offer, index, px, swapMs, animate, showOrderContext, tap, tapKey, phase, pagerIndex }: UberOfferCardProps) {
+export default function UberOfferCard({ offer, index, px, swapMs, animate, tap, tapKey, phase, pagerIndex }: UberOfferCardProps) {
     const { exitMs, resizeMs, enterMs } = swapDurations(swapMs)
     const hidden = phase === "out" || phase === "resize"
     const { ref: measureRef, widths } = usePillWidths(px)
@@ -304,7 +303,7 @@ export default function UberOfferCard({ offer, index, px, swapMs, animate, showO
     const fade = `opacity ${Math.round(swapMs * 0.42)}ms linear`
     // Re-read once the buttons have their measured widths, since until then
     // the row is laid out at its intrinsic size.
-    const { ref: contentRef, height } = useContentHeight([offer.id, px, widths, showOrderContext])
+    const { ref: contentRef, height } = useContentHeight([offer.id, px, widths])
 
     return (
         <div
@@ -377,11 +376,6 @@ export default function UberOfferCard({ offer, index, px, swapMs, animate, showO
                     flexDirection: "column",
                 }}
             >
-                {showOrderContext && (
-                    <span style={{ marginBottom: px(8), color: "#505752", fontSize: px(14), fontWeight: 500, lineHeight: 1.3 }}>
-                        Lenwich breakfast · On the way
-                    </span>
-                )}
                 {offer.badge && (
                     <span
                         style={{

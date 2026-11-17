@@ -1,4 +1,4 @@
-import UberOfferCard, { OFFERS, swapDurations, type SwapPhase } from "./UberOfferCard"
+import UberOfferCard, { OFFERS, UBER_DISPLAY, UBER_TEXT, swapDurations, type SwapPhase } from "./UberOfferCard"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import usePausablePlaybackTimer, { usePausableSubtreeAnimations } from "./usePausablePlaybackTimer"
 import { cycleMs, type LoopReporter } from "./LoopProgress"
@@ -7,9 +7,8 @@ import { cycleMs, type LoopReporter } from "./LoopProgress"
  * The Uber Ads hero: the Rokt placement cycling through four offers, then the
  * Disney+ offer opening the App Store.
  *
- * Every pixel is a Figma export — the four offer cards, the shared chrome above
- * and below them, the App Store page and the iPhone frame itself. Nothing here
- * is redrawn in CSS, so the design cannot drift from the source file.
+ * The tracking page uses the original map and chrome. The order status and
+ * offer cards are live text, so their animations stay sharp at each zoom level.
  *
  * Geometry below is measured from the Figma file, not estimated:
  *   - the frame artwork is 473x932, with its screen cut-out at (40, 40) 393x852
@@ -74,17 +73,6 @@ const PAGE_TOP = 99
  * moved or not.
  */
 const BAR_PAD = 6
-/**
- * The loader's icons, measured off the capture and drawn separately so they
- * can move. A still row of icons reads as a screen that has hung.
- */
-const LOAD_ICONS: [number, number, number, number][] = [
-    [70, 440, 52, 70],
-    [138, 440, 50, 70],
-    [214, 440, 31, 70],
-    [267, 440, 57, 70],
-]
-const LOAD_BOUNCE_MS = 1150
 const PAGE_A_H = 736
 const PAGE_B_H = 466
 /** The offer's inset, matching the slot the cream container occupied. */
@@ -197,9 +185,7 @@ type Step =
     | { kind: "advance"; ms: number }
     | { kind: "stage"; to: Stage; ms: number }
     | { kind: "zoom"; to: "wide" | "offer"; ms: number }
-    /** Which surface the app is showing. */
-    | { kind: "screen"; to: "loading" | "track"; ms: number }
-    /** How far down the tracking page we are. */
+    | { kind: "showOffer"; ms: number }
     | { kind: "scroll"; to: number; ms: number }
     /** To black, and hold there. */
     | { kind: "cut"; ms: number }
@@ -207,20 +193,19 @@ type Step =
     | { kind: "reveal"; ms: number }
     | { kind: "reset"; ms: number }
 
-const SCREEN_MS = 520
 const SCROLL_MS = 1150
 
-const SCRIPT: Step[] = [
-    // The order goes in.
-    { kind: "hold", ms: 1500 },
-    // The tracking page takes over.
-    { kind: "screen", to: "track", ms: SCREEN_MS },
-    { kind: "hold", ms: 1600 },
-    // Down the page to the offer, the way you would reach it.
-    { kind: "scroll", to: SCROLL_TO, ms: SCROLL_MS },
-    { kind: "hold", ms: 520 },
-    // In on the offer, and stay there for the whole rotation.
+// Read the status for two dot cycles. The card starts appearing at the lower
+// edge of the screen; the camera follows once the scroll has brought it into view.
+const TRACKING_INTRO: Step[] = [
+    { kind: "hold", ms: 2880 },
+    { kind: "showOffer", ms: 180 },
+    { kind: "scroll", to: SCROLL_TO, ms: 680 },
     { kind: "zoom", to: "offer", ms: ZOOM_MS },
+]
+
+const SCRIPT: Step[] = [
+    ...TRACKING_INTRO,
     { kind: "hold", ms: 1100 },
     { kind: "tap", on: "notNow", ms: 320 },
     { kind: "advance", ms: PAGE_MS },
@@ -254,8 +239,9 @@ const SCRIPT: Step[] = [
     { kind: "reset", ms: 60 },
 ]
 
-/** The gallery starts on the placement, then preserves the original destination flow. */
+/** Both presentations start on the same order-tracking page. */
 const GALLERY_SCRIPT: Step[] = [
+    ...TRACKING_INTRO,
     { kind: "hold", ms: 2100 },
     { kind: "tap", on: "notNow", ms: 320 },
     { kind: "advance", ms: PAGE_MS },
@@ -272,11 +258,8 @@ const GALLERY_SCRIPT: Step[] = [
     { kind: "hold", ms: 560 },
     { kind: "stage", to: "store", ms: OPEN_MS },
     { kind: "hold", ms: 3200 },
-    // Hold the destination, dim the screen inside its bezel, then move the
-    // camera back to the placement while the phone is black.
+    // Rewind to the order behind the curtain before the next pass.
     { kind: "cut", ms: LOOP_BLACKOUT_MS },
-    { kind: "zoom", to: "offer", ms: ZOOM_MS },
-    // Rebuild Uber behind black, so the restart never appears as an app morph.
     { kind: "rewind", ms: 60 },
     { kind: "reveal", ms: LOOP_REVEAL_MS },
     { kind: "reset", ms: 60 },
@@ -288,24 +271,24 @@ type PhoneState = {
     phase: SwapPhase
     stage: Stage
     zoom: "wide" | "offer"
-    screen: "loading" | "track"
+    offerVisible: boolean
     scrollY: number
     cut: boolean
     tap: "notNow" | "claim" | null
     animate: boolean
 }
 
-function openingState(gallery: boolean): PhoneState {
+function openingState(): PhoneState {
     return {
         index: 0, pagerIndex: 0, phase: "idle", stage: "app",
-        zoom: gallery ? "offer" : "wide", screen: gallery ? "track" : "loading",
-        scrollY: gallery ? SCROLL_TO : 0, cut: false, tap: null, animate: false,
+        zoom: "wide", offerVisible: false,
+        scrollY: 0, cut: false, tap: null, animate: false,
     }
 }
 
 /** One clock controls every change, including the three parts of an offer swap. */
-function makeTimeline(script: Step[], gallery: boolean) {
-    let state = openingState(gallery)
+function makeTimeline(script: Step[]) {
+    let state = openingState()
     const frames: (PhoneState & { kind: Step["kind"]; ms: number })[] = []
     for (const step of script) {
         state = { ...state, animate: true, tap: null, phase: "idle" }
@@ -322,27 +305,24 @@ function makeTimeline(script: Step[], gallery: boolean) {
             case "tap": state.tap = step.on; break
             case "stage": state.stage = step.to; break
             case "zoom": state.zoom = step.to; break
-            case "screen": state.screen = step.to; break
+            case "showOffer": state.offerVisible = true; break
             case "scroll": state.scrollY = step.to; break
             case "cut": state.cut = true; break
-            case "rewind": state = { ...openingState(gallery), cut: true }; break
+            case "rewind": state = { ...openingState(), cut: true }; break
             case "reveal": state.cut = false; break
-            case "reset": state = openingState(gallery); break
+            case "reset": state = openingState(); break
         }
         frames.push({ ...state, kind: step.kind, ms: step.ms })
     }
     return frames
 }
 
-const GALLERY_TIMELINE = makeTimeline(GALLERY_SCRIPT, true)
-const FULL_TIMELINE = makeTimeline(SCRIPT, false)
-const FIXED_CAMERA_TIMELINE = FULL_TIMELINE.filter(frame => frame.kind !== "zoom")
-const TRACKING_POSTER = openingState(true)
+const GALLERY_TIMELINE = makeTimeline(GALLERY_SCRIPT)
+const FULL_TIMELINE = makeTimeline(SCRIPT)
+const TRACKING_POSTER: PhoneState = { ...openingState(), zoom: "offer", scrollY: SCROLL_TO, offerVisible: true }
 
 interface UberAdsLoopProps {
     gallery?: boolean
-    /** Keep the whole device visible in a small gallery frame. */
-    camera?: boolean
     paused?: boolean
     alt?: string
     /** Reports where the script is, for the hero's loop indicator. */
@@ -358,12 +338,11 @@ interface UberAdsLoopProps {
 export default function UberAdsLoop({
     alt,
     paused = false,
-    camera = true,
     gallery = false,
     fit = "width",
     onProgress,
 }: UberAdsLoopProps) {
-    const timeline = gallery ? GALLERY_TIMELINE : camera ? FULL_TIMELINE : FIXED_CAMERA_TIMELINE
+    const timeline = gallery ? GALLERY_TIMELINE : FULL_TIMELINE
     const wrapRef = useRef<HTMLDivElement>(null)
     // Starts at 1 rather than 0: the first measurement happens synchronously
     // below, and if it ever fails the component still renders at full size
@@ -452,7 +431,7 @@ export default function UberAdsLoop({
         onElapsed: () => setStep(current => (current + 1) % timeline.length),
     })
     usePausableSubtreeAnimations(wrapRef, playing, step)
-    const { index, stage, zoom, screen, scrollY, cut, tap, animate, phase, pagerIndex } = reduced ? TRACKING_POSTER : frame
+    const { index, stage, zoom, offerVisible, scrollY, cut, tap, animate, phase, pagerIndex } = reduced ? TRACKING_POSTER : frame
     const offer = OFFERS[index]
     // Each surface morphs to and from its own icon on the home screen, not
     // from the button that was pressed.
@@ -479,8 +458,8 @@ export default function UberAdsLoop({
             data-loop-black={cut}
             role="img"
             aria-label={
-                reduced ? "Your Lenwich breakfast is on the way. The tracking page offers Spotify Premium to listen to while you wait." : alt ??
-                "An Uber Eats order screen cycling through four Rokt offers, ending with the Disney+ offer opening the App Store."
+                reduced ? "Lenwich received your breakfast order and is preparing it. The tracking page offers Spotify Premium to listen to while you wait." : alt ??
+                "Lenwich is preparing a breakfast order. The Uber Eats tracking page scrolls to four offers, ending with Disney+ opening the App Store."
             }
             style={{
                 ...(fit === "contain"
@@ -511,7 +490,7 @@ export default function UberAdsLoop({
                 // the way in; vertically anchored on the offer so the offer is
                 // what the move frames.
                 transformOrigin: `50% ${ZOOM_ORIGIN_Y}%`,
-                transform: camera && zoom === "offer" ? `scale(${gallery ? 2.25 : ZOOM_SCALE})` : "none",
+                transform: zoom === "offer" ? `scale(${gallery ? 2.25 : ZOOM_SCALE})` : "none",
                 transition: animate
                     ? `transform ${ZOOM_MS}ms ${APPLE_EASE}`
                     : "none",
@@ -646,62 +625,8 @@ export default function UberAdsLoop({
                                     ].join(", "),
                                 }}
                             >
-                                {/* The screen the order is placed on. */}
-                                <img
-                                    src={`${BASE}/flow-loading.webp`}
-                                    alt=""
-                                    style={{
-                                        position: "absolute",
-                                        left: 0,
-                                        top: 0,
-                                        width: px(SCREEN_W),
-                                        height: px(SCREEN_H),
-                                        display: "block",
-                                        opacity: screen === "loading" ? 1 : 0,
-                                        transition: animate
-                                            ? `opacity ${SCREEN_MS}ms ${PAGE_EASE}`
-                                            : "none",
-                                    }}
-                                />
-
-                                {/* The loader's icons, rising in turn. */}
-                                {LOAD_ICONS.map(([x, y, w, h], i) => (
-                                    <img
-                                        key={i}
-                                        src={`${BASE}/load-icon-${i + 1}.webp`}
-                                        alt=""
-                                        style={{
-                                            position: "absolute",
-                                            left: px(x),
-                                            top: px(y),
-                                            width: px(w),
-                                            height: px(h),
-                                            display: "block",
-                                            opacity:
-                                                screen === "loading" ? 1 : 0,
-                                            animation: animate && screen === "loading"
-                                                ? `uber-load-bounce ${LOAD_BOUNCE_MS}ms ease-in-out ${i * 130}ms infinite`
-                                                : "none",
-                                            animationPlayState: playing ? "running" : "paused",
-                                            transition: animate
-                                                ? `opacity ${SCREEN_MS}ms ${PAGE_EASE}`
-                                                : "none",
-                                        }}
-                                    />
-                                ))}
-
-                                {/* The tracking page, travelling under a bar
-                                    that stays where it is. */}
-                                <div
-                                    style={{
-                                        position: "absolute",
-                                        inset: 0,
-                                        opacity: screen === "track" ? 1 : 0,
-                                        transition: animate
-                                            ? `opacity ${SCREEN_MS}ms ${PAGE_EASE}`
-                                            : "none",
-                                    }}
-                                >
+                                {/* The page travels underneath the fixed navigation bar. */}
+                                <div style={{ position: "absolute", inset: 0 }}>
                                     <div
                                         style={{
                                             position: "absolute",
@@ -724,15 +649,23 @@ export default function UberAdsLoop({
                                                     : "none",
                                             }}
                                         >
-                                            <img
-                                                src={`${BASE}/flow-page-a2.webp`}
-                                                alt=""
-                                                style={{
-                                                    width: px(SCREEN_W),
-                                                    height: px(PAGE_A_H),
-                                                    display: "block",
-                                                }}
-                                            />
+                                            <div style={{ position: "relative" }}>
+                                                <img src={`${BASE}/flow-page-a2.webp`} alt=""
+                                                    style={{ width: px(SCREEN_W), height: px(PAGE_A_H), display: "block" }} />
+                                                {/* Replace only the baked-in heading. The ETA, progress
+                                                    bars, map and nearby stores remain the captured page. */}
+                                                <div className="uber-order-status" style={{
+                                                    position: "absolute", inset: "0 0 auto", height: px(54),
+                                                    padding: `${px(7)}px ${px(16)}px 0`, boxSizing: "border-box",
+                                                    background: "#f3f3f3", color: "#080808", fontFamily: UBER_TEXT,
+                                                }}>
+                                                    <div style={{ fontSize: px(13), lineHeight: 1.3, fontWeight: 500 }}>Order received · Lenwich</div>
+                                                    <div style={{ fontFamily: UBER_DISPLAY, fontSize: px(24), lineHeight: 1.15, fontWeight: 700 }}>
+                                                        Preparing order<span aria-hidden="true" className="uber-preparing-dots"
+                                                            style={{ animationPlayState: playing && scrollY === 0 && !cut ? "running" : "paused" }}>...</span>
+                                                    </div>
+                                                </div>
+                                            </div>
 
                                             {/* The offer, in the slot the
                                                 page left for it. In flow, so
@@ -741,6 +674,8 @@ export default function UberAdsLoop({
                                                 to be told what that is. */}
                                             <div
                                                 style={{
+                                                    opacity: offerVisible ? 1 : 0,
+                                                    transition: animate ? `opacity 420ms ${PAGE_EASE}` : "none",
                                                     marginLeft: px(SLOT_X),
                                                     width: px(CARD_W),
                                                 }}
@@ -748,7 +683,6 @@ export default function UberAdsLoop({
                                                 <UberOfferCard
                                                     offer={offer}
                                                     index={index}
-                                                    showOrderContext={index === 0 && (gallery || reduced)}
                                                     phase={phase}
                                                     pagerIndex={pagerIndex}
                                                     px={px}
@@ -863,8 +797,7 @@ export default function UberAdsLoop({
                             </div>
 
                             {/* Black stays inside the real phone frame. The
-                                gallery zooms back in under this layer and
-                                reveals Uber again after its hidden reset. */}
+                                gallery returns to the tracking page under this layer. */}
                             <div
                                 data-loop-curtain
                                 aria-hidden="true"

@@ -48,7 +48,7 @@ export default function ProjectCover({ project, index, live = true, focused = fa
         {kind === "branded-shuffle" && <BrandedPreview playing={playing} />}
     </div>
     return <div ref={ref} className={`project-cover cover-${index} ${!playing ? "is-paused" : ""}`} aria-hidden="true" inert>
-        {kind === "uber-loop" && <Stage kind="uber"><UberAdsLoop fit="contain" camera={false} paused={!playing} /></Stage>}
+        {kind === "uber-loop" && <Stage kind="uber"><UberAdsLoop fit="contain" paused={!playing} /></Stage>}
         {kind === "macys-bag" && <Stage kind="macys"><MacysBagLoop paused={!playing} /></Stage>}
         {kind === "branded-shuffle" && <Stage kind="branded"><BrandedLayoutsLoop paused={!playing} ink="#171717" muted="#666666" accent="#171717" /></Stage>}
         {!kind && <div className="photo-composition"><picture>{project.imageMobile && <source media="(max-width:620px)" srcSet={project.imageMobile}/>}<img className="cover-photo" src={project.image.src} alt="" loading="lazy" /></picture></div>}
