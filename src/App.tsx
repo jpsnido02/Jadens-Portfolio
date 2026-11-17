@@ -171,7 +171,7 @@ export default function App() {
                     )}
                 </a></Fragment>)}
             </div>
-            <footer className="gallery-footer"><div className="footer-links">{intro.links.map(link => <a key={link.label} href={link.url} target={link.url.startsWith("mailto:") ? undefined : "_blank"} rel="noreferrer">{link.label}</a>)}<button onClick={toggle}>{theme === "dark" ? "Light" : "Dark"} mode <SiteIcon name={theme === "dark" ? "sun" : "moon"} size={13} /></button></div><p>Jaden Snyder · Product designer · 2026</p></footer>
+            <footer className="gallery-footer"><div className="footer-links">{intro.links.map(link => <a key={link.label} href={link.url} target={link.url.startsWith("mailto:") ? undefined : "_blank"} rel="noreferrer">{link.label}</a>)}<button onClick={toggle}>{theme === "dark" ? "Light" : "Dark"} mode <SiteIcon name={theme === "dark" ? "sun" : "moon"} size={13} /></button></div><p>© Jaden Snyder 2026</p></footer>
         </div>
         {selected && <button ref={closeButton} className="project-close" onClick={() => select(null)} aria-label="Close project and return to all work" inert={about}><SiteIcon name="close" size={21} /></button>}
         {selected && <section ref={casePanel} className="case-reader" style={{animation:"none",transformOrigin:"center center"}} inert={about} aria-label="Case study">
