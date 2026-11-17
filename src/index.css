@@ -1068,6 +1068,29 @@ dl {
         0 18px 44px rgba(16, 24, 40, 0.12),
         0 2px 8px rgba(16, 24, 40, 0.06);
 }
+
+/* A complete, static outcome for visitors who prefer reduced motion. */
+.macys-demo[data-reduced-motion="true"] .macys-page,
+.macys-demo[data-reduced-motion="true"] .macys-page *,
+.macys-demo[data-reduced-motion="true"] .macys-page *::before,
+.macys-demo[data-reduced-motion="true"] .macys-page *::after {
+    animation:none!important;
+    transition:none!important;
+}
+.macys-demo[data-reduced-motion="true"] .bag-item-enter {
+    grid-template-rows:1fr;
+    opacity:1;
+    transform:none;
+}
+.macys-demo .macys-reduced-summary {
+    flex:none;
+    width:calc(100% - 32px);
+    max-width:64ch;
+    margin:0;
+    color:#505763;
+    font:500 12px/1.5 Arial,sans-serif;
+    text-align:center;
+}
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) .macys-frame {
         border-color: #2e3440;
