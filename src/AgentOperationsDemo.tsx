@@ -36,26 +36,21 @@ const STARTS=DURATIONS.reduce<number[]>((a,d)=>[...a,a[a.length-1]+d],[0])
 const TOTAL=STARTS[STARTS.length-1]
 const clamp=(n:number)=>Math.max(0,Math.min(1,n))
 const mix=(a:number,b:number,t:number)=>a+(b-a)*t
-function ease(t:number) { t=clamp(t); return t*t*(3-2*t) }
-function out(t:number) { return 1-Math.pow(1-clamp(t),3) }
-// Asymmetric pickup/transfer/deceleration, rather than a uniform slide.
-function dragEase(t:number) {
- const bez=(v:number,a:number,b:number)=>3*(1-v)*(1-v)*v*a+3*(1-v)*v*v*b+v*v*v
- let lo=0,hi=1
- for(let i=0;i<12;i++){const m=(lo+hi)/2;if(bez(m,.3,.24)<t)lo=m;else hi=m}
- return bez((lo+hi)/2,.06,1)
-}
+// Balanced acceleration/deceleration with zero velocity and acceleration at either end.
+function ease(t:number) {t=clamp(t);return t*t*t*(t*(t*6-15)+10)}
+function dragEase(t:number) {return ease(t)}
 function Icon({icon,size=14}:{icon:IconDefinition;size?:number}) {return <FontAwesomeIcon icon={icon} style={{width:size,height:size}} aria-hidden="true"/>}
 function FigmaMark() {return <svg width="13" height="19" viewBox="0 0 38 57" aria-hidden="true"><path fill="#0acf83" d="M9.5 57A9.5 9.5 0 0 1 9.5 38H19v9.5A9.5 9.5 0 0 1 9.5 57Z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 1 9.5 19H19v19H9.5A9.5 9.5 0 0 1 0 28.5Z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 1 9.5 0H19v19H9.5A9.5 9.5 0 0 1 0 9.5Z"/><path fill="#ff7262" d="M19 0h9.5a9.5 9.5 0 0 1 0 19H19Z"/><circle fill="#1abcfe" cx="28.5" cy="28.5" r="9.5"/></svg>}
 function ChatMark() {return <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#34a853" d="M3 3h18v14H9l-6 5Z"/><path fill="#188038" d="M3 3h6v14l-6 5Z"/><path fill="#fff" d="M7 7h10v2H7zm0 4h7v2H7z"/></svg>}
 
 // Shared optical weight and 24px grid; each mark describes its app's job.
 function AppMark({kind}:{kind:"agents"|"brands"|"demos"}) {return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">{kind==="agents"?<>
- <path d="m4 19 8-15 8 15M7.5 13h9" stroke="white" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/>
- <circle cx="4" cy="19" r="2.3" fill="white"/><circle cx="20" cy="19" r="2.3" fill="white"/><circle cx="12" cy="4" r="2.3" fill="white"/>
+ <rect x="3" y="3" width="18" height="18" rx="2" stroke="white" strokeWidth="1.8"/>
+ <path d="m12 5 1.9 5.1L19 12l-5.1 1.9L12 19l-1.9-5.1L5 12l5.1-1.9L12 5Z" fill="white"/>
  </>:kind==="brands"?<>
- <path d="M5 3h6a4 4 0 0 1 0 8H5V3Zm0 10h8a4 4 0 0 1 0 8H5v-8Z" fill="white"/>
- <path d="m18 2 1.3 2.7L22 6l-2.7 1.3L18 10l-1.3-2.7L14 6l2.7-1.3L18 2Z" fill="white"/>
+ <rect x="3" y="3" width="12" height="14" rx="1.5" stroke="white" strokeWidth="1.8"/>
+ <rect x="9" y="7" width="12" height="14" rx="1.5" fill="white"/>
+ <path d="M12 11h6M12 14h6" stroke="#6265df" strokeWidth="1.5" strokeLinecap="round"/>
  </>:<>
  <rect x="3" y="4" width="18" height="16" rx="3" stroke="white" strokeWidth="2.2"/>
  <path d="M3 8h18" stroke="white" strokeWidth="2"/><path d="m10 11 6 3.5-6 3.5v-7Z" fill="white"/>
@@ -90,7 +85,7 @@ function frame(time:number,size:{w:number;h:number}) {
  let phase=0;while(phase<DURATIONS.length-1&&time>=STARTS[phase+1])phase++
  const local=time-STARTS[phase],p=clamp(local/DURATIONS[phase])
  const present=phase>=1&&phase<=19
- const arrival=phase===1?out(local/850):present?1:0
+ const arrival=phase===1?ease(local/850):present?1:0
  const occupancy=[0,0,0,0]
  let col=0,dragProgress=0,rotation=0,lift=0,held=false
  if(phase<=2){occupancy[0]=arrival;col=0}
@@ -100,11 +95,11 @@ function frame(time:number,size:{w:number;h:number}) {
  else if(phase<=16){occupancy[2]=1;col=2}
  else if(phase===17){dragProgress=dragEase(p);occupancy[2]=1-dragProgress;occupancy[3]=dragProgress;col=2+dragProgress}
  else if(phase<=19){occupancy[3]=1;col=3}
- if([2,8,16].includes(phase)){held=true;rotation=-2.7*out(local/180);lift=-5*out(local/180)}
+ if([2,8,16].includes(phase)){held=true;rotation=-2.7*ease(local/180);lift=-5*ease(local/180)}
  if([3,9,17].includes(phase)){held=true;rotation=mix(-2.7,-.7,dragProgress)-1.4*Math.sin(2*Math.PI*dragProgress);lift=-5-24*Math.sin(Math.PI*dragProgress)}
- if([4,10,18].includes(phase)){rotation=-.7*(1-out(local/220));lift=-5*(1-out(local/220))}
+ if([4,10,18].includes(phase)){rotation=-.7*(1-ease(local/220));lift=-5*(1-ease(local/220))}
  const stage:Stage=phase<4||phase===20?"Queue":phase<10?"Building":phase<18?"For review":"Complete"
- const made=phase<6||phase===20?0:Math.min(14,Math.floor(Math.max(0,time-STARTS[6])/340))
+ const made=phase<6||phase===20?0:Math.floor(14*ease((time-STARTS[6])/4800))
  let zoom=0;if(phase===5)zoom=ease(p);else if(phase===6)zoom=1;else if(phase===7)zoom=1-ease(p)
  const compact=size.w>0&&size.w<500
  const base=Math.max(0,(size.w-48)/W)
@@ -113,9 +108,9 @@ function frame(time:number,size:{w:number;h:number}) {
  const wide={x:(size.w-W*base)/2,y:24},close={x:size.w/2-anchor.x*base*1.85,y:size.h/2-anchor.y*base*1.85}
  const tx=compact?size.w/2-(BOARD_X+8+col*COL_STEP+CARD_W/2)*s:mix(wide.x,close.x,zoom)
  const ty=compact?110-CARD_Y*s:mix(wide.y,close.y,zoom)
- const opacity=phase===19?1-ease(p):phase===20?0:phase===0?out(local/250):1
+ const opacity=phase===19?1-ease(p):phase===20?0:phase===0?ease(local/250):1
  const modal=phase>=12&&phase<=15,approved=phase>=14
- const modalIn=phase===12?out(local/280):phase===15?1-ease(local/220):1
+ const modalIn=phase===12?ease(local/280):phase===15?1-ease(local/220):1
  const modalScale=compact?Math.min(1,(size.w-36)/326,(size.h-36)/340):Math.min(.82,(size.w*.68)/620,(size.h*.8)/480)
  const focalPress=phase===11?Math.sin(clamp(local/300)*Math.PI):0
  const focusX=BOARD_X+8+col*COL_STEP,focusY=CARD_Y+lift
@@ -143,7 +138,7 @@ export function AgentDashboard({playing,interactive:_interactive=false}:{playing
   const f=frame(t,size)
   if(scene.current){scene.current.style.transform=`matrix(${f.s},0,0,${f.s},${f.tx},${f.ty})`;scene.current.style.opacity=String(f.opacity)}
   slots.current.forEach((el,index)=>{if(!el)return;const task=TASKS[index],i=COLUMNS.indexOf(task.stage),row=TASKS.filter(t=>t.stage===task.stage).findIndex(t=>t.id===task.id);el.style.transform=`translate(${BOARD_X+8+i*COL_STEP}px,${CARD_Y+(row+f.occupancy[i])*ROW_STEP}px)`})
-  if(focal.current){focal.current.style.transform=`translate(${f.focusX}px,${f.focusY+(f.phase===1?8*(1-f.arrival):0)}px) rotate(${f.rotation}deg)`;focal.current.style.opacity=String(f.arrival)}
+  if(focal.current){focal.current.style.transform=`translate(${f.focusX}px,${f.focusY+(f.phase===1?8*(1-f.arrival):0)}px) rotate(${f.rotation}deg)`;focal.current.style.opacity=String(f.arrival);const card=focal.current.firstElementChild as HTMLElement|null;if(card)card.style.transform=`scale(${1-f.focalPress*.025})`}
   if(modalLayer.current)modalLayer.current.style.opacity=String(f.modalIn)
   if(modalBox.current)modalBox.current.style.transform=`scale(${f.modalScale*mix(.98,1,f.modalIn)}) translateY(${8*(1-f.modalIn)}px)`
  }),time=reduced?STARTS[10]+500:elapsed
