@@ -16,15 +16,16 @@ export type Viewport = { w: number; h: number }
 export type CardPose = { x: number; y: number; rotation: number; scale: number }
 export type Camera = { s: number; tx: number; ty: number }
 export const BEATS = {
-    entrance: [0, 945], firstFocus: [930, 1480], arrival: [960, 2010], arrivedHold: [2010, 2260],
-    queuePickup: [2260, 2480], queueTravel: [2440, 3270], buildingLanding: [3270, 3590],
-    build: [3590, 6890], buildHold: [6890, 7090], buildingPickup: [7090, 7310],
-    reviewTravel: [7270, 8130], reviewLanding: [8130, 8450], reviewHold: [8450, 9050],
-    reviewPress: [9050, 9210], pullback: [9130, 9680], modalEnter: [9210, 9430],
-    readingHold: [9680, 14260], approveHover: [14260, 14660], approvePress: [14660, 14820],
-    approvedHold: [14820, 15880], modalExit: [15880, 16060], reviewPickup: [16060, 16280],
-    completeTravel: [16240, 17070], completeLanding: [17070, 17390], completeHold: [17390, 18890],
-    exit: [18890, 19140], reset: [19140, 19220],
+    entrance: [0, 945], firstFocus: [930, 1630], focusHold: [1630, 2180],
+    arrival: [2180, 3380], arrivedHold: [3380, 3930],
+    queuePickup: [3930, 4150], queueTravel: [4110, 4940], buildingLanding: [4940, 5260],
+    build: [5260, 8560], buildHold: [8560, 8760], buildingPickup: [8760, 8980],
+    reviewTravel: [8940, 9800], reviewLanding: [9800, 10120], reviewHold: [10120, 10720],
+    reviewPress: [10720, 10880], pullback: [10800, 11350], modalEnter: [10880, 11100],
+    readingHold: [11350, 15930], approveHover: [15930, 16330], approvePress: [16330, 16490],
+    approvedHold: [16490, 17550], modalExit: [17550, 17730], reviewPickup: [17730, 17950],
+    completeTravel: [17910, 18740], completeLanding: [18740, 19060], completeHold: [19060, 20560],
+    exit: [20560, 20810], reset: [20810, 20890],
 } as const
 export const TOTAL_MS = BEATS.reset[1]
 export const ENTRANCES = {
