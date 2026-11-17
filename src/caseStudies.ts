@@ -198,7 +198,7 @@ export const caseStudies: CaseStudy[] = [
     },
     {
         "slug": "agent-design-operations",
-        "title": "Agent Design Operations",
+        "title": "Design Agents",
         "client": "Rokt",
         "year": "2026",
         "role": "Agent workflow, review UX, and interface design",
@@ -207,7 +207,7 @@ export const caseStudies: CaseStudy[] = [
         "paletteIndex": 0,
         "numbered": false,
         "next": "",
-        "preview": "A workspace for an autonomous designer managing UX across over 5,000 active account pages.",
+        "preview": "An autonomous agent creates designs across more than 5,000 accounts. A shared dashboard lets me track builds, review the work, and approve it.",
         "result": "A clear human review and feedback step before work is approved.",
         "status": "Workflow prototype · illustrative tasks",
         "blocks": [

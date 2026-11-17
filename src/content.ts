@@ -92,7 +92,7 @@ export const projects: ProjectData[] = [
         link: "work/macys-bag-page/",
     },
     {
-        title: "Agent Design Operations",
+        title: "Design Agents",
         image: {
             src: "/projects/project-04.jpg",
             alt: "Agents that build client mockups",
@@ -108,7 +108,7 @@ export const projects: ProjectData[] = [
         category: "Internal tools",
         year: "2026",
         description:
-            "A completely autonomous designer to manage over 5,000 active account pages’ UX",
+            "Built an autonomous design agent and a dashboard to monitor its work across more than 5,000 accounts.",
         tags: [],
         // A dedicated case study for the agent design workflow.
         link: "work/agent-design-operations/",
