@@ -15,7 +15,7 @@
 .kalshi-comparison { position:absolute; right:64px; visibility:hidden; color:#a8beb3; font-size:28px; line-height:1; font-variant-numeric:tabular-nums; }
 .kalshi-previous-odds { top:279px; }
 .kalshi-previous-payout { top:513px; }
-.kalshi-preview[data-play-phase="3"] .kalshi-comparison { visibility:visible; }
+.kalshi-preview:is([data-play-phase="3"],[data-play-phase="4"]) .kalshi-comparison { visibility:visible; }
 .kalshi-rule { position:absolute; left:64px; right:64px; top:316px; border-top:1px dashed #c7e9d626; }
 .kalshi-pay-label,.kalshi-payout-label { position:absolute; top:342px; font-size:23px; line-height:1.15; font-weight:500; letter-spacing:.08em; color:#a8beb3; }
 .kalshi-pay-label { left:64px; }.kalshi-payout-label { right:64px; }
@@ -58,4 +58,5 @@
 @keyframes kalshi-market-response { 0%,100% { box-shadow:0 0 0 0 #00d49b00; color:#fff; } 35% { box-shadow:0 0 0 12px #00d49b16; color:#fff; } }
 @media(prefers-reduced-motion:reduce) { .kalshi-run-gain { transition:none!important; }.kalshi-preview[data-play-phase="3"] .kalshi-odds>.kalshi-number { animation:none!important; } }
 
-.kalshi-game-context { display:flex; align-items:center; justify-content:space-between; height:44px; color:#d3e4da; font-size:22px; font-weight:500; }
+.kalshi-game-context { position:relative; display:flex; align-items:center; justify-content:space-between; height:44px; color:#d3e4da; font-size:22px; font-weight:500; }
+.kalshi-replay-label { position:absolute; left:50%; transform:translateX(-50%); color:#a8beb3; font-size:16px; letter-spacing:.08em; }
