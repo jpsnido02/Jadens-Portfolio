@@ -60,3 +60,10 @@
 
 .kalshi-game-context { position:relative; display:flex; align-items:center; justify-content:space-between; height:44px; color:#d3e4da; font-size:22px; font-weight:500; }
 .kalshi-replay-label { position:absolute; left:50%; transform:translateX(-50%); color:#a8beb3; font-size:16px; letter-spacing:.08em; }
+
+@media(max-width:600px) {
+    /* In a phone tile, fit the previous quote alongside the large figure. */
+    .kalshi-comparison { font-size:46px; }
+    .kalshi-previous-odds { right:265px; top:215px; }
+    .kalshi-previous-payout { right:478px; top:411px; }
+}
