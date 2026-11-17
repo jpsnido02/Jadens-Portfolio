@@ -803,11 +803,14 @@ export default function MacysBagLoop({
     const pad = box.w < 480 ? 8 : 16
     const availW = Math.max(0, box.w - pad * 2)
     const availH = Math.max(0, box.h - pad * 2 - topPad - (reduced && !gallery ? 76 : 0))
+    const fittedGalleryWidth = Math.min(box.w * 0.94, box.h * crop.w / crop.h)
+    // The white page reaches farther across the backing while its contents breathe.
     const width = gallery
-        ? Math.min(box.w * 0.94, box.h * crop.w / crop.h)
+        ? fittedGalleryWidth + box.w * 0.03
         : Math.max(0, Math.min(availW, availH * (pageWidth / frameHeight)))
     /** The camera's slice of the page, filling the frame. */
-    const scale = width / displayCamera.w
+    const contentWidth = gallery ? fittedGalleryWidth * 0.97 : width
+    const scale = contentWidth / displayCamera.w
     /** How far in we are, for anything that should not grow with the zoom. */
     const zoom = gallery ? 1 : displayCamera.w / pageWidth
     // Half the hero pane's own corner, by the same rule it uses, so the frame
@@ -876,6 +879,7 @@ export default function MacysBagLoop({
                             className="macys-page"
                             style={{
                                 width: pageWidth,
+                                left: gallery ? (width - contentWidth) / 2 : 0,
                                 // Translate first in page pixels, then scale,
                                 // so the camera's x/y stay in the page's own
                                 // coordinates whatever the zoom.

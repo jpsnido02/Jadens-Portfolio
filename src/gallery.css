@@ -526,6 +526,7 @@ html[data-page="home"] #root { overflow:hidden; }
 .macys-gallery { container-type: inline-size; }
 .macys-gallery .macys-frame { border: 0; box-shadow: 3px 0 12px #693b4012; }
 .macys-gallery .bag-page__main { min-width: 0; }
+.macys-gallery .order-summary { visibility: hidden; }
 .macys-gallery .macys-page .bag-items {
     display: grid;
     overflow: hidden;
