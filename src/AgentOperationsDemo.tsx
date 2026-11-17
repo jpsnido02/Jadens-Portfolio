@@ -116,6 +116,7 @@ export function AgentDashboard({playing,interactive:_interactive=false}:{playing
   if(n.fill)n.fill.style.transform=`scaleX(${f.buildProgress})`
   if(n.contact)n.contact.style.opacity=String(f.contactOpacity)
   if(n.shadow)n.shadow.style.opacity=String(f.shadowOpacity)
+  modalBox.current?.querySelectorAll<HTMLElement>(".ado-review-stages .ado-stage-fill").forEach((fill,index)=>{fill.style.transform=`scaleX(${Math.max(0,Math.min(1,f.modal.lifecycleProgress*2-index))})`})
   if(modalLayer.current)modalLayer.current.style.opacity=String(f.modal.opacity)
   if(modalBox.current)modalBox.current.style.transform=`translateY(${f.modal.y}px) scale(${f.modal.scale*f.modal.scaleMultiplier})`
   if(approveButton.current)approveButton.current.style.transform=`scale(${f.modal.approveScale})`
@@ -148,7 +149,7 @@ export function AgentDashboard({playing,interactive:_interactive=false}:{playing
   {f.modal.visible&&<div ref={modalLayer} className="ado-modal-layer" style={{opacity:f.modal.opacity}}><div className="ado-modal-backdrop"/><div ref={modalBox} className="ado-modal" role="img" aria-label="Shutterfly design review" style={{transform:`translateY(${f.modal.y}px) scale(${f.modal.scale*f.modal.scaleMultiplier})`}}>
    <div className="ado-modal-top"><img src={LOGOS.Shutterfly} alt="Shutterfly"/><span>DS-103</span><Icon icon={faXmark} size={15}/></div>
    <div className="ado-modal-title">Create photo book checkout designs</div><div className="ado-modal-sub">Requested by Elena Park<span>Due today</span></div>
-   <div className="ado-review-stages">{COLUMNS.map((column,i)=><div key={column} className={f.modal.approved||i<2?"done":i===2?"current":""}><i/><span>{column}</span></div>)}</div>
+   <div className="ado-review-stages">{COLUMNS.map((column,i)=><div key={column} className={f.modal.lifecycleComplete||i<2?"done":i===2?"current":""}><i>{i>=2&&<em className="ado-stage-fill" style={{transform:`scaleX(${Math.max(0,Math.min(1,f.modal.lifecycleProgress*2-(i-2)))})`}}/>}</i><span>{column}</span></div>)}</div>
    <div className="ado-review-summary"><div><span>Mock status</span><strong>14 / 14</strong></div><div><span>Build time</span><strong>5m 58s</strong></div><div><span>Brand system</span><strong>Shutterfly</strong></div></div>
    <div className="ado-review-links"><span><FigmaMark/>Figma</span><span><Icon icon={faGoogleDrive} size={17}/>Google Drive</span><span><ChatMark/>Google Chat</span></div>
    <div className="ado-review-checks"><div>Before you approve<span>3 checks completed</span></div><span><Icon icon={faCheck} size={12}/>Brand tokens match the account</span><span><Icon icon={faCheck} size={12}/>Responsive layouts reviewed</span><span><Icon icon={faCheck} size={12}/>Contrast and layout QA complete</span></div>
