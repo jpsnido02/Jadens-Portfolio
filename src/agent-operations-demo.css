@@ -116,6 +116,7 @@
   background:#208057; color:white;
 }
 
-/* Approval completes the indicator before the automatic board handoff. */
-.ado-review-stages i{transition:background-color 240ms cubic-bezier(.23,1,.32,1)}
-@media(prefers-reduced-motion:reduce){.ado-review-stages i{transition:none}}
+/* The retained playhead fills the two remaining stages after button confirmation. */
+.ado-review-stages i{position:relative;overflow:hidden}
+.ado-stage-fill{position:absolute;inset:0;background:#77b49c;border-radius:inherit;transform-origin:left center}
+.ado-review-stages .done{color:#39785e}
