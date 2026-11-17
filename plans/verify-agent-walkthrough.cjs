@@ -19,8 +19,12 @@ const checkOpening = () => {
  for (const size of sizes) {
   const before = at(BEATS.focusHold[0]+100, size);
   check(!before.present && before.columnOccupancy[0] === 0, 'existing queue stays still during focus hold');
-  const middle = at((BEATS.arrival[0]+BEATS.arrival[1])/2, size);
-  check(middle.present && middle.columnOccupancy[0] > 0 && middle.columnOccupancy[0] < 1, 'queue makes room while card enters');
+  const middle = at((BEATS.queueMakeRoom[0]+BEATS.queueMakeRoom[1])/2, size);
+  check(!middle.present && middle.cardOpacity === 0 && middle.columnOccupancy[0] > 0 && middle.columnOccupancy[0] < 1, 'queue makes room before card appears');
+  const reveal = at((BEATS.queueReveal[0]+BEATS.queueReveal[1])/2, size);
+  check(reveal.present && reveal.columnOccupancy[0] === 1 && reveal.cardOpacity > 0 && reveal.cardOpacity < 1, 'fade into fully reserved slot');
+  check(reveal.cardPose.scale > 0.97 && reveal.cardPose.scale < 1, 'subtle expansion into slot');
+  close(reveal.cardPose.y + (1-reveal.cardPose.scale)*GEOMETRY.GRIP_Y, GEOMETRY.CARD_Y, 0.001, 'reveal anchored to top of slot');
  }
 }
 const boundaries = [...new Set(Object.values(BEATS).flat())].sort((a, b) => a - b)
@@ -96,7 +100,7 @@ for (const size of sizes) {
   close(f(landing[0]+160).cardPose.scale,1.03,1e-6,'gradual drop')
   check(f(landing[1]-16).cardPose.scale < 1.001 && f(landing[1]-16).shadowOpacity < 0.01,'soft contact at rest')
  }
- close(f(BEATS.arrival[0]+200).cardOpacity,0.5,0.001,'spawn stays visible halfway through fade')
+ close(f((BEATS.queueReveal[0]+BEATS.queueReveal[1])/2).cardOpacity,0.5,0.001,'spawn stays visible halfway through fade')
  const settled = f(BEATS.readingHold[0])
  for (let t = BEATS.readingHold[0]; t < BEATS.readingHold[1]; t += 127) {
   const frame = f(t)
