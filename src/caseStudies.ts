@@ -277,7 +277,7 @@ export const caseStudies: CaseStudy[] = [
             {
                 "kind": "evidence",
                 "name": "branded-comparison",
-                "caption": "Recreated offer anatomy held side by side for comparison. The demo above shows the supplied partner screens."
+                "caption": "Original Gap, Best Buy, and Depop offer designs, shown side by side."
             },
             {
                 "kind": "section",
@@ -320,7 +320,7 @@ export const caseStudies: CaseStudy[] = [
             {
                 "kind": "evidence",
                 "name": "expedia-proof",
-                "caption": "The confirmation, mobile bottom sheet and desktop offer modal, recomposed to show the UX without device frames."
+                "caption": "A closer look at the original mobile offer and the decisions connecting it to the completed booking."
             },
             {
                 "kind": "section",

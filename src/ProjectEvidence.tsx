@@ -1,5 +1,4 @@
 import { SiteIcon } from "./icons"
-import ExpediaComposition from "./ExpediaComposition"
 import useStudySequence from "./useStudySequence"
 import type { CSSProperties } from "react"
 import "./project-evidence.css"
@@ -18,8 +17,47 @@ export function AgentReviewScene({ playing = false, compact = false, posterOnly 
     </div>
 }
 
+// Source screenshots are 786 × 1704. These windows isolate the offer panels
+// above the phone's home indicator, retaining the original design pixels.
+const BRANDED_OFFERS = [
+    { id: "gap", name: "Gap", top: 886, bottom: 1656, offer: "Disney+ Basic seven-day trial" },
+    { id: "bestbuy", name: "Best Buy", top: 800, bottom: 1660, offer: "Hulu + Live TV seven-day trial" },
+    { id: "depop", name: "Depop", top: 828, bottom: 1660, offer: "Hulu + Live TV seven-day trial" },
+]
+
 export function BrandedComparison() {
-    return <div className="brand-comparison">{[{id:"gap",name:"Gap",accent:"#17386a",font:'Georgia, serif'},{id:"bestbuy",name:"Best Buy",accent:"#0046be",font:'Arial, sans-serif'},{id:"depop",name:"Depop",accent:"#d32727",font:'Arial, sans-serif'}].map(brand => <div className="brand-proof" key={brand.id} style={{"--brand-accent":brand.accent,fontFamily:brand.font} as CSSProperties}><div className="brand-proof-logo"><img src={`/projects/partners/${brand.id}-mark.svg`} alt={brand.name}/></div><span>ORDER CONFIRMED</span><strong>Jaden, your order<br/>is complete.</strong><p>Enjoy a 7-day free trial<br/>of Disney+ Basic.</p><b>Claim offer</b><small>Decline</small></div>)}</div>
+    return <div className="brand-comparison">
+        {BRANDED_OFFERS.map(brand => <div className="brand-proof" key={brand.id}>
+            <div className="brand-proof-crop" style={{
+                aspectRatio: `754 / ${brand.bottom - brand.top}`,
+                "--offer-top": `-${brand.top / 1704 * 100}%`,
+            } as CSSProperties}>
+                <img
+                    src={`/projects/branded/${brand.id}.jpg`}
+                    alt={`${brand.name} branded offer design for a ${brand.offer}, including its original claim and decline controls.`}
+                    width={786}
+                    height={1704}
+                    loading="lazy"
+                />
+            </div>
+        </div>)}
+    </div>
+}
+
+function ExpediaDecision() {
+    return <div className="expedia-decision">
+        <div className="expedia-decision-screen">
+            <img src="/projects/expedia-offer.webp" width={1950} height={1107} loading="lazy" alt="Original Expedia mobile offer confirming the Honolulu flight, suggesting a hotel, and offering Find My Hotel or Next." />
+        </div>
+        <div className="expedia-decision-notes">
+            <h3>A next step grounded in the booking</h3>
+            <dl>
+                <div><dt>Confirm the completed action</dt><dd>The booked-flight message stays visible above the offer, giving the traveler reassurance before introducing a hotel.</dd></div>
+                <div><dt>Carry the trip context forward</dt><dd>Honolulu and the travel dates connect the recommendation to the trip the customer just booked.</dd></div>
+                <div><dt>Keep the choice clear</dt><dd>“Find My Hotel” gives the offer a specific action. “Next” lets the traveler continue without taking it.</dd></div>
+            </dl>
+        </div>
+    </div>
 }
 
 function MacysDecision() {
@@ -31,6 +69,6 @@ export default function ProjectEvidence({ name, playing = false }: { name: strin
     if (name === "branded-comparison") return <BrandedComparison />
     if (name === "macys-decision") return <MacysDecision />
     if (name === "uber-context") return <div className="uber-evidence"><div><span className="evidence-label">ORDER CONTEXT</span><strong>Your breakfast is on its way.</strong><p>The wait gives the offer a reason to be here.</p><span className="uber-evidence-order">Breakfast order <span>→</span> Delivery wait</span></div><div className="uber-evidence-offer"><img src="/projects/uber/media-spotify.webp" alt="Spotify"/><strong>Soundtrack your wait with Spotify Premium.</strong><p>Your Uber Eats order is on the way. Press play while you wait.</p><span>Open Spotify</span><small>Not now</small></div></div>
-    if (name === "expedia-proof") return <div className="expedia-evidence"><ExpediaComposition/></div>
+    if (name === "expedia-proof") return <ExpediaDecision />
     return null
 }
