@@ -1,4 +1,5 @@
 import { SiteIcon } from "./icons"
+import { ExpediaMobileOffer } from "./ExpediaComposition"
 import useStudySequence from "./useStudySequence"
 import type { CSSProperties } from "react"
 import "./project-evidence.css"
@@ -46,8 +47,8 @@ export function BrandedComparison() {
 
 function ExpediaDecision() {
     return <div className="expedia-decision">
-        <div className="expedia-decision-screen">
-            <img src="/projects/expedia-offer.webp" width={1950} height={1107} loading="lazy" alt="Original Expedia mobile offer confirming the Honolulu flight, suggesting a hotel, and offering Find My Hotel or Next." />
+        <div className="expedia-decision-screen" role="img" aria-label="Expedia mobile offer confirming the Honolulu booking, suggesting a hotel, and offering Find My Hotel or Next.">
+            <ExpediaMobileOffer />
         </div>
         <div className="expedia-decision-notes">
             <h3>A next step grounded in the booking</h3>

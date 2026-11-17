@@ -10,6 +10,20 @@ function Attribution() {
     return <div className="exp-attribution">Powered by <u>Rokt</u> · <u>Privacy Policy</u></div>
 }
 
+export function ExpediaMobileOffer() {
+    return <div className="exp-mobile-sheet">
+            <div className="exp-sheet-top"><span><FontAwesomeIcon icon={faCheck}/> Your flight to Honolulu is booked</span><FontAwesomeIcon icon={faXmark}/></div>
+            <strong className="exp-sheet-title">Jaden, your flight is confirmed!</strong>
+            <p>You’ve got the flights for Jun 12–18. Your Honolulu trip is coming together, here’s what to add next.</p>
+            <div className="exp-mobile-offer">
+                <div className="exp-mobile-offer-heading"><div><span className="exp-deal">Up to 60% off</span><strong>A great trip starts with the right place to stay.</strong></div><span className="exp-bed"><FontAwesomeIcon icon={faBed}/></span></div>
+                <ul>{["Everything in one place", "Earn One Key Rewards", "Premium hotels, handpicked for you"].map(text=><li key={text}><FontAwesomeIcon icon={faCheck}/>{text}</li>)}</ul>
+                <Actions mobile />
+            </div>
+            <Attribution />
+        </div>
+}
+
 /** Final-product UI recomposed without hardware, so each overlay can be read. */
 export default function ExpediaComposition() {
     const root = useRef<HTMLDivElement>(null)
@@ -29,17 +43,7 @@ export default function ExpediaComposition() {
             <strong>Your flight is confirmed</strong>
             <div className="exp-itinerary"><span>Itinerary #</span><b>123456789</b></div>
         </div>
-        <div className="exp-mobile-sheet">
-            <div className="exp-sheet-top"><span><FontAwesomeIcon icon={faCheck}/> Your flight to Honolulu is booked</span><FontAwesomeIcon icon={faXmark}/></div>
-            <strong className="exp-sheet-title">Jaden, your flight is confirmed!</strong>
-            <p>You’ve got the flights for Jun 12–18. Your Honolulu trip is coming together, here’s what to add next.</p>
-            <div className="exp-mobile-offer">
-                <div className="exp-mobile-offer-heading"><div><span className="exp-deal">Up to 60% off</span><strong>A great trip starts with the right place to stay.</strong></div><span className="exp-bed"><FontAwesomeIcon icon={faBed}/></span></div>
-                <ul>{["Everything in one place", "Earn One Key Rewards", "Premium hotels, handpicked for you"].map(text=><li key={text}><FontAwesomeIcon icon={faCheck}/>{text}</li>)}</ul>
-                <Actions mobile />
-            </div>
-            <Attribution />
-        </div>
+        <ExpediaMobileOffer />
         <div className="exp-desktop-modal">
             <div className="exp-desktop-heading"><FontAwesomeIcon className="exp-close" icon={faXmark}/><span className="exp-destination"><FontAwesomeIcon icon={faUmbrellaBeach}/></span><strong>Jaden, your flight to Honolulu is confirmed!</strong><span className="exp-step">Step 2 of 3 · Recommended for your trip</span>
                 <div className="exp-trip-stages">{["Flight Booked", "For You", "Trip Details"].map((label,i)=><div key={label} data-step={i}><span>{i===0&&<FontAwesomeIcon icon={faCheck}/>}</span><small>{label}</small></div>)}</div>

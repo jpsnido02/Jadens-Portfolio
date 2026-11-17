@@ -16,8 +16,23 @@
 @container (max-width:420px) { .agent-story--compact .agent-story-review { gap:12px; }.agent-story--compact .agent-review-criteria>strong { display:none; }.agent-story--compact .agent-review-criteria ul { margin-top:12px; }.agent-story--compact .agent-story-footer { line-height:1.5; }.agent-story--compact .agent-output>strong { font-size:13px; }.agent-story--compact .agent-output-cta { font-size:9px; }.agent-story--compact .agent-output { padding:10px; } }
 
 .expedia-decision { display:grid; grid-template-columns:minmax(0,360px) minmax(0,1fr); align-items:center; gap:48px; padding:32px; background:#edf2fc; color:#172238; border-radius:14px; }
-.expedia-decision-screen { position:relative; aspect-ratio:398/516; overflow:hidden; background:white; border-radius:12px 12px 44px 44px; }
-.expedia-decision .expedia-decision-screen img { position:absolute; width:489.9497487%; max-width:none; height:auto; left:-5.2763819%; top:0; transform:translateY(-41.8247516%); }
+.expedia-decision-screen { min-width:0; background:#fff; border-radius:12px; overflow:hidden; font-family:Arial,Helvetica,sans-serif; }
+.expedia-decision-screen * { box-sizing:border-box; }
+.expedia-decision-screen .exp-mobile-sheet { padding:22px; gap:16px; border-radius:12px; }
+.expedia-decision-screen .exp-sheet-top>span { font-size:10px; line-height:1.4; padding:6px 8px; }
+.expedia-decision-screen .exp-sheet-top>svg { flex-shrink:0; width:14px; }
+.expedia-decision-screen .exp-sheet-title { font-size:18px; line-height:1.35; }
+.expedia-decision-screen .exp-mobile-sheet>p { margin:0; font-size:13px; line-height:1.5; }
+.expedia-decision-screen .exp-mobile-offer { padding:14px; margin-top:4px; }
+.expedia-decision-screen .exp-deal { font-size:11px; }
+.expedia-decision-screen .exp-mobile-offer-heading strong { font-size:14px; line-height:1.4; }
+.expedia-decision-screen .exp-bed { flex-shrink:0; }
+.expedia-decision-screen .exp-mobile-offer ul { margin:14px 0 18px; gap:8px; }
+.expedia-decision-screen .exp-mobile-offer li { font-size:12px; line-height:1.4; align-items:flex-start; }
+.expedia-decision-screen .exp-mobile-offer li svg { flex-shrink:0; width:13px; height:13px; margin-top:2px; }
+.expedia-decision-screen .exp-actions--mobile { gap:8px; }
+.expedia-decision-screen .exp-actions--mobile>span { min-height:38px; font-size:13px; }
+.expedia-decision-screen .exp-attribution { font-size:10px; padding-top:4px; }
 .expedia-decision-notes h3 { font-size:24px; line-height:1.25; letter-spacing:-.025em; margin:0 0 28px; font-weight:600; }
 .expedia-decision-notes dl { margin:0; display:grid; gap:24px; }
 .expedia-decision-notes dt { font-size:14px; line-height:1.4; font-weight:600; }
