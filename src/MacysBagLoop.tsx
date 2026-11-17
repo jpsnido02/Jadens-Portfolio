@@ -284,8 +284,7 @@ const GALLERY_SCRIPT: Step[] = [
     { kind: "hold", ms: 2300 },
     { kind: "reset", ms: 60 },
 ]
-const GALLERY_FRAME = { w: 620, h: 602 }
-const GALLERY_BAG_ROW_HEIGHT = 60
+const GALLERY_ROWS = [SHIRT, PICKS[2], EXCLUSIVE]
 
 /** How long one pass of the script takes. */
 const CYCLE = cycleMs(SCRIPT.map((s) => s.ms))
@@ -516,8 +515,8 @@ export default function MacysBagLoop({
     onProgress?: LoopReporter
 }) {
     const script = gallery ? GALLERY_SCRIPT : SCRIPT
-    const pageWidth = gallery ? GALLERY_FRAME.w : FRAME_W
-    const frameHeight = gallery ? GALLERY_FRAME.h : FRAME_H
+    const pageWidth = FRAME_W
+    const frameHeight = FRAME_H
     const topPad = gallery ? 0 : FRAME_PAD_TOP
     const initialRotation = gallery ? 1 : 0
     const wrapRef = useRef<HTMLDivElement>(null)
@@ -568,6 +567,34 @@ export default function MacysBagLoop({
             ro?.disconnect()
         }
     }, [])
+
+    // Measure in page pixels. The row slot and offer stay put through both adds.
+    const [crop, setCrop] = useState({ x: 12, y: 160, w: 860, h: 680 })
+    useLayoutEffect(() => {
+        const page = pageRef.current
+        if (!gallery || !page || !box.w) return
+        const rows = page.querySelector<HTMLElement>(".bag-items")!
+        const offer = page.querySelector<HTMLElement>(".exclusive-card")!
+        const measure = () => {
+            const origin = page.getBoundingClientRect()
+            const scale = origin.width / FRAME_W
+            if (!scale) return
+            const bag = rows.getBoundingClientRect()
+            const end = offer.getBoundingClientRect()
+            const next = {
+                x: (bag.left - origin.left) / scale - 18,
+                y: (bag.top - origin.top) / scale + 10,
+                w: bag.width / scale + 36,
+                h: (end.bottom - bag.top) / scale - 10,
+            }
+            setCrop(next)
+        }
+        measure()
+        const observer = new ResizeObserver(measure)
+        observer.observe(rows)
+        observer.observe(offer)
+        return () => observer.disconnect()
+    }, [gallery, box.w, box.h])
 
     /**
      * The loop indicator's readout. One call a pass, carrying how long the
@@ -758,19 +785,21 @@ export default function MacysBagLoop({
     const displayUnlocked = reduced || unlocked
     const displayPickPhase: CtaPhase = reduced ? "added" : pickPhase
     const displayExclusivePhase: CtaPhase = reduced ? "added" : exclusivePhase
-    const displayCamera = gallery ? { x: 0, y: 0, w: pageWidth } : reduced ? WIDE : camera
+    const displayCamera = gallery ? crop : reduced ? WIDE : camera
     const displayRotation = reduced ? 1 : rotation
     const reducedSummary = "Add a suggested second item to unlock the shirt’s $39.99 price. Shown: 3 items, including the claimed exclusive offer."
 
     /* ---- layout ---------------------------------------------------------- */
-    const pad = gallery ? 8 : box.w < 480 ? 8 : 16
+    const pad = box.w < 480 ? 8 : 16
     const availW = Math.max(0, box.w - pad * 2)
     const availH = Math.max(0, box.h - pad * 2 - topPad - (reduced && !gallery ? 76 : 0))
-    const width = Math.max(0, Math.min(availW, availH * (pageWidth / frameHeight)))
+    const width = gallery
+        ? Math.min(box.w * 0.94, box.h * crop.w / crop.h)
+        : Math.max(0, Math.min(availW, availH * (pageWidth / frameHeight)))
     /** The camera's slice of the page, filling the frame. */
     const scale = width / displayCamera.w
     /** How far in we are, for anything that should not grow with the zoom. */
-    const zoom = displayCamera.w / pageWidth
+    const zoom = gallery ? 1 : displayCamera.w / pageWidth
     // Half the hero pane's own corner, by the same rule it uses, so the frame
     // nests inside it rather than echoing it.
     const frameRadius =
@@ -803,7 +832,7 @@ export default function MacysBagLoop({
                 display: "flex",
                 flexDirection: "column",
                 gap: reduced ? 12 : 0,
-                alignItems: "center",
+                alignItems: gallery ? "flex-start" : "center",
                 justifyContent: "center",
             }}
         >
@@ -811,7 +840,7 @@ export default function MacysBagLoop({
                 <div
                     style={{
                         width,
-                        height: width * (frameHeight / pageWidth) + topPad,
+                        height: gallery ? box.h : width * (frameHeight / pageWidth) + topPad,
                         position: "relative",
                         flexShrink: 0,
                     }}
@@ -827,7 +856,7 @@ export default function MacysBagLoop({
                             inset: 0,
                             overflow: "hidden",
                             background: "#FFFFFF",
-                            borderRadius: frameRadius,
+                            borderRadius: gallery ? 0 : frameRadius,
                             paddingTop: topPad,
                         }}
                     >
@@ -842,7 +871,7 @@ export default function MacysBagLoop({
                                 // coordinates whatever the zoom.
                                 transform: `scale(${scale}) translate(${-displayCamera.x}px, ${-displayCamera.y}px)`,
                                 transformOrigin: "top left",
-                                transition: reduced
+                                transition: reduced || gallery
                                     ? "none"
                                     : `transform ${shotMs}ms cubic-bezier(0.4, 0, 0.2, 1)`,
                                 position: "relative",
@@ -920,11 +949,11 @@ export default function MacysBagLoop({
                                 <section className="bag-page__main">
                                     <h1>Bag</h1>
 
-                                    <div className="bag-items" style={gallery ? { height: GALLERY_BAG_ROW_HEIGHT } : undefined}>
-                                        {items.map((product, i) => (
+                                    <div className="bag-items">
+                                        {(gallery ? GALLERY_ROWS : items).map((product, i) => (
                                             <div
                                                 key={`${product.id}-${i}`}
-                                                style={gallery ? { height: GALLERY_BAG_ROW_HEIGHT, transform: `translateY(-${displayAdded.length * GALLERY_BAG_ROW_HEIGHT}px)` } : undefined}
+                                                style={gallery ? { transform: `translateY(${(i - displayAdded.length) * 100}%)` } : undefined}
                                                 // Everything after the first
                                                 // line arrived during the
                                                 // loop, so it opens out

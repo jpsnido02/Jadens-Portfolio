@@ -521,33 +521,43 @@ html[data-page="home"] #root { overflow:hidden; }
     .macys-focus .macys-story-status>strong { font-size:17px; }
 }
 
-/* A close view of the actual bag page: keep its masthead and latest bag line
-   above the two native merchandising sections. The full reader shows checkout. */
-.macys-gallery .macys-page .site-header__top { grid-template-columns:100px 1fr auto; min-height:46px; gap:16px; padding-inline:18px 26px; }
-.macys-gallery .macys-page .site-header__logo { width:96px; }
-.macys-gallery .macys-page .site-header__search input { min-width:0; height:28px; font-size:12px; }
-.macys-gallery .macys-page .site-header__ask,.macys-gallery .macys-page .site-header__utilities>span { display:none; }
-.macys-gallery .macys-page .site-nav { min-height:28px; padding-inline:18px; gap:14px; }
-.macys-gallery .macys-page .site-nav button { font-size:12px; }
-.macys-gallery .macys-page .bag-page { display:block; padding:10px 16px 0; }
-.macys-gallery .macys-page .bag-page>aside,.macys-gallery .macys-page .rewards-strip { display:none; }
-.macys-gallery .macys-page .bag-page__main h1 { font-size:22px; margin:0 0 4px; }
-.macys-gallery .macys-page .bag-items { margin:0 0 10px; overflow:hidden; }
-.macys-gallery .macys-page .bag-items > div { transition:transform 380ms cubic-bezier(.22,.7,.25,1); }
-.macys-gallery .macys-page .site-nav button:nth-child(n+9) { display:none; }
-.macys-gallery .macys-page .bag-item { display:block; padding:5px 0; }
-.macys-gallery .macys-page .bag-item__main { display:flex; gap:12px; align-items:center; height:47px; }
-.macys-gallery .macys-page .bag-item__image { width:35px; height:44px; object-fit:contain; }
-.macys-gallery .macys-page .bag-item__brand,.macys-gallery .macys-page .bag-item__name,.macys-gallery .macys-page .bag-item__pricing p { font-size:12px; margin:0; line-height:14px; }
-.macys-gallery .macys-page .bag-item__pricing { display:flex; align-items:baseline; gap:6px; margin:0; }
-.macys-gallery .macys-page .bag-item__meta,.macys-gallery .macys-page .bag-item__qty,.macys-gallery .macys-page .bag-item__links,.macys-gallery .macys-page .bag-item__fulfillment { display:none; }
-.macys-gallery .macys-page .quick-picks { margin-bottom:16px; }
-.macys-gallery .macys-page .quick-picks__header p { margin-bottom:8px; }
-.macys-gallery .macys-page .quick-pick-card { min-width:0; flex:0 0 calc((100% - 16px) / 2); }
-.macys-gallery .macys-page .quick-pick-card__image-wrap { width:72px; height:88px; }
-.macys-gallery .macys-page .quick-picks__fade,.macys-gallery .macys-page .quick-picks__nav--prev { display:none; }
-.macys-gallery .macys-page .exclusive-card { grid-template-columns:82px minmax(0,1fr) 126px; padding:16px; gap:18px; }
-.macys-gallery .macys-page .exclusive-card__image-wrap { height:106px; }
-.macys-gallery .macys-page .exclusive-card__meta { display:none; }
-.macys-gallery .macys-page .exclusive-card__badge { white-space:nowrap; width:max-content; }
-.macys-gallery .macys-page .exclusive-card__badge svg { width:12px; height:12px; }
+/* The bag runs off three edges of the tile; its right edge reveals the blush backing. */
+.macys-gallery { container-type: inline-size; }
+.macys-gallery .macys-frame { border: 0; box-shadow: 3px 0 12px #693b4012; }
+.macys-gallery .bag-page__main { min-width: 0; }
+.macys-gallery .macys-page .bag-items {
+    display: grid;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+.macys-gallery .bag-items > div {
+    grid-area: 1 / 1;
+    transition: transform 380ms cubic-bezier(.22,.7,.25,1);
+}
+.macys-gallery .macys-page .quick-picks { margin-bottom: 18px; }
+.macys-gallery .macys-page .quick-picks__header p { margin-bottom: 8px; }
+.macys-gallery .macys-page .quick-picks__track { gap: 10px; }
+.macys-gallery .macys-page .quick-pick-card {
+    flex: 0 0 248px;
+    min-width: 0;
+    gap: 10px;
+    padding: 9px;
+}
+.macys-gallery .macys-page .quick-pick-card__image-wrap { width: 68px; height: 88px; }
+@container (max-width: 450px) {
+    .macys-gallery .macys-page .bag-page { grid-template-columns: 630px 464px; }
+    .macys-gallery .macys-page .bag-item { grid-template-columns: minmax(0, 1fr) 200px; }
+}
+
+@media (hover: none) and (max-width: 720px) {
+    .tile-visual:has(.macys-gallery) { aspect-ratio: auto; }
+    .focus-macys-bag:has(.macys-gallery) { position: relative; height: auto; aspect-ratio: 0.99; }
+    .tile-visual:has(.macys-gallery) .tile-caption {
+        position: static;
+        padding: 12px 16px;
+        background: #f2e1de;
+        color: #422c2b;
+    }
+    .tile-visual:has(.macys-gallery) .tile-caption-line { padding: 0; }
+    .tile-visual:has(.macys-gallery) .tile-caption-line span { color: inherit; }
+}
