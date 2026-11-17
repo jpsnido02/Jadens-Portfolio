@@ -6,6 +6,7 @@ import BrandedLayoutsLoop from "./BrandedLayoutsLoop"
 import { UberPreview, BrandedPreview } from "./GalleryPreviews"
 import KalshiPreview from "./KalshiPreview"
 import ConceptStudy from "./ConceptStudies"
+import ExpediaComposition from "./ExpediaComposition"
 import type { ProjectData } from "./PortfolioScroll"
 
 /** Fit the complete prototype stage inside its frame without cropping. */
@@ -39,6 +40,7 @@ export default function ProjectCover({ project, index, live = true, focused = fa
     }, [])
     const playing = live && visible && !reduced
     const kind = project.component
+    if (project.link?.includes("expedia-1p-3p")) return <div ref={ref} className="project-cover project-cover--expedia" aria-hidden="true" inert><ExpediaComposition /></div>
     if (kind === "kalshi-live") return <div ref={ref} className={`project-cover ${!playing ? "is-paused" : ""}`} aria-hidden="true" inert><KalshiPreview playing={playing} /></div>
     if (kind === "pantry-notes" || kind === "thought-atlas" || kind === "build-view") return <div ref={ref} className={`project-cover personal-cover ${!playing ? "is-paused" : ""}`} aria-hidden="true" inert><ConceptStudy kind={kind} playing={playing}/></div>
     if (kind === "partner-agent" || kind === "shoppable-config") return <div ref={ref} className={`project-cover ${!playing ? "is-paused" : ""}`} aria-hidden="true" inert>{kind === "partner-agent" ? <AgentDashboard playing={playing} /> : <ShoppableDashboard playing={playing} /> }</div>
