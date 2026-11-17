@@ -529,6 +529,7 @@ export default function MacysBagLoop({
     const pageRef = useRef<HTMLDivElement>(null)
 
     const [box, setBox] = useState({ w: 0, h: 0 })
+    const [pageHeight, setPageHeight] = useState(VIEW_H)
     const [step, setStep] = useState(0)
     const [replayGeneration, setReplayGeneration] = useState(0)
     const appliedEntry = useRef<string | null>(null)
@@ -573,6 +574,18 @@ export default function MacysBagLoop({
             ro?.disconnect()
         }
     }, [])
+
+    // The moving card contains the full page, including rows added during playback.
+    // Only the outer case-study stage crops the camera, never this card's border.
+    useLayoutEffect(() => {
+        const page = pageRef.current
+        if (gallery || !page) return
+        const measure = () => setPageHeight(Math.max(VIEW_H, page.scrollHeight))
+        measure()
+        const observer = new ResizeObserver(measure)
+        observer.observe(page)
+        return () => observer.disconnect()
+    }, [gallery, box.w > 0])
 
     // Frame the cart title, row slot, suggestions and offer together through both adds.
     const [crop, setCrop] = useState({ x: 12, y: 160, w: 860, h: 680 })
@@ -811,6 +824,8 @@ export default function MacysBagLoop({
     /** The camera's slice of the page, filling the frame. */
     const contentWidth = gallery ? fittedGalleryWidth * 0.97 : width
     const scale = contentWidth / displayCamera.w
+    const baseScale = width / pageWidth
+    const cameraScale = pageWidth / displayCamera.w
     /** How far in we are, for anything that should not grow with the zoom. */
     const zoom = gallery ? 1 : displayCamera.w / pageWidth
     // Half the hero pane's own corner, by the same rule it uses, so the frame
@@ -858,15 +873,19 @@ export default function MacysBagLoop({
                         flexShrink: 0,
                     }}
                 >
-                    {/* One bordered, clipped box. The border and the
-                        radius are in rendered pixels rather than page ones,
-                        so the edge stays a hairline at any hero size instead
-                        of scaling down into nothing. */}
+                    {/* Move the complete card through the case-study stage.
+                        Gallery cards retain their fixed, cropped composition. */}
                     <div
                         className="macys-frame"
                         style={{
                             position: "absolute",
                             inset: 0,
+                            height: gallery ? undefined : pageHeight * baseScale + topPad,
+                            transform: gallery ? undefined
+                                : `translate(${-displayCamera.x * scale}px, ${-displayCamera.y * scale + topPad * (1 - cameraScale)}px) scale(${cameraScale})`,
+                            transformOrigin: "top left",
+                            transition: reduced || gallery ? "none"
+                                : `transform ${shotMs}ms cubic-bezier(0.4, 0, 0.2, 1)`,
                             overflow: "hidden",
                             background: "#FFFFFF",
                             borderRadius: gallery ? 0 : frameRadius,
@@ -880,14 +899,12 @@ export default function MacysBagLoop({
                             style={{
                                 width: pageWidth,
                                 left: gallery ? (width - contentWidth) / 2 : 0,
-                                // Translate first in page pixels, then scale,
-                                // so the camera's x/y stay in the page's own
-                                // coordinates whatever the zoom.
-                                transform: `scale(${scale}) translate(${-displayCamera.x}px, ${-displayCamera.y}px)`,
+                                // Case-study content stays fitted to the card; the
+                                // border, shadow and page share the camera above.
+                                transform: gallery
+                                    ? `scale(${scale}) translate(${-displayCamera.x}px, ${-displayCamera.y}px)`
+                                    : `scale(${baseScale})`,
                                 transformOrigin: "top left",
-                                transition: reduced || gallery
-                                    ? "none"
-                                    : `transform ${shotMs}ms cubic-bezier(0.4, 0, 0.2, 1)`,
                                 position: "relative",
                             }}
                         >
