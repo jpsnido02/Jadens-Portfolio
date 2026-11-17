@@ -31,7 +31,7 @@ const TASKS:Task[]=[
 
 ]
 // Establish → arrive → pick up → drag → inspect/build → review → approve → drag to complete.
-const DURATIONS=[1100,1800,180,1050,240,850,5200,180,180,1100,1900,160,3200,160,1000,220,180,1050,2300,350,100]
+const DURATIONS=[900,1400,180,700,240,550,3500,80,180,750,1200,160,4800,160,800,180,180,700,1500,250,80]
 const STARTS=DURATIONS.reduce<number[]>((a,d)=>[...a,a[a.length-1]+d],[0])
 const TOTAL=STARTS[STARTS.length-1]
 const clamp=(n:number)=>Math.max(0,Math.min(1,n))
@@ -39,6 +39,7 @@ const mix=(a:number,b:number,t:number)=>a+(b-a)*t
 // Balanced acceleration/deceleration with zero velocity and acceleration at either end.
 function ease(t:number) {t=clamp(t);return t*t*t*(t*(t*6-15)+10)}
 function dragEase(t:number) {return ease(t)}
+function easeOut(t:number) {return 1-Math.pow(1-clamp(t),3)}
 function Icon({icon,size=14}:{icon:IconDefinition;size?:number}) {return <FontAwesomeIcon icon={icon} style={{width:size,height:size}} aria-hidden="true"/>}
 function FigmaMark() {return <svg width="13" height="19" viewBox="0 0 38 57" aria-hidden="true"><path fill="#0acf83" d="M9.5 57A9.5 9.5 0 0 1 9.5 38H19v9.5A9.5 9.5 0 0 1 9.5 57Z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 1 9.5 19H19v19H9.5A9.5 9.5 0 0 1 0 28.5Z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 1 9.5 0H19v19H9.5A9.5 9.5 0 0 1 0 9.5Z"/><path fill="#ff7262" d="M19 0h9.5a9.5 9.5 0 0 1 0 19H19Z"/><circle fill="#1abcfe" cx="28.5" cy="28.5" r="9.5"/></svg>}
 function ChatMark() {return <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#34a853" d="M3 3h18v14H9l-6 5Z"/><path fill="#188038" d="M3 3h6v14l-6 5Z"/><path fill="#fff" d="M7 7h10v2H7zm0 4h7v2H7z"/></svg>}
@@ -99,7 +100,7 @@ function frame(time:number,size:{w:number;h:number}) {
  if([3,9,17].includes(phase)){held=true;rotation=mix(-2.7,-.7,dragProgress)-1.4*Math.sin(2*Math.PI*dragProgress);lift=-5-24*Math.sin(Math.PI*dragProgress)}
  if([4,10,18].includes(phase)){rotation=-.7*(1-ease(local/220));lift=-5*(1-ease(local/220))}
  const stage:Stage=phase<4||phase===20?"Queue":phase<10?"Building":phase<18?"For review":"Complete"
- const buildProgress=phase<6||phase===20?0:ease((time-STARTS[6])/4800)
+ const buildProgress=phase<6||phase===20?0:ease((time-STARTS[6])/3300)
  const made=Math.floor(14*buildProgress)
  let zoom=0;if(phase===5)zoom=ease(p);else if(phase>=6&&phase<=8)zoom=1;else if(phase===9)zoom=1-ease(p)
  const compact=size.w>0&&size.w<500
@@ -112,7 +113,7 @@ function frame(time:number,size:{w:number;h:number}) {
  const opacity=1
  const contact=[2,8,16].includes(phase)?ease(p):[3,9,17].includes(phase)?1:[4,10,18].includes(phase)?1-ease(local/220):0
  const modal=phase>=12&&phase<=15,approved=phase>=14
- const modalIn=phase===12?ease(local/280):phase===15?1-ease(local/220):1
+ const modalIn=phase===12?easeOut(local/220):phase===15?1-ease(local/180):1
  const modalScale=compact?Math.min(1,(size.w-36)/326,(size.h-36)/340):Math.min(.82,(size.w*.68)/620,(size.h*.8)/480)
  const pressTime=phase===11?local:phase===12?local+DURATIONS[11]:280
  const focalPress=Math.sin(clamp(pressTime/280)*Math.PI)
