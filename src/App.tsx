@@ -77,7 +77,7 @@ export default function App() {
         return () => window.removeEventListener("popstate", pop)
     }, [])
     useLayoutEffect(() => {
-        document.title = selected ? `${bySlug(selected)?.title} — Jaden Snyder` : "Jaden Snyder — Product Designer"
+        document.title = selected ? `${bySlug(selected)?.title} — Jaden Snyder` : "Jaden Snyder"
         reader.current?.scrollTo(0, 0)
         if (selected) {
             const panel = casePanel.current
