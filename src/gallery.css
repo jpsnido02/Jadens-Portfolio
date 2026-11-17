@@ -158,6 +158,8 @@ html[data-page="home"] #root { overflow:hidden; }
 .is-reading .project-grid { padding-top:66px; }
 .reader-toolbar { display:flex; align-items:center; gap:12px; flex-shrink:0; height:62px; padding:0 22px; background:var(--gallery-surface); border-bottom:1px solid var(--gallery-line); z-index:5; font-weight:600; }
 .reader-toolbar button { min-width:36px; min-height:36px; border:0; background:none; border-radius:30px; }
+.reader-toolbar button:not(:first-child) { display:grid; place-items:center; flex:0 0 36px; width:36px; height:36px; padding:0; line-height:1; }
+.reader-toolbar button:not(:first-child) .site-icon { display:block; vertical-align:0; }
 .reader-toolbar button:first-child { display:flex; gap:9px; align-items:center; font-size:12px; }
 .reader-toolbar button:hover { background:var(--gallery-bg); }
 .reader-toolbar>span { margin:auto; font-size:11px; color:var(--gallery-muted); }
