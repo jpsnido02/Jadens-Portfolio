@@ -115,3 +115,7 @@
   display:flex; align-items:center; justify-content:center; gap:6px;
   background:#208057; color:white;
 }
+
+/* Approval completes the indicator before the automatic board handoff. */
+.ado-review-stages i{transition:background-color 240ms cubic-bezier(.23,1,.32,1)}
+@media(prefers-reduced-motion:reduce){.ado-review-stages i{transition:none}}
