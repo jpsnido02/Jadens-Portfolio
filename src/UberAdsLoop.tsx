@@ -44,21 +44,14 @@ const SEAM = 2
 
 const CARD_X = 16
 const CARD_W = 358
-/* -------------------------------------------------------------------------
- * The order-tracking page, sliced out of the real app.
- *
- * Two captures stitch into one continuous page: the unscrolled one supplies
- * everything above the offer — the collapsing header, the map, the order
- * summary — and the scrolled one supplies everything below it. The offer sits
- * between the halves rather than inside either, which is what lets the lower
- * half move down as the card changes height. The bar is fixed, as it is in
- * the app, so the page travels under it.
- * ---------------------------------------------------------------------- */
+// The map and delivery details use original captures. The receipt and live offer
+// travel together on the order sheet underneath the tracking map.
 // The original status bar and a complete navigation row stay fixed above the page.
 const PAGE_TOP = 106
 const TRACKING_CAPTURE_H = 736
 const TRACKING_MAP_H = 364
-const SUMMARY_H = 216
+const SUMMARY_H = 280
+const SHEET_TRAVEL = SCREEN_H - PAGE_TOP - TRACKING_MAP_H
 const OFFER_GAP = 16
 const DETAILS_CAPTURE_H = 466
 const DETAILS_H = 376
@@ -172,7 +165,7 @@ type Step =
     | { kind: "advance"; ms: number }
     | { kind: "stage"; to: Stage; ms: number }
     | { kind: "zoom"; to: "wide" | "offer"; ms: number }
-    | { kind: "showOffer"; ms: number }
+    | { kind: "openSheet"; ms: number }
     | { kind: "scroll"; to: number; ms: number }
     /** To black, and hold there. */
     | { kind: "cut"; ms: number }
@@ -181,12 +174,14 @@ type Step =
     | { kind: "reset"; ms: number }
 
 const SCROLL_MS = 1150
+const SHEET_ENTER_MS = 480
 
-// Read the status for two dot cycles. The card starts appearing at the lower
-// edge of the screen; the camera follows once the scroll has brought it into view.
+// Give the order one preparation cycle, then let viewers read the settled
+// receipt before following the offer further down the same sheet.
 const TRACKING_INTRO: Step[] = [
-    { kind: "hold", ms: 2880 },
-    { kind: "showOffer", ms: 180 },
+    { kind: "hold", ms: 1440 },
+    { kind: "openSheet", ms: SHEET_ENTER_MS },
+    { kind: "hold", ms: 1800 },
     { kind: "scroll", to: SCROLL_TO, ms: 680 },
     { kind: "zoom", to: "offer", ms: ZOOM_MS },
 ]
@@ -258,7 +253,7 @@ type PhoneState = {
     phase: SwapPhase
     stage: Stage
     zoom: "wide" | "offer"
-    offerVisible: boolean
+    sheetOpen: boolean
     scrollY: number
     cut: boolean
     tap: "notNow" | "claim" | null
@@ -268,7 +263,7 @@ type PhoneState = {
 function openingState(): PhoneState {
     return {
         index: 0, pagerIndex: 0, phase: "idle", stage: "app",
-        zoom: "wide", offerVisible: false,
+        zoom: "wide", sheetOpen: false,
         scrollY: 0, cut: false, tap: null, animate: false,
     }
 }
@@ -292,7 +287,7 @@ function makeTimeline(script: Step[]) {
             case "tap": state.tap = step.on; break
             case "stage": state.stage = step.to; break
             case "zoom": state.zoom = step.to; break
-            case "showOffer": state.offerVisible = true; break
+            case "openSheet": state.sheetOpen = true; break
             case "scroll": state.scrollY = step.to; break
             case "cut": state.cut = true; break
             case "rewind": state = { ...openingState(), cut: true }; break
@@ -306,7 +301,7 @@ function makeTimeline(script: Step[]) {
 
 const GALLERY_TIMELINE = makeTimeline(GALLERY_SCRIPT)
 const FULL_TIMELINE = makeTimeline(SCRIPT)
-const TRACKING_POSTER: PhoneState = { ...openingState(), zoom: "offer", scrollY: SCROLL_TO, offerVisible: true }
+const TRACKING_POSTER: PhoneState = { ...openingState(), zoom: "offer", scrollY: SCROLL_TO, sheetOpen: true }
 
 interface UberAdsLoopProps {
     gallery?: boolean
@@ -418,7 +413,7 @@ export default function UberAdsLoop({
         onElapsed: () => setStep(current => (current + 1) % timeline.length),
     })
     usePausableSubtreeAnimations(wrapRef, playing, step)
-    const { index, stage, zoom, offerVisible, scrollY, cut, tap, animate, phase, pagerIndex } = reduced ? TRACKING_POSTER : frame
+    const { index, stage, zoom, sheetOpen, scrollY, cut, tap, animate, phase, pagerIndex } = reduced ? TRACKING_POSTER : frame
     const offer = OFFERS[index]
     // Each surface morphs to and from its own icon on the home screen, not
     // from the button that was pressed.
@@ -621,6 +616,7 @@ export default function UberAdsLoop({
                                             top: px(PAGE_TOP),
                                             width: px(SCREEN_W),
                                             height: px(SCREEN_H - PAGE_TOP),
+                                            background: "#f2f2f2",
                                             overflow: "hidden",
                                         }}
                                     >
@@ -649,47 +645,52 @@ export default function UberAdsLoop({
                                                         style={{ animationPlayState: playing && scrollY === 0 && !cut ? "running" : "paused" }}>...</span>
                                                 </div>
                                             </div>
-                                            <div className="uber-order-summary" style={{
-                                                height: px(SUMMARY_H), marginBottom: px(OFFER_GAP), font: `500 ${px(16)}px/1.25 ${UBER_TEXT}`,
+                                            <div className="uber-order-sheet" style={{
+                                                font: `500 ${px(16)}px/1.25 ${UBER_TEXT}`,
+                                                transform: `translate3d(0, ${px(sheetOpen ? 0 : SHEET_TRAVEL)}px, 0)`,
+                                                transition: animate ? `transform ${SHEET_ENTER_MS}ms ${APPLE_EASE}` : "none",
                                             }}>
-                                                <div className="uber-summary-heading"><strong>Order summary</strong><span>View receipt</span></div>
-                                                <div className="uber-summary-merchant">Lenwich</div>
-                                                <div className="uber-summary-item">
-                                                    <span className="uber-summary-quantity">1</span>
-                                                    <div>Egg and cheese sandwich<div className="uber-summary-more">Show more <i /></div></div>
+                                                <div className="uber-order-summary" style={{ height: px(SUMMARY_H), marginBottom: px(OFFER_GAP) }}>
+                                                    <div className="uber-sheet-grip" aria-hidden="true" />
+                                                    <div className="uber-summary-heading"><strong>Order summary</strong><span>View receipt</span></div>
+                                                    <div className="uber-summary-merchant">Lenwich</div>
+                                                    <div className="uber-summary-item">
+                                                        <span className="uber-summary-quantity">1</span>
+                                                        <div>
+                                                            Egg and cheese sandwich
+                                                            <div className="uber-summary-choices">Kaiser roll · American cheese</div>
+                                                        </div>
+                                                    </div>
+                                                    <dl className="uber-summary-charges">
+                                                        <div><dt>Subtotal</dt><dd>$8.50</dd></div>
+                                                        <div><dt>Service fee</dt><dd>$0.45</dd></div>
+                                                        <div><dt>Tax</dt><dd>$0.76</dd></div>
+                                                        <div className="uber-summary-total"><dt>Total</dt><dd>$9.71</dd></div>
+                                                    </dl>
                                                 </div>
-                                                <div className="uber-summary-total"><span>Total</span><span>$9.71</span></div>
-                                            </div>
+                                                <div
+                                                    style={{
+                                                        marginLeft: px(SLOT_X),
+                                                        width: px(CARD_W),
+                                                    }}
+                                                >
+                                                    <UberOfferCard
+                                                        offer={offer}
+                                                        index={index}
+                                                        phase={phase}
+                                                        pagerIndex={pagerIndex}
+                                                        px={px}
+                                                        swapMs={PAGE_MS}
+                                                        animate={animate}
+                                                        tap={tap}
+                                                        tapKey={step}
+                                                    />
+                                                </div>
 
-                                            {/* The offer, in the slot the
-                                                page left for it. In flow, so
-                                                the half below follows its
-                                                height without anything having
-                                                to be told what that is. */}
-                                            <div
-                                                style={{
-                                                    opacity: offerVisible ? 1 : 0,
-                                                    transition: animate ? `opacity 420ms ${PAGE_EASE}` : "none",
-                                                    marginLeft: px(SLOT_X),
-                                                    width: px(CARD_W),
-                                                }}
-                                            >
-                                                <UberOfferCard
-                                                    offer={offer}
-                                                    index={index}
-                                                    phase={phase}
-                                                    pagerIndex={pagerIndex}
-                                                    px={px}
-                                                    swapMs={PAGE_MS}
-                                                    animate={animate}
-                                                    tap={tap}
-                                                    tapKey={step}
-                                                />
-                                            </div>
-
-                                            <div style={{ height: px(DETAILS_H), overflow: "hidden" }}>
-                                                <img src={`${BASE}/flow-page-b2.webp`} alt=""
-                                                    style={{ width: px(SCREEN_W), height: px(DETAILS_CAPTURE_H), display: "block" }} />
+                                                <div style={{ height: px(DETAILS_H), overflow: "hidden" }}>
+                                                    <img src={`${BASE}/flow-page-b2.webp`} alt=""
+                                                        style={{ width: px(SCREEN_W), height: px(DETAILS_CAPTURE_H), display: "block" }} />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
