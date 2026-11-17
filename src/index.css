@@ -662,35 +662,24 @@ dl {
     flex: 1;
     flex-direction: column;
     justify-content: space-between;
+    gap: 10px;
     min-width: 0;
-}
-.macys-page .quick-pick-card__brand {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 700;
 }
 .macys-page .quick-pick-card__name {
     margin: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 12px;
-}
-.macys-page .quick-pick-card__sale {
-    margin: 0;
     font-size: 14px;
     font-weight: 700;
+    line-height: 1.25;
 }
-.macys-page .quick-pick-card__sale span {
-    color: var(--macys-red);
-    font-size: 12px;
-    font-weight: 500;
-}
-.macys-page .quick-pick-card__original {
+.macys-page .quick-pick-card__brand {
     margin: 2px 0 0;
-    color: var(--macys-gray-900);
     font-size: 12px;
-    text-decoration: line-through;
+    color: var(--macys-gray-900);
+}
+.macys-page .quick-pick-card__sale {
+    margin: 4px 0 0;
+    font-size: 14px;
+    font-weight: 500;
 }
 .macys-page .quick-picks__fade {
     position: absolute;
@@ -756,7 +745,12 @@ dl {
         color 180ms ease;
 }
 .macys-page .quick-pick-card__cta {
-    width: 100%;
+    align-self: flex-start;
+    width: 94px;
+    max-width: 100%;
+    height: 32px;
+    border-width: 1px;
+    font-weight: 600;
 }
 .macys-page .add-to-bag--loading {
     border-color: var(--macys-gray-500);

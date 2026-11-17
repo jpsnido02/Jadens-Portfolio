@@ -84,9 +84,10 @@ const EXCLUSIVE: Product = {
     image: `${BASE}/shirt-blue.webp`,
 }
 
-const PICKS: Product[] = [
+const PICKS: (Product & { shortName: string })[] = [
     {
         id: "belt",
+        shortName: "Bear print belt",
         brand: "Polo Ralph Lauren",
         name: "Men's Bear Print Leather-Trim Belt",
         price: 24.99,
@@ -94,6 +95,7 @@ const PICKS: Product[] = [
     },
     {
         id: "tie",
+        shortName: "Silk Modern Tie",
         brand: "Perry Ellis",
         name: "Silk Modern Tie",
         price: 20.99,
@@ -103,6 +105,7 @@ const PICKS: Product[] = [
     },
     {
         id: "cufflinks",
+        shortName: "Silver-tone cufflinks",
         brand: "Calvin Klein",
         name: "Men's Brushed Silver-Tone Cufflinks",
         price: 14.99,
@@ -112,6 +115,7 @@ const PICKS: Product[] = [
     },
     {
         id: "socks",
+        shortName: "Dress socks, 3-pack",
         brand: "Polo Ralph Lauren",
         name: "Men's 3-Pk. Over the Calf Mercerized Cotton Rib Dress Socks",
         price: 12.99,
@@ -121,6 +125,7 @@ const PICKS: Product[] = [
     },
     {
         id: "pocket-square",
+        shortName: "Silk pocket square",
         brand: "Brooks Brothers",
         name: "Men's Silk Pocket Square",
         price: 18.99,
@@ -130,6 +135,7 @@ const PICKS: Product[] = [
     },
     {
         id: "tie-bar",
+        shortName: "Brushed tie bar",
         brand: "Tommy Hilfiger",
         name: "Men's Brushed Tie Bar",
         price: 14.99,
@@ -1009,33 +1015,9 @@ export default function MacysBagLoop({
                                                                 </div>
                                                                 <div className="quick-pick-card__content">
                                                                     <div>
-                                                                        <p className="quick-pick-card__brand">
-                                                                            {
-                                                                                p.brand
-                                                                            }
-                                                                        </p>
-                                                                        <p className="quick-pick-card__name">
-                                                                            {
-                                                                                p.name
-                                                                            }
-                                                                        </p>
-                                                                        <p className="quick-pick-card__sale">
-                                                                            {money(
-                                                                                p.price,
-                                                                            )}{" "}
-                                                                            <span>
-                                                                                {
-                                                                                    p.off
-                                                                                }
-                                                                            </span>
-                                                                        </p>
-                                                                        {p.was && (
-                                                                            <p className="quick-pick-card__original">
-                                                                                {money(
-                                                                                    p.was,
-                                                                                )}
-                                                                            </p>
-                                                                        )}
+                                                                        <p className="quick-pick-card__name">{p.shortName}</p>
+                                                                        <p className="quick-pick-card__brand">{p.brand}</p>
+                                                                        <p className="quick-pick-card__sale">{money(p.price)}</p>
                                                                     </div>
                                                                     <AddToBag
                                                                         className="quick-pick-card__cta"
