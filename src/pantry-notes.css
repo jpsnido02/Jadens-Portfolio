@@ -131,7 +131,7 @@
 .pnt-recipe-body ol>li { display:block; }
 .pnt-recipe-body ol b { display:block; margin-bottom:8px; font:600 12px/18px var(--pn-sans); text-transform:uppercase; letter-spacing:.07em; }
 .pnt-recipe-body ol p { margin:0; font:400 19px/28px var(--pn-serif); }
-@keyframes pnt-read-recipe { from { transform:translateY(0); } to { transform:translateY(calc(-1 * var(--pnt-step-one-offset))); } }
+@keyframes pnt-read-recipe { from { transform:translateY(0); } to { transform:translateY(calc(0px - var(--pnt-step-one-offset))); } }
 @keyframes pnt-flash { 0% { opacity:.9; } 100% { opacity:0; } }
 @keyframes pnt-spin { to { rotate:360deg; } }
 @keyframes pnt-tap { from { opacity:.8; scale:.7; } to { opacity:0; scale:2.4; } }
