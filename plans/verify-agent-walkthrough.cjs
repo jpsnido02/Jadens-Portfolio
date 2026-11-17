@@ -12,11 +12,23 @@ const { evaluateAgentWalkthrough: at, TOTAL_MS, BEATS, GEOMETRY, MOTION_CURVES, 
 let assertions = 0
 const check = (condition, label) => { assertions++; assert(condition, label) }
 const close = (a, b, tolerance, label) => check(Math.abs(a - b) < tolerance, `${label}: ${a} vs ${b}`)
+const checkOpening = () => {
+ check(BEATS.arrival[0] >= BEATS.firstFocus[1] + 550, 'camera settles before card arrival');
+ check(BEATS.arrival[1] - BEATS.arrival[0] >= 1200, 'readable card insertion');
+ check(BEATS.queuePickup[0] - BEATS.arrival[1] >= 550, 'settled card hold before pickup');
+ for (const size of sizes) {
+  const before = at(BEATS.focusHold[0]+100, size);
+  check(!before.present && before.columnOccupancy[0] === 0, 'existing queue stays still during focus hold');
+  const middle = at((BEATS.arrival[0]+BEATS.arrival[1])/2, size);
+  check(middle.present && middle.columnOccupancy[0] > 0 && middle.columnOccupancy[0] < 1, 'queue makes room while card enters');
+ }
+}
 const boundaries = [...new Set(Object.values(BEATS).flat())].sort((a, b) => a - b)
 const sizes = [{ w: 1200, h: 900 }, { w: 1334, h: 520 }, { w: 655, h: 440 }, { w: 390, h: 500 }]
 const matrixFields = ['s', 'tx', 'ty']
 const poseFields = ['x', 'y', 'scale', 'rotation']
-check(TOTAL_MS === 19220, 'exact complete cycle')
+checkOpening()
+check(TOTAL_MS === 20890, 'exact complete cycle')
 check(BEATS.readingHold[1] - BEATS.readingHold[0] === 4580, 'stationary read interval')
 for (const curve of Object.values(MOTION_CURVES)) {
  check(cubicBezier(0, curve) === 0 && cubicBezier(1, curve) === 1, 'exact bezier endpoints')
@@ -53,7 +65,7 @@ for (const size of sizes) {
  check(f(BEATS.build[0]).buildProgress === 0 && f(BEATS.build[1]).buildProgress === 1, 'build endpoints')
  let prior = 0
  for (let t = BEATS.build[0]; t <= BEATS.build[1]; t++) { const next = f(t); check(next.buildProgress >= prior, 'monotone fill'); prior = next.buildProgress }
- check(f(4000).made === f(4001).made && f(4000).buildProgress !== f(4001).buildProgress, 'continuous fill, discrete number')
+ check(f(BEATS.build[0]+410).made === f(BEATS.build[0]+411).made && f(BEATS.build[0]+410).buildProgress !== f(BEATS.build[0]+411).buildProgress, 'continuous fill, discrete number')
  for (const [start, end, from] of [[...BEATS.queueTravel,0],[...BEATS.reviewTravel,1],[...BEATS.completeTravel,2]]) {
   const scale = f(start).camera.s
   for (let t = start; t < end; t += 19) {
