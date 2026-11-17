@@ -13,7 +13,7 @@ const PLAY_TIMING = [1400, 2400, 550, 3000, 1800, 600]
 function FootballPlay({ phase }: { phase: number }) {
     const finished = phase === 2 || phase === 3
     return <div className={`kalshi-football ${finished ? "is-finished" : ""}`} data-play-phase={phase}>
-        <div className="kalshi-game-context"><span>SF 17 · SEA 24</span><span className="kalshi-example-label">ILLUSTRATIVE GAME</span><span>Q4 · {finished ? "1:58 · 3RD & 15 · SF 25" : "2:10 · 2ND & 10 · SF 30"}</span></div>
+        <div className="kalshi-game-context"><span>SF 17 · SEA 24</span><span>Q4 · {finished ? "1:58 · 3RD & 15 · SF 25" : "2:10 · 2ND & 10 · SF 30"}</span></div>
         <svg viewBox="0 0 1200 174" role="img" aria-label="San Francisco loses 5 yards, from the 30-yard line to the 25-yard line.">
             <rect x="1" y="1" width="1198" height="172" rx="12" fill="#111d18" stroke="#ffffff12" strokeWidth="2" />
             {[100, 420, 740, 1060].map((x, i) => <g key={x}>

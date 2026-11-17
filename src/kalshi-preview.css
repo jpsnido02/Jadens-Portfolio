@@ -55,4 +55,3 @@
 @media(prefers-reduced-motion:reduce) { .kalshi-run-gain { transition:none!important; }.kalshi-preview[data-play-phase="3"] .kalshi-odds>.kalshi-number { animation:none!important; } }
 
 .kalshi-game-context { display:flex; align-items:center; justify-content:space-between; height:44px; color:#d3e4da; font-size:22px; font-weight:500; }
-.kalshi-game-context .kalshi-example-label { color:#a8beb3; font-size:16px; letter-spacing:.08em; }
