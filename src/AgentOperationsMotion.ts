@@ -3,6 +3,7 @@ export const MOTION_CURVES = {
     enter: [0.23, 1, 0.32, 1],
     move: [0.77, 0, 0.175, 1],
     carry: [0.42, 0, 0.32, 1],
+    autoComplete: [0.55, 0.055, 0.675, 0.19],
     modal: [0.32, 0.72, 0, 1],
 } as const
 export const GEOMETRY = {
@@ -83,6 +84,13 @@ function evaluateCard(t: number) {
         if (t < transfer.pickup[0]) break
         const { from, pickup, travel, landing } = transfer
         const a = rest(from), b = rest(from + 1)
+        if (from === 2) {
+            // Approval routes the request automatically, without a drag gesture.
+            const u = cubicBezier(fraction(t, travel), MOTION_CURVES.autoComplete)
+            pose = { ...a, x: mix(a.x, b.x, u) }
+            occupancy.fill(0); occupancy[from] = 1 - u; occupancy[from + 1] = u
+            break
+        }
         if (t < landing[0]) {
             const pickupP = smooth(fraction(t, pickup))
             const u = cubicBezier(fraction(t, travel), MOTION_CURVES.carry)
