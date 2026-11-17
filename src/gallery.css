@@ -603,7 +603,7 @@ html[data-page="home"] #root { overflow:hidden; }
     background: rgb(8 8 13 / 78%);
     color: white;
     text-wrap: balance;
-    font-size: clamp(16px, 17cqi, 25px);
+    font-size: clamp(13px, 14cqi, 20px);
     font-weight: 650;
     line-height: 1.15;
     text-align: center;

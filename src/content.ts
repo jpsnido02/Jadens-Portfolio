@@ -45,7 +45,7 @@ export const intro = {
         },
         {
             label: "Resume",
-            url: "https://drive.google.com/file/d/1BKS9y3tWwDEDJAqMwWHIVlTnvgGkKXTQ/view",
+            url: "https://drive.google.com/file/d/1B007PdxpwWNMPypIp-DbmtBmfoisAq7Q/view?usp=sharing",
         },
     ] satisfies IntroLink[],
 }
