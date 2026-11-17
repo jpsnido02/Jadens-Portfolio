@@ -574,30 +574,33 @@ export default function MacysBagLoop({
         }
     }, [])
 
-    // Measure in page pixels. The row slot and offer stay put through both adds.
+    // Frame the cart title, row slot, suggestions and offer together through both adds.
     const [crop, setCrop] = useState({ x: 12, y: 160, w: 860, h: 680 })
     useLayoutEffect(() => {
         const page = pageRef.current
         if (!gallery || !page || !box.w) return
+        const heading = page.querySelector<HTMLElement>(".bag-page__main h1")!
         const rows = page.querySelector<HTMLElement>(".bag-items")!
         const offer = page.querySelector<HTMLElement>(".exclusive-card")!
         const measure = () => {
             const origin = page.getBoundingClientRect()
             const scale = origin.width / FRAME_W
             if (!scale) return
+            const title = heading.getBoundingClientRect()
             const bag = rows.getBoundingClientRect()
             const end = offer.getBoundingClientRect()
             const inset = { left: 42, top: 14, right: 18 }
             const next = {
                 x: (bag.left - origin.left) / scale - inset.left,
-                y: (bag.top - origin.top) / scale - inset.top,
+                y: (title.top - origin.top) / scale - inset.top,
                 w: bag.width / scale + inset.left + inset.right,
-                h: (end.bottom - bag.top) / scale + inset.top,
+                h: (end.bottom - title.top) / scale + inset.top * 2,
             }
             setCrop(next)
         }
         measure()
         const observer = new ResizeObserver(measure)
+        observer.observe(heading)
         observer.observe(rows)
         observer.observe(offer)
         return () => observer.disconnect()
@@ -954,7 +957,7 @@ export default function MacysBagLoop({
 
                             <main className="bag-page">
                                 <section className="bag-page__main">
-                                    <h1>Bag</h1>
+                                    <h1>My Cart</h1>
 
                                     <div className="bag-items">
                                         {(gallery ? GALLERY_ROWS : items).map((product, i) => (
