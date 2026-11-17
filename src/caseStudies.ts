@@ -149,7 +149,7 @@ export const caseStudies: CaseStudy[] = [
     },
     {
         "slug": "macys-bag-page",
-        "title": "A second item. An exclusive discount.",
+        "title": "Macy's Bag Page",
         "client": "Macy’s",
         "year": "2026",
         "role": "Bag-page offer UX and visual design",
@@ -198,7 +198,7 @@ export const caseStudies: CaseStudy[] = [
     },
     {
         "slug": "agent-design-operations",
-        "title": "Design Agents",
+        "title": "Rokt Design Agents",
         "client": "Rokt",
         "year": "2026",
         "role": "Agent workflow, review UX, and interface design",

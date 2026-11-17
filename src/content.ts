@@ -92,7 +92,7 @@ export const projects: ProjectData[] = [
         link: "work/macys-bag-page/",
     },
     {
-        title: "Design Agents",
+        title: "Rokt Design Agents",
         image: {
             src: "/projects/project-04.jpg",
             alt: "Agents that build client mockups",
