@@ -1,4 +1,5 @@
 import { SiteIcon } from "./icons"
+import ExpediaComposition from "./ExpediaComposition"
 import useStudySequence from "./useStudySequence"
 import type { CSSProperties } from "react"
 import "./project-evidence.css"
@@ -30,6 +31,6 @@ export default function ProjectEvidence({ name, playing = false }: { name: strin
     if (name === "branded-comparison") return <BrandedComparison />
     if (name === "macys-decision") return <MacysDecision />
     if (name === "uber-context") return <div className="uber-evidence"><div><span className="evidence-label">ORDER CONTEXT</span><strong>Your breakfast is on its way.</strong><p>The wait gives the offer a reason to be here.</p><span className="uber-evidence-order">Breakfast order <span>→</span> Delivery wait</span></div><div className="uber-evidence-offer"><img src="/projects/uber/media-spotify.webp" alt="Spotify"/><strong>Soundtrack your wait with Spotify Premium.</strong><p>Your Uber Eats order is on the way. Press play while you wait.</p><span>Open Spotify</span><small>Not now</small></div></div>
-    if (name === "expedia-proof") return <img className="evidence-full-image" src="/projects/expedia-offer.webp" alt="Expedia offer in the desktop and mobile booking confirmation"/>
+    if (name === "expedia-proof") return <div className="expedia-evidence"><ExpediaComposition/></div>
     return null
 }

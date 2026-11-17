@@ -320,7 +320,7 @@ export const caseStudies: CaseStudy[] = [
             {
                 "kind": "evidence",
                 "name": "expedia-proof",
-                "caption": "The supplied desktop and mobile composition, displayed in full rather than cropped into a generic media box."
+                "caption": "The confirmation, mobile bottom sheet and desktop offer modal, recomposed to show the UX without device frames."
             },
             {
                 "kind": "section",
