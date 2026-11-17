@@ -17,7 +17,7 @@ export type CardPose = { x: number; y: number; rotation: number; scale: number }
 export type Camera = { s: number; tx: number; ty: number }
 export const BEATS = {
     entrance: [0, 945], firstFocus: [930, 1630], focusHold: [1630, 2180],
-    arrival: [2180, 3380], arrivedHold: [3380, 3930],
+    arrival: [2180, 3380], queueMakeRoom: [2180, 2780], queueReveal: [2780, 3380], arrivedHold: [3380, 3930],
     queuePickup: [3930, 4150], queueTravel: [4110, 4940], buildingLanding: [4940, 5260],
     build: [5260, 8560], buildHold: [8560, 8760], buildingPickup: [8760, 8980],
     reviewTravel: [8940, 9800], reviewLanding: [9800, 10120], reviewHold: [10120, 10720],
@@ -71,8 +71,13 @@ const TRANSFERS = [
 
 function evaluateCard(t: number) {
     let pose = rest(0), contact = 0, held = false, dropTarget: number | null = null
-    const arrival = cubicBezier(fraction(t, BEATS.arrival), MOTION_CURVES.carry)
-    pose.y += 16 * (1 - arrival)
+    // Reserve the top slot first, then reveal the request in that space.
+    // Compensate for the drag grip origin so expansion stays anchored at the top.
+    const arrival = cubicBezier(fraction(t, BEATS.queueMakeRoom), MOTION_CURVES.carry)
+    const reveal = enter(fraction(t, BEATS.queueReveal))
+    pose.scale = mix(0.97, 1, reveal)
+    pose.x -= (1 - pose.scale) * (GEOMETRY.GRIP_X - GEOMETRY.CARD_W / 2)
+    pose.y -= (1 - pose.scale) * GEOMETRY.GRIP_Y
     const occupancy = [arrival, 0, 0, 0]
     for (const transfer of TRANSFERS) {
         if (t < transfer.pickup[0]) break
@@ -148,7 +153,7 @@ export function evaluateAgentWalkthrough(elapsed: number, viewport: Viewport, re
     const t = resetting ? 0 : time
     const card = evaluateCard(t)
     const stage: Stage = resetting || t < BEATS.buildingLanding[0] ? "Queue" : t < BEATS.reviewLanding[0] ? "Building" : t < BEATS.completeLanding[0] ? "For review" : "Complete"
-    const present = t >= BEATS.arrival[0] && !resetting
+    const present = t >= BEATS.queueReveal[0] && !resetting
     const buildProgress = fraction(t, BEATS.build)
     const made = Math.min(14, Math.floor(14 * buildProgress))
     const workspaceOpacity = resetting ? 0 : 1 - enter(fraction(t, BEATS.exit))
@@ -156,7 +161,7 @@ export function evaluateAgentWalkthrough(elapsed: number, viewport: Viewport, re
         y: spec.y * (1 - cubicBezier(normalized(t, spec.start, spec.duration), MOTION_CURVES.carry)),
         opacity: validViewport ? smooth(normalized(t, spec.start, 270)) * workspaceOpacity : 0,
     }])) as Record<EntranceName, { y: number; opacity: number }>
-    const arrivalOpacity = smooth(normalized(t, BEATS.arrival[0], 400))
+    const arrivalOpacity = smooth(fraction(t, BEATS.queueReveal))
     const visible = validViewport && t >= BEATS.modalEnter[0] && t < BEATS.modalExit[1]
     const modalProgress = t < BEATS.modalExit[0] ? modalCurve(fraction(t, BEATS.modalEnter)) : 1 - enter(fraction(t, BEATS.modalExit))
     const compact = viewport.w > 0 && viewport.w < 500
