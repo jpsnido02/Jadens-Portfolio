@@ -154,7 +154,7 @@ export default function App() {
             </header>
             <section className="gallery-intro">
                 <div><h1>Hi, I’m Jaden<br /><span>I create designs that</span>{" "}<ClickWord /></h1></div>
-                <div className="intro-details"><p className="intro-description">A product designer rethinking commerce through craft and curiosity. From idea to concept to engagement uplift.</p><p className="building-status"><span className="current-work-dot" aria-hidden="true"/><span>Currently building AI systems for advertisements at Rokt</span></p></div>
+                <div className="intro-details"><p className="intro-description">A product designer comfortable working at every step of the product lifecycle. From ideation to prototype to code.</p><p className="building-status"><span className="current-work-dot" aria-hidden="true"/><span>Currently building AI systems for advertisements at Rokt</span></p></div>
             </section>
             <div className="work-heading"><span>WORK PROJECTS <span className="project-count">{String(workCount).padStart(2, "0")}</span></span><button className="motion-control" aria-pressed={motion} onClick={() => setMotion(!motion)}><SiteIcon name={motion ? "pause" : "play"} size={12} /> <span>{motion ? "Motion on" : "Motion paused"}</span></button></div>
             <div className="project-grid">
