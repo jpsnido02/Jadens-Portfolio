@@ -962,9 +962,9 @@ export default function MacysBagLoop({
                             <main className="bag-page">
                                 <section className="bag-page__main">
                                     <h1>
-                                        My Cart{" "}
+                                        <span>My Car<span className="cart-final-t">t</span></span>{" "}
                                         <span className="cart-item-count">
-                                            ({bagCount} {bagCount === 1 ? "item" : "items"})
+                                            (<span>{bagCount} {bagCount === 1 ? "item" : "items"}</span>)
                                         </span>
                                     </h1>
 

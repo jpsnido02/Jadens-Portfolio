@@ -498,17 +498,24 @@ dl {
     padding-block: 24px 48px;
 }
 .macys-page .bag-page__main h1 {
+    display: flex;
+    align-items: baseline;
+    column-gap: .20em;
+    font-kerning: normal;
+    letter-spacing: normal;
     margin: 0 0 24px;
     font-size: 36px;
     line-height: 1.1;
 }
+.macys-page .cart-final-t { margin-inline-start: .025em; }
 .macys-page .cart-item-count {
     color: #444;
     font-size: .62em;
     font-weight: 500;
     white-space: nowrap;
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: proportional-nums;
 }
+.macys-page .cart-item-count > span { padding-inline: .035em; }
 .macys-page .bag-items {
     margin-bottom: 32px;
 }
