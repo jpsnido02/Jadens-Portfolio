@@ -174,7 +174,7 @@ type Step =
     | { kind: "reset"; ms: number }
 
 const SCROLL_MS = 1150
-const SHEET_ENTER_MS = 480
+const SHEET_ENTER_MS = 640
 
 // Give the order one preparation cycle, then let viewers read the settled
 // receipt before following the offer further down the same sheet.
@@ -648,7 +648,7 @@ export default function UberAdsLoop({
                                             <div className="uber-order-sheet" style={{
                                                 font: `500 ${px(16)}px/1.25 ${UBER_TEXT}`,
                                                 transform: `translate3d(0, ${px(sheetOpen ? 0 : SHEET_TRAVEL)}px, 0)`,
-                                                transition: animate ? `transform ${SHEET_ENTER_MS}ms ${APPLE_EASE}` : "none",
+                                                transition: animate ? `transform ${SHEET_ENTER_MS}ms ${PAGE_EASE}` : "none",
                                             }}>
                                                 <div className="uber-order-summary" style={{ height: px(SUMMARY_H), marginBottom: px(OFFER_GAP) }}>
                                                     <div className="uber-sheet-grip" aria-hidden="true" />
