@@ -3,7 +3,7 @@ export const MOTION_CURVES = {
     enter: [0.23, 1, 0.32, 1],
     move: [0.77, 0, 0.175, 1],
     carry: [0.42, 0, 0.32, 1],
-    autoComplete: [0.55, 0.055, 0.675, 0.19],
+    autoComplete: [0.65, 0, 0.35, 1],
     modal: [0.32, 0.72, 0, 1],
 } as const
 export const GEOMETRY = {
@@ -24,9 +24,9 @@ export const BEATS = {
     reviewTravel: [8940, 9800], reviewLanding: [9800, 10120], reviewHold: [10120, 10720],
     reviewPress: [10720, 10880], pullback: [10800, 11350], modalEnter: [10880, 11100],
     readingHold: [11350, 15930], approveHover: [15930, 16330], approvePress: [16330, 16490],
-    approvedHold: [16490, 17550], modalExit: [17550, 17730], reviewPickup: [17730, 17950],
-    completeTravel: [17910, 18740], completeLanding: [18740, 19060], completeHold: [19060, 20560],
-    exit: [20560, 20810], reset: [20810, 20890],
+    approvedHold: [16490, 17850], lifecycleAdvance: [16810, 17490], modalExit: [17850, 18030], reviewPickup: [18030, 18250],
+    completeTravel: [18210, 19040], completeLanding: [19040, 19360], completeHold: [19360, 20860],
+    exit: [20860, 21110], reset: [21110, 21190],
 } as const
 export const TOTAL_MS = BEATS.reset[1]
 export const ENTRANCES = {
@@ -184,15 +184,16 @@ export function evaluateAgentWalkthrough(elapsed: number, viewport: Viewport, re
     const pressDepth = smooth(normalized(t, BEATS.approvePress[0], 115))
     const release = smooth(normalized(t, BEATS.approvedHold[0], 225))
     const confirmation = smooth(normalized(t, BEATS.approvedHold[0], 240))
+    const lifecycleProgress = enter(fraction(t, BEATS.lifecycleAdvance))
     const modal = {
         visible, opacity: visible ? modalProgress : 0, scaleMultiplier: 0.97 + 0.03 * modalProgress,
         y: 8 * (1 - modalProgress), approved: t >= BEATS.approvedHold[0], scale: modalScale,
         approveHover: hover * (1 - confirmation),
         approveScale: 1 + 0.035 * hover * (1 - release) - 0.10 * pressDepth * (1 - release),
-        confirmation,
+        confirmation, lifecycleProgress, lifecycleComplete: t >= BEATS.lifecycleAdvance[1],
     }
     const camera = validViewport ? cameraAt(t, viewport, card.pose) : { s: 1, tx: 0, ty: 0 }
-    const renderKey = [beat, stage, made, bestBuyMade, present, modal.visible, modal.approved, reviewRippleVisible, approveRippleVisible, card.held, card.dropTarget, compact, validViewport].join(":")
+    const renderKey = [beat, stage, made, bestBuyMade, present, modal.visible, modal.approved, modal.lifecycleComplete, reviewRippleVisible, approveRippleVisible, card.held, card.dropTarget, compact, validViewport].join(":")
     return {
         time, beat, phase: beatOrder.findIndex(([name]) => name === beat), stage, made, buildProgress, bestBuyMade, bestBuyProgress,
         cardPose: card.pose, cardOpacity: validViewport ? arrivalOpacity * workspaceOpacity : 0,
