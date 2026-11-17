@@ -48,38 +48,25 @@ const CARD_W = 358
  * The order-tracking page, sliced out of the real app.
  *
  * Two captures stitch into one continuous page: the unscrolled one supplies
- * everything above the offer — the collapsing header, the map, the bundling
- * row — and the scrolled one supplies everything below it. The offer sits
+ * everything above the offer — the collapsing header, the map, the order
+ * summary — and the scrolled one supplies everything below it. The offer sits
  * between the halves rather than inside either, which is what lets the lower
  * half move down as the card changes height. The bar is fixed, as it is in
  * the app, so the page travels under it.
  * ---------------------------------------------------------------------- */
-/**
- * The fixed bar, and where the scrolling page starts under it.
- *
- * These are not the same number. The bar is taller than the point the page
- * begins, so there is white between the Help button and whatever is scrolling
- * past — without it the content ran straight into the bar with nothing
- * between them.
- */
-const BAR_H = 99
-const PAGE_TOP = 99
-/**
- * White under the bar. Constant, not tied to the scroll.
- *
- * It was 26 and only on once the page moved, which meant the header shifted
- * as you scrolled. Two units, always there, is what Jaden asked for: enough
- * to keep the content off the Help button and the same whether the page has
- * moved or not.
- */
-const BAR_PAD = 6
-const PAGE_A_H = 736
-const PAGE_B_H = 466
+// The original status bar and a complete navigation row stay fixed above the page.
+const PAGE_TOP = 106
+const TRACKING_CAPTURE_H = 736
+const TRACKING_MAP_H = 364
+const SUMMARY_H = 216
+const OFFER_GAP = 16
+const DETAILS_CAPTURE_H = 466
+const DETAILS_H = 376
 /** The offer's inset, matching the slot the cream container occupied. */
 const SLOT_X = 16
 /** Where the offer lands once the page has scrolled to it. */
 const SLOT_Y = 203
-const SCROLL_TO = PAGE_A_H - (SLOT_Y - PAGE_TOP)
+const SCROLL_TO = PAGE_TOP + TRACKING_MAP_H + SUMMARY_H + OFFER_GAP - SLOT_Y
 
 /** Two levels up: these pages are served from /work/<slug>/. */
 const BASE = "../../projects/uber"
@@ -649,22 +636,29 @@ export default function UberAdsLoop({
                                                     : "none",
                                             }}
                                         >
-                                            <div style={{ position: "relative" }}>
+                                            <div style={{ position: "relative", height: px(TRACKING_MAP_H), overflow: "hidden" }}>
                                                 <img src={`${BASE}/flow-page-a2.webp`} alt=""
-                                                    style={{ width: px(SCREEN_W), height: px(PAGE_A_H), display: "block" }} />
-                                                {/* Replace only the baked-in heading. The ETA, progress
-                                                    bars, map and nearby stores remain the captured page. */}
+                                                    style={{ width: px(SCREEN_W), height: px(TRACKING_CAPTURE_H), display: "block" }} />
                                                 <div className="uber-order-status" style={{
                                                     position: "absolute", inset: "0 0 auto", height: px(54),
-                                                    padding: `${px(7)}px ${px(16)}px 0`, boxSizing: "border-box",
-                                                    background: "#f3f3f3", color: "#080808", fontFamily: UBER_TEXT,
+                                                    padding: `${px(21)}px ${px(16)}px 0`, boxSizing: "border-box",
+                                                    background: "linear-gradient(#fff, #f3f3f3)", color: "#080808",
+                                                    fontFamily: UBER_DISPLAY, fontSize: px(24), lineHeight: 1.15, fontWeight: 700,
                                                 }}>
-                                                    <div style={{ fontSize: px(13), lineHeight: 1.3, fontWeight: 500 }}>Order received · Lenwich</div>
-                                                    <div style={{ fontFamily: UBER_DISPLAY, fontSize: px(24), lineHeight: 1.15, fontWeight: 700 }}>
-                                                        Preparing order<span aria-hidden="true" className="uber-preparing-dots"
-                                                            style={{ animationPlayState: playing && scrollY === 0 && !cut ? "running" : "paused" }}>...</span>
-                                                    </div>
+                                                    Preparing order<span aria-hidden="true" className="uber-preparing-dots"
+                                                        style={{ animationPlayState: playing && scrollY === 0 && !cut ? "running" : "paused" }}>...</span>
                                                 </div>
+                                            </div>
+                                            <div className="uber-order-summary" style={{
+                                                height: px(SUMMARY_H), marginBottom: px(OFFER_GAP), font: `500 ${px(16)}px/1.25 ${UBER_TEXT}`,
+                                            }}>
+                                                <div className="uber-summary-heading"><strong>Order summary</strong><span>View receipt</span></div>
+                                                <div className="uber-summary-merchant">Lenwich</div>
+                                                <div className="uber-summary-item">
+                                                    <span className="uber-summary-quantity">1</span>
+                                                    <div>Egg and cheese sandwich<div className="uber-summary-more">Show more <i /></div></div>
+                                                </div>
+                                                <div className="uber-summary-total"><span>Total</span><span>$9.71</span></div>
                                             </div>
 
                                             {/* The offer, in the slot the
@@ -693,46 +687,24 @@ export default function UberAdsLoop({
                                                 />
                                             </div>
 
-                                            <img
-                                                src={`${BASE}/flow-page-b2.webp`}
-                                                alt=""
-                                                style={{
-                                                    width: px(SCREEN_W),
-                                                    height: px(PAGE_B_H),
-                                                    display: "block",
-                                                }}
-                                            />
+                                            <div style={{ height: px(DETAILS_H), overflow: "hidden" }}>
+                                                <img src={`${BASE}/flow-page-b2.webp`} alt=""
+                                                    style={{ width: px(SCREEN_W), height: px(DETAILS_CAPTURE_H), display: "block" }} />
+                                            </div>
                                         </div>
                                     </div>
 
-                                    {/* The bar's own ground, so the page
-                                        scrolls under it rather than up to
-                                        it. The same depth at every scroll
-                                        position. */}
-                                    <div
-                                        style={{
-                                            position: "absolute",
-                                            left: 0,
-                                            top: px(BAR_H),
-                                            width: px(SCREEN_W),
-                                            height: px(BAR_PAD),
-                                            background: "#FFFFFF",
-                                            opacity: 1,
-                                        }}
-                                    />
-
-                                    <img
-                                        src={`${BASE}/flow-bar.webp`}
-                                        alt=""
-                                        style={{
-                                            position: "absolute",
-                                            left: 0,
-                                            top: 0,
-                                            width: px(SCREEN_W),
-                                            height: px(BAR_H),
-                                            display: "block",
-                                        }}
-                                    />
+                                    <div style={{ position: "absolute", inset: "0 0 auto", height: px(PAGE_TOP), background: "#fff" }}>
+                                        <div style={{ height: px(60), overflow: "hidden" }}>
+                                            <img src={`${BASE}/flow-bar.webp`} alt="" style={{ width: "100%", display: "block" }} />
+                                        </div>
+                                        <div className="uber-tracking-nav" style={{ fontSize: px(16), fontFamily: UBER_TEXT }}>
+                                            <svg viewBox="0 0 24 24" width="1.25em" height="1.25em" fill="none" aria-hidden="true">
+                                                <path d="M20 12H4m7-8-7 8 7 8" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+                                            </svg>
+                                            <span>Help</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
