@@ -1,0 +1,107 @@
+.expedia-bento {
+    container-type:inline-size; position:relative; width:100%; height:100%; min-height:0;
+    display:grid; grid-template-columns:minmax(0,.86fr) minmax(0,1.28fr); grid-template-rows:minmax(0,.48fr) minmax(0,1fr);
+    gap:clamp(10px,2%,24px); padding:clamp(16px,3.6%,44px); background:#dce5fa; color:#172238;
+    font-family:Arial,Helvetica,sans-serif; text-align:left; box-sizing:border-box;
+}
+.expedia-bento * { box-sizing:border-box; }
+.expedia-bento strong { font-weight:700; }
+.expedia-bento p { margin:0; line-height:1.45; }
+.expedia-bento svg { flex:none; }
+.exp-confirmation,.exp-mobile-sheet,.exp-desktop-modal { border-radius:clamp(10px,1.5cqw,18px); overflow:hidden; background:white; }
+.exp-confirmation { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1.6cqw 2.2cqw; gap:.8cqw; }
+.exp-confirmation-art { width:7.4cqw; aspect-ratio:140/151; flex:none; background-image:url('/projects/expedia-offer.webp'); background-size:1392.86% auto; background-position:7.18% 19.85%; filter:brightness(1.8); }
+.exp-confirmation>strong { font-size:clamp(12px,2.5cqw,32px); line-height:1.15; }
+.exp-itinerary { display:flex; justify-content:space-between; width:100%; margin-top:.5cqw; gap:8px; font-size:clamp(7px,.95cqw,13px); }
+.exp-itinerary b { font-weight:500; }
+.exp-mobile-sheet { display:flex; flex-direction:column; padding:1.65cqw; gap:1cqw; }
+.exp-sheet-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.exp-sheet-top>span { display:inline-flex; align-items:center; gap:.5cqw; padding:.5cqw .65cqw; border-radius:3px; background:#e8f5ee; color:#277255; font-size:clamp(6px,.82cqw,11px); }
+.exp-sheet-top>svg { width:1.25cqw; min-width:8px; }
+.exp-sheet-title { font-size:clamp(9px,1.3cqw,18px); line-height:1.35; }
+.exp-mobile-sheet>p { font-size:clamp(7px,1.02cqw,14px); }
+.exp-mobile-offer { border:1px solid #edf0f3; border-radius:1cqw; padding:1.1cqw; margin-top:.6cqw; }
+.exp-mobile-offer-heading { display:flex; align-items:flex-start; gap:1cqw; }
+.exp-mobile-offer-heading>div { flex:1; }
+.exp-deal { display:inline-block; padding:.4cqw .65cqw; background:#e8f3f9; color:#205577; border-radius:3px; font-size:clamp(7px,.95cqw,13px); line-height:1.3; }
+.exp-mobile-offer-heading strong { display:block; margin-top:.65cqw; font-size:clamp(8px,1.08cqw,15px); line-height:1.35; }
+.exp-bed { padding:1.1cqw; font-size:2.4cqw; border-radius:6px; background:#e8f3f9; color:#235e82; }
+.exp-mobile-offer ul { list-style:none; padding:0; margin:.8cqw 0 1.2cqw; display:flex; flex-direction:column; gap:.5cqw; }
+.exp-mobile-offer li { display:flex; align-items:center; gap:.5cqw; font-size:clamp(7px,1.02cqw,14px); line-height:1.35; }
+.exp-mobile-offer li svg { background:#287557; color:white; border-radius:50%; padding:2px; width:1.1cqw; height:1.1cqw; min-width:8px; min-height:8px; }
+.exp-actions { display:flex; gap:.7cqw; margin-top:1.1cqw; }
+.exp-actions>span { display:flex; align-items:center; justify-content:center; flex:1; padding:.9cqw .7cqw; border-radius:50px; border:1px solid #1769b3; color:#145e9a; font-size:clamp(7px,1.02cqw,14px); line-height:1.2; white-space:nowrap; }
+.exp-actions>span:first-child { background:#1264b7; color:white; border-color:#1264b7; }
+.exp-actions--mobile { flex-direction:column; gap:.5cqw; }
+.exp-attribution { font-size:clamp(5px,.69cqw,10px); color:#6b6f75; line-height:1.4; text-align:center; margin-top:auto; padding-top:1cqw; }
+.exp-desktop-modal { grid-column:2; grid-row:1 / 3; display:flex; flex-direction:column; align-self:stretch; }
+.exp-desktop-heading { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.25cqw; padding:3cqw 2cqw 4.5cqw; background:#105db6; color:white; flex:1; min-height:0; text-align:center; }
+.exp-close { position:absolute; right:1.6cqw; top:1.6cqw; width:1.2cqw; min-width:8px; }
+.exp-destination { display:grid; place-items:center; width:4cqw; height:4cqw; border-radius:50%; background:#ffffff12; font-size:1.8cqw; }
+.exp-desktop-heading>strong { font-size:clamp(10px,1.65cqw,23px); line-height:1.4; max-width:31ch; }
+.exp-step { font-size:clamp(6px,.9cqw,12px); padding:.5cqw .9cqw; background:#ffffff14; border-radius:30px; }
+.exp-trip-stages { display:flex; width:90%; margin-top:.7cqw; }
+.exp-trip-stages>div { position:relative; flex:1; display:flex; flex-direction:column; align-items:center; gap:.8cqw; }
+.exp-trip-stages>div:not(:last-child)::after { content:""; position:absolute; height:1px; background:#ffffff65; left:calc(50% + 1cqw); right:calc(-50% + 1cqw); top:.6cqw; }
+.exp-trip-stages>div:first-child::after { background:white; }
+.exp-trip-stages>div>span { width:1.25cqw; height:1.25cqw; min-width:7px; min-height:7px; border:1px solid #c6e3ff; border-radius:50%; display:grid; place-items:center; }
+.exp-trip-stages>div:first-child>span { background:white; color:#368c74; border-color:white; font-size:.8cqw; }
+.exp-trip-stages small { font-size:clamp(6px,.85cqw,12px); white-space:nowrap; }
+.exp-trip-stages>div:last-child { opacity:.6; }
+.exp-desktop-body { padding:0 1.6cqw 1.6cqw; }
+.exp-desktop-offer { display:grid; grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr); border:1px solid #eef0f3; border-radius:1.4cqw; overflow:hidden; background:white; margin-top:-2cqw; position:relative; }
+.exp-hotel-photo { min-height:19cqw; background-image:url('/projects/expedia-offer.webp'); background-size:840.5% auto; background-position:41.09% 60.73%; }
+.exp-desktop-copy { padding:1.6cqw 1.2cqw; }
+.exp-desktop-copy>strong { display:block; margin:1cqw 0 .7cqw; font-size:clamp(8px,1.17cqw,16px); line-height:1.4; }
+.exp-desktop-copy>p { font-size:clamp(7px,1.07cqw,15px); }
+.exp-desktop-body>.exp-attribution { text-align:right; }
+.project-cover--expedia { background:#dce5fa; }
+@container (max-width:480px) {
+    .exp-desktop-offer { grid-template-columns:1fr; }
+    .exp-hotel-photo { min-height:17cqw; max-height:17cqw; background-size:420% auto; background-position:41.09% 60.73%; }
+    .exp-desktop-heading { padding-top:3cqw; padding-bottom:3cqw; gap:1.8cqw; }
+    .exp-desktop-copy { padding:1.6cqw; }
+    .exp-desktop-copy>p { display:none; }
+    .exp-desktop-copy .exp-actions { flex-direction:column; }
+    .exp-confirmation-art { width:9cqw; }
+    .exp-mobile-sheet { gap:1.2cqw; }
+}
+/* Match the modal’s original balance: confirmation above, the offer below. */
+.exp-desktop-heading { flex:0 0 48%; padding:3.5cqw 2cqw 4cqw; gap:1.7cqw; }
+.exp-desktop-heading>strong { font-size:clamp(10px,1.85cqw,25px); line-height:1.35; }
+.exp-desktop-body { flex:1; min-height:0; display:flex; flex-direction:column; padding:0 1.8cqw 1.5cqw; }
+.exp-desktop-offer { position:relative; display:grid; grid-template-columns:36% minmax(0,1fr); flex:1; min-height:0; margin-top:-2.6cqw; border:1px solid #edf0f3; border-radius:1.2cqw; overflow:hidden; background:white; }
+.exp-hotel-photo { background-image:url('/projects/expedia-offer.webp'); background-size:auto 477.59%; background-position:41.09% 60.73%; }
+.exp-desktop-copy { display:flex; flex-direction:column; justify-content:center; align-items:flex-start; padding:1.6cqw; }
+.exp-desktop-copy>strong { font-size:clamp(8px,1.4cqw,19px); }
+.exp-desktop-copy>p { font-size:clamp(7px,1.3cqw,18px); }
+.exp-desktop-copy .exp-actions { width:100%; }
+.exp-desktop-body>.exp-attribution { flex:none; padding-top:1.1cqw; }
+.exp-sheet-title { font-size:clamp(9px,1.6cqw,21px); }
+.exp-mobile-sheet>p { font-size:clamp(7px,1.25cqw,17px); }
+.exp-mobile-offer-heading strong { font-size:clamp(8px,1.35cqw,18px); }
+.exp-mobile-offer li { font-size:clamp(7px,1.23cqw,17px); }
+.exp-actions>span { font-size:clamp(7px,1.23cqw,17px); }
+.exp-mobile-sheet .exp-attribution { margin-top:0; }
+.exp-trip-stages { display:flex; width:90%; margin-top:.5cqw; }
+.exp-trip-stages>div { position:relative; flex:1; display:flex; flex-direction:column; align-items:center; gap:.6cqw; }
+.exp-trip-stages>div:not(:last-child)::after { content:""; position:absolute; top:.6cqw; left:calc(50% + 1cqw); width:calc(100% - 2cqw); height:1px; background:#ffffff5c; }
+.exp-trip-stages>div:first-child::after { background:#d9f3ee; }
+.exp-trip-stages>div>span { display:grid; place-items:center; width:1.3cqw; height:1.3cqw; min-width:7px; min-height:7px; border:1px solid #d9eaff; border-radius:50%; font-size:.8cqw; }
+.exp-trip-stages>div:first-child>span { background:#e0f7ee; color:#176c54; border:0; }
+.exp-trip-stages small { font-size:clamp(6px,.95cqw,13px); }
+.exp-trip-stages>div:last-child { opacity:.55; }
+.exp-step { background:#ffffff15; border-radius:30px; padding:.5cqw .9cqw; font-size:clamp(6px,.95cqw,13px); }
+@container (max-width:480px) {
+    .exp-desktop-heading { flex-basis:43%; }
+    .exp-desktop-offer { grid-template-columns:1fr; grid-template-rows:38% minmax(0,1fr); }
+    .exp-hotel-photo { min-height:0; max-height:none; background-size:840.52% auto; }
+    .exp-desktop-copy { padding:1.5cqw; }
+    .exp-confirmation-art { width:17cqw; }
+    .exp-mobile-offer li { align-items:flex-start; }
+}
+/* Cover the photo slot using the source hotel square, never adjacent UI. */
+.exp-hotel-photo { background-size:auto 477.59%; }
+@container (max-width:480px) { .exp-hotel-photo { background-size:840.52% auto; } }
+
+.expedia-evidence{width:100%;aspect-ratio:1.4;overflow:hidden;border-radius:14px}
