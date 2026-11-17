@@ -142,7 +142,7 @@ html[data-page="home"] #root { overflow:hidden; }
 .is-reading .project-tile { animation:none; opacity:.65; transition:opacity .25s; border-radius:12px; }
 .is-reading .project-tile:hover,.is-reading .project-tile.is-selected { opacity:1; }
 .is-reading .tile-visual { aspect-ratio:1; border-radius:12px; }
-.is-reading .project-tile.is-selected .tile-visual { outline:2px solid var(--gallery-ink); outline-offset:3px; }
+
 .is-reading .tile-caption { padding:8px 1px 0; }
 .is-reading .tile-meta { margin:0; font-size:9px; }
 .is-reading .tile-meta>span:last-child,.is-reading .tile-description,.is-reading .tile-wip,.is-reading .tile-arrow,.is-reading .tile-open { display:none; }
@@ -150,7 +150,8 @@ html[data-page="home"] #root { overflow:hidden; }
 .is-reading .tile-caption-title { margin-top:3px; }
 .is-reading .cover-stage,.is-reading .photo-composition { inset:7px; }
 .case-reader { position:fixed; inset:12px 12px 12px 164px; border:1px solid var(--gallery-line); border-radius:22px; background:var(--gallery-surface); overflow:hidden; display:flex; flex-direction:column; animation:reader-arrive .7s cubic-bezier(.65,0,.35,1) both; }
-.portfolio .project-close { position:fixed; z-index:40; left:55px; top:14px; display:grid; place-items:center; width:54px; height:54px; padding:0; border:1px solid var(--gallery-line); border-radius:50%; background:var(--gallery-ink); color:var(--gallery-bg); box-shadow:0 4px 16px #00000012; transition:transform .25s,box-shadow .25s; }
+.portfolio .project-close { position:fixed; z-index:40; left:55px; top:14px; display:grid; place-items:center; width:54px; height:54px; padding:0; border:0; border-radius:50%; background:var(--gallery-ink); color:var(--gallery-bg); box-shadow:0 4px 16px #00000012; transition:transform .25s,box-shadow .25s; }
+.portfolio .project-close:focus-visible { outline: none; background: #555064; color: white; }
 .portfolio .project-close:hover { transform:scale(1.06); box-shadow:0 6px 22px #00000024; }
 .project-close svg { width:25px; height:25px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; }
 .is-reading .gallery-scroll { scroll-padding-top:82px; }
@@ -561,3 +562,68 @@ html[data-page="home"] #root { overflow:hidden; }
     .tile-visual:has(.macys-gallery) .tile-caption-line { padding: 0; }
     .tile-visual:has(.macys-gallery) .tile-caption-line span { color: inherit; }
 }
+
+/* Expanded project navigation */
+.is-reading .project-tile { opacity: 1; }
+.rail-mark {
+    display: grid;
+    place-items: center;
+    container-type: inline-size;
+}
+.rail-logo { display: block; width: 65%; height: auto; }
+[data-project="uber-ads"] .rail-mark { background: #06c167; }
+[data-project="agent-design-operations"] .rail-mark { background: #b22473; }
+[data-project="macys-bag-page"] .rail-mark { background: #e21a2c; }
+[data-project="expedia-1p-3p"] .rail-mark { background: #1668e3; }
+[data-project="kalshi-dynamic-ads"] .rail-mark { background: #050d0a; }
+[data-project="kalshi-dynamic-ads"] .rail-logo { width: 38%; }
+[data-project="pantry-notes"] .rail-mark { background: #f8edbe; color: #20221e; }
+.rail-pantry {
+    font: 500 23cqi/.83 "Newsreader", Georgia, "Times New Roman", serif;
+    letter-spacing: -.05em;
+    text-align: left;
+}
+[data-project="branded-layouts"] .rail-mark { background: #f0eeea; }
+.rail-partners { display: flex; align-items: center; justify-content: center; width: 54%; }
+.rail-partners img {
+    width: 36%;
+    aspect-ratio: 1;
+    border: 1.5px solid #fff;
+    border-radius: 24%;
+}
+.rail-partners img + img { margin-left: -4%; }
+.rail-partners img:nth-child(2) { z-index: 1; transform: translateY(-18%); }
+.rail-selected-name {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 6%;
+    background: rgb(8 8 13 / 78%);
+    color: white;
+    text-wrap: balance;
+    font-size: clamp(16px, 17cqi, 25px);
+    font-weight: 650;
+    line-height: 1.15;
+    text-align: center;
+    letter-spacing: -.025em;
+}
+
+[data-project="thought-atlas"] .rail-mark { background: #17151f; }
+.rail-thought {
+    position: relative;
+    width: 34%;
+    aspect-ratio: 1.18;
+    color: #d7c2fc;
+}
+.rail-thought::before,
+.rail-thought::after {
+    content: "";
+    position: absolute;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: currentColor;
+}
+.rail-thought::before { width: 63%; top: 0; right: 0; }
+.rail-thought::after { width: 27%; bottom: 0; left: 0; }
