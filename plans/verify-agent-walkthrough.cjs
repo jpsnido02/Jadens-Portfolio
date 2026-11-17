@@ -66,9 +66,14 @@ for (const size of sizes) {
  check(f(BEATS.reviewTravel[1] - 0.001).stage === 'Building' && f(BEATS.reviewTravel[1]).stage === 'For review', 'review commit at impact')
  check(f(BEATS.approvedHold[0]).modal.approved && f(BEATS.approvedHold[0]).stage === 'For review', 'approved before complete')
  check(f(BEATS.completeTravel[1] - 0.001).stage === 'For review' && f(BEATS.completeTravel[1]).stage === 'Complete', 'complete commit at impact')
+ check(f(BEATS.build[0]).bestBuyMade === 8 && f(BEATS.build[1]).bestBuyMade === 11, 'Best Buy shares Shutterfly build endpoints')
+ close(f(BEATS.build[0]).bestBuyProgress, 8/18, 1e-9, 'Best Buy initial fill')
+ close(f(BEATS.build[1]).bestBuyProgress, 11/18, 1e-9, 'Best Buy final fill')
+ check(f(BEATS.build[1]+500).bestBuyMade === 11, 'Best Buy holds after build')
+ check(f(0).bestBuyMade === 8 && at(0,size,true).bestBuyMade === 11, 'Best Buy reset and reduced-motion poster')
  check(f(BEATS.build[0]).buildProgress === 0 && f(BEATS.build[1]).buildProgress === 1, 'build endpoints')
  let prior = 0
- for (let t = BEATS.build[0]; t <= BEATS.build[1]; t++) { const next = f(t); check(next.buildProgress >= prior, 'monotone fill'); prior = next.buildProgress }
+ for (let t = BEATS.build[0]; t <= BEATS.build[1]; t++) { const next = f(t); check(next.buildProgress >= prior, 'monotone fill'); check(next.bestBuyMade === 8+Math.floor(3*next.buildProgress), 'Best Buy synchronized count'); close(next.bestBuyProgress,(8+3*next.buildProgress)/18,1e-9,'Best Buy continuous fill'); prior = next.buildProgress }
  check(f(BEATS.build[0]+410).made === f(BEATS.build[0]+411).made && f(BEATS.build[0]+410).buildProgress !== f(BEATS.build[0]+411).buildProgress, 'continuous fill, discrete number')
  for (const [start, end, from] of [[...BEATS.queueTravel,0],[...BEATS.reviewTravel,1],[...BEATS.completeTravel,2]]) {
   const scale = f(start).camera.s
