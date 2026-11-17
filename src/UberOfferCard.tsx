@@ -19,7 +19,7 @@
  * that one has no body copy and the tallest card.
  */
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { useLayoutEffect, useRef, useState } from "react"
 
 /** Uber's own faces, in the two families the app uses: Text for UI, the
  *  display cut for anything large. Declared in index.css. */
@@ -104,7 +104,7 @@ export const OFFERS: Offer[] = [
         label: "Disney+",
         media: { kind: "bleed", src: `${BASE}/media-disney.webp`, h: 130 },
         headline: "Breakfast's on the way. Queue up Disney+.",
-        primary: "Open Disney+",
+        primary: "Open App Store",
         disclaimer: "Disney+ subscription required. Terms apply.",
         claim: { x: 33, y: 672 },
         notNow: { x: 161, y: 672 },
@@ -272,53 +272,29 @@ function Pill({
     )
 }
 
-type SwapPhase = "idle" | "out" | "resize" | "in"
+export type SwapPhase = "idle" | "out" | "resize" | "in"
 interface UberOfferCardProps {
     offer: Offer
     index: number
     px: (v: number) => number
     swapMs: number
     animate: boolean
+    showOrderContext: boolean
+    phase: SwapPhase
+    pagerIndex: number
     tap?: "claim" | "notNow" | null
     tapKey?: number
 }
 
-/** All content hands off together, inside one continuously measured shell. */
-export default function UberOfferCard(props: UberOfferCardProps) {
-    const [shown, setShown] = useState({ offer: props.offer, index: props.index })
-    const [pagerIndex, setPagerIndex] = useState(props.index)
-    const [phase, setPhase] = useState<SwapPhase>("idle")
-    useEffect(() => {
-        if (!props.animate) {
-            setShown({ offer: props.offer, index: props.index })
-            setPagerIndex(props.index)
-            setPhase("idle")
-            return
-        }
-        if (props.offer.id === shown.offer.id) return
-        const exitMs = Math.round(props.swapMs * .2)
-        const resizeMs = Math.round(props.swapMs * .45)
-        setPhase("out")
-        const swap = window.setTimeout(() => {
-            setShown({ offer: props.offer, index: props.index })
-            setPhase("resize")
-        }, exitMs)
-        const enter = window.setTimeout(() => {
-            setPhase("in")
-            setPagerIndex(props.index)
-        }, exitMs + resizeMs)
-        const settle = window.setTimeout(() => setPhase("idle"), props.swapMs)
-        return () => { window.clearTimeout(swap); window.clearTimeout(enter); window.clearTimeout(settle) }
-        // `shown` changes during this sequence; it must not cancel its own timers.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.offer.id, props.index, props.animate, props.swapMs])
-    return <OfferCardView {...props} offer={shown.offer} index={shown.index} phase={phase} pagerIndex={pagerIndex} />
+export function swapDurations(ms: number) {
+    const exitMs = Math.round(ms * .2)
+    const resizeMs = Math.round(ms * .45)
+    return { exitMs, resizeMs, enterMs: ms - exitMs - resizeMs }
 }
 
-function OfferCardView({ offer, index, px, swapMs, animate, tap, tapKey, phase, pagerIndex }: UberOfferCardProps & { phase: SwapPhase; pagerIndex: number }) {
-    const exitMs = Math.round(swapMs * .2)
-    const resizeMs = Math.round(swapMs * .45)
-    const enterMs = swapMs - exitMs - resizeMs
+/** The parent playhead advances the contents, shell and pager together. */
+export default function UberOfferCard({ offer, index, px, swapMs, animate, showOrderContext, tap, tapKey, phase, pagerIndex }: UberOfferCardProps) {
+    const { exitMs, resizeMs, enterMs } = swapDurations(swapMs)
     const hidden = phase === "out" || phase === "resize"
     const { ref: measureRef, widths } = usePillWidths(px)
     const bleed = offer.media.kind === "bleed" ? offer.media : null
@@ -328,7 +304,7 @@ function OfferCardView({ offer, index, px, swapMs, animate, tap, tapKey, phase, 
     const fade = `opacity ${Math.round(swapMs * 0.42)}ms linear`
     // Re-read once the buttons have their measured widths, since until then
     // the row is laid out at its intrinsic size.
-    const { ref: contentRef, height } = useContentHeight([offer.id, px, widths])
+    const { ref: contentRef, height } = useContentHeight([offer.id, px, widths, showOrderContext])
 
     return (
         <div
@@ -401,6 +377,11 @@ function OfferCardView({ offer, index, px, swapMs, animate, tap, tapKey, phase, 
                     flexDirection: "column",
                 }}
             >
+                {showOrderContext && (
+                    <span style={{ marginBottom: px(8), color: "#505752", fontSize: px(14), fontWeight: 500, lineHeight: 1.3 }}>
+                        Lenwich breakfast · On the way
+                    </span>
+                )}
                 {offer.badge && (
                     <span
                         style={{

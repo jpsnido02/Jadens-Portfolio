@@ -1,5 +1,6 @@
-import UberOfferCard, { OFFERS } from "./UberOfferCard"
+import UberOfferCard, { OFFERS, swapDurations, type SwapPhase } from "./UberOfferCard"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import usePausablePlaybackTimer, { usePausableSubtreeAnimations } from "./usePausablePlaybackTimer"
 import { cycleMs, type LoopReporter } from "./LoopProgress"
 
 /**
@@ -281,8 +282,62 @@ const GALLERY_SCRIPT: Step[] = [
     { kind: "reset", ms: 60 },
 ]
 
-/** How long one pass of the script takes. */
-const CYCLE = cycleMs(SCRIPT.map((s) => s.ms))
+type PhoneState = {
+    index: number
+    pagerIndex: number
+    phase: SwapPhase
+    stage: Stage
+    zoom: "wide" | "offer"
+    screen: "loading" | "track"
+    scrollY: number
+    cut: boolean
+    tap: "notNow" | "claim" | null
+    animate: boolean
+}
+
+function openingState(gallery: boolean): PhoneState {
+    return {
+        index: 0, pagerIndex: 0, phase: "idle", stage: "app",
+        zoom: gallery ? "offer" : "wide", screen: gallery ? "track" : "loading",
+        scrollY: gallery ? SCROLL_TO : 0, cut: false, tap: null, animate: false,
+    }
+}
+
+/** One clock controls every change, including the three parts of an offer swap. */
+function makeTimeline(script: Step[], gallery: boolean) {
+    let state = openingState(gallery)
+    const frames: (PhoneState & { kind: Step["kind"]; ms: number })[] = []
+    for (const step of script) {
+        state = { ...state, animate: true, tap: null, phase: "idle" }
+        switch (step.kind) {
+            case "advance": {
+                const { exitMs, resizeMs, enterMs } = swapDurations(step.ms)
+                frames.push({ ...state, phase: "out", kind: step.kind, ms: exitMs })
+                state.index += 1
+                frames.push({ ...state, phase: "resize", kind: step.kind, ms: resizeMs })
+                state.pagerIndex = state.index
+                frames.push({ ...state, phase: "in", kind: step.kind, ms: enterMs })
+                continue
+            }
+            case "tap": state.tap = step.on; break
+            case "stage": state.stage = step.to; break
+            case "zoom": state.zoom = step.to; break
+            case "screen": state.screen = step.to; break
+            case "scroll": state.scrollY = step.to; break
+            case "cut": state.cut = true; break
+            case "rewind": state = { ...openingState(gallery), cut: true }; break
+            case "reveal": state.cut = false; break
+            case "reset": state = openingState(gallery); break
+        }
+        frames.push({ ...state, kind: step.kind, ms: step.ms })
+    }
+    return frames
+}
+
+const GALLERY_TIMELINE = makeTimeline(GALLERY_SCRIPT, true)
+const FULL_TIMELINE = makeTimeline(SCRIPT, false)
+const FIXED_CAMERA_TIMELINE = FULL_TIMELINE.filter(frame => frame.kind !== "zoom")
+const TRACKING_POSTER = openingState(true)
 
 interface UberAdsLoopProps {
     gallery?: boolean
@@ -308,7 +363,7 @@ export default function UberAdsLoop({
     fit = "width",
     onProgress,
 }: UberAdsLoopProps) {
-    const script = gallery ? GALLERY_SCRIPT : SCRIPT
+    const timeline = gallery ? GALLERY_TIMELINE : camera ? FULL_TIMELINE : FIXED_CAMERA_TIMELINE
     const wrapRef = useRef<HTMLDivElement>(null)
     // Starts at 1 rather than 0: the first measurement happens synchronously
     // below, and if it ever fails the component still renders at full size
@@ -317,19 +372,9 @@ export default function UberAdsLoop({
     // Starts visible so a suspended IntersectionObserver cannot leave the
     // loop permanently stopped; the observer only ever pauses it.
     const [visible, setVisible] = useState(true)
-    const [reduced, setReduced] = useState(false)
+    const [reduced, setReduced] = useState(() => matchMedia("(prefers-reduced-motion: reduce)").matches)
 
     const [step, setStep] = useState(0)
-    const [index, setIndex] = useState(0)
-    const [stage, setStage] = useState<Stage>("app")
-    const [zoom, setZoom] = useState<"wide" | "offer">("wide")
-    const [screen, setScreen] = useState<"loading" | "track">("loading")
-    const [scrollY, setScrollY] = useState(0)
-    const [cut, setCut] = useState(false)
-    const [tap, setTap] = useState<null | "notNow" | "claim">(null)
-    const [tapKey, setTapKey] = useState(0)
-    const [animate, setAnimate] = useState(true)
-
     // Scale the whole thing from its true 473x932 size. Doing it with one
     // transform keeps every measured offset in exact Figma units rather than
     // forcing each one through a percentage conversion.
@@ -368,8 +413,8 @@ export default function UberAdsLoop({
     useEffect(() => {
         if (step !== 0) return
         passes.current += 1
-        onProgress?.(gallery ? cycleMs(GALLERY_SCRIPT.map(s => s.ms)) : CYCLE, passes.current)
-    }, [step, onProgress])
+        onProgress?.(cycleMs(timeline.map(frame => frame.ms)), passes.current)
+    }, [step, timeline, onProgress])
 
     useEffect(() => {
         const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
@@ -392,83 +437,23 @@ export default function UberAdsLoop({
         return () => io.disconnect()
     }, [])
 
-    /**
-     * Scrolled past and come back to, the hero starts again rather than picking
-     * up wherever it was paused. Jumping to the script's last step — its own
-     * reset — is what clears the state, and the step after it is the first.
-     *
-     * `visible` starts true so a suspended IntersectionObserver cannot leave the
-     * hero frozen, which means this does nothing on mount beyond a reset of
-     * state that is already clear.
-     */
+    // Returning from offscreen intentionally starts a new pass. A manual
+    // pause retains the exact frame and its unspent time.
     useEffect(() => {
-        if (visible) setStep(script.length - 1)
-    }, [visible])
+        if (visible) setStep(timeline.length - 1)
+    }, [visible, timeline])
 
-    useEffect(() => {
-        if (paused || !visible || reduced) return
-        const current = script[step]
-        switch (current.kind) {
-            case "tap":
-                setTap(current.on)
-                setTapKey((k) => k + 1)
-                break
-            case "advance":
-                setTap(null)
-                setIndex((i) => i + 1)
-                break
-            case "stage":
-                setTap(null)
-                setStage(current.to)
-                break
-            case "zoom":
-                setTap(null)
-                setZoom(current.to)
-                break
-            case "screen":
-                setTap(null)
-                setScreen(current.to)
-                break
-            case "scroll":
-                setTap(null)
-                setScrollY(current.to)
-                break
-            case "cut":
-                setTap(null)
-                setCut(true)
-                break
-            case "rewind":
-                setAnimate(false)
-                setTap(null)
-                setIndex(0)
-                setStage("app")
-                setScreen("track")
-                setScrollY(SCROLL_TO)
-                break
-            case "reveal":
-                setCut(false)
-                break
-            case "reset":
-                setAnimate(false)
-                setCut(false)
-                setIndex(0)
-                setStage("app")
-                setZoom(gallery ? "offer" : "wide")
-                setScreen(gallery ? "track" : "loading")
-                setScrollY(gallery ? SCROLL_TO : 0)
-                break
-            case "hold":
-                setTap(null)
-                break
-        }
-        const id = window.setTimeout(() => {
-            if (current.kind === "reset" || current.kind === "rewind") setAnimate(true)
-            setStep((s) => (s + 1) % script.length)
-        }, current.ms)
-        return () => window.clearTimeout(id)
-    }, [step, paused, visible, reduced, gallery, script])
-
-    const offer = OFFERS[index % OFFERS.length]
+    const frame = timeline[step] ?? timeline[0]
+    const playing = !paused && visible && !reduced
+    usePausablePlaybackTimer({
+        entryKey: step,
+        duration: frame.ms,
+        playing,
+        onElapsed: () => setStep(current => (current + 1) % timeline.length),
+    })
+    usePausableSubtreeAnimations(wrapRef, playing, step)
+    const { index, stage, zoom, screen, scrollY, cut, tap, animate, phase, pagerIndex } = reduced ? TRACKING_POSTER : frame
+    const offer = OFFERS[index]
     // Each surface morphs to and from its own icon on the home screen, not
     // from the button that was pressed.
     const appAway = stage !== "app"
@@ -486,13 +471,15 @@ export default function UberAdsLoop({
     return (
         <div
             ref={wrapRef}
-            data-loop-phase={script[step].kind}
+            className="uber-demo"
+            data-reduced-motion={reduced}
+            data-loop-phase={reduced ? "poster" : frame.kind}
             data-loop-stage={stage}
             data-loop-camera={zoom}
             data-loop-black={cut}
             role="img"
             aria-label={
-                alt ??
+                reduced ? "Your Lenwich breakfast is on the way. The tracking page offers Spotify Premium to listen to while you wait." : alt ??
                 "An Uber Eats order screen cycling through four Rokt offers, ending with the Disney+ offer opening the App Store."
             }
             style={{
@@ -532,6 +519,7 @@ export default function UberAdsLoop({
         >
             {
                 <div
+                    key={reduced ? "poster" : "playback"}
                     style={{
                         // No ancestor transform.
                         //
@@ -691,9 +679,10 @@ export default function UberAdsLoop({
                                             display: "block",
                                             opacity:
                                                 screen === "loading" ? 1 : 0,
-                                            animation: animate
+                                            animation: animate && screen === "loading"
                                                 ? `uber-load-bounce ${LOAD_BOUNCE_MS}ms ease-in-out ${i * 130}ms infinite`
                                                 : "none",
+                                            animationPlayState: playing ? "running" : "paused",
                                             transition: animate
                                                 ? `opacity ${SCREEN_MS}ms ${PAGE_EASE}`
                                                 : "none",
@@ -758,14 +747,15 @@ export default function UberAdsLoop({
                                             >
                                                 <UberOfferCard
                                                     offer={offer}
-                                                    index={
-                                                        index % OFFERS.length
-                                                    }
+                                                    index={index}
+                                                    showOrderContext={index === 0 && (gallery || reduced)}
+                                                    phase={phase}
+                                                    pagerIndex={pagerIndex}
                                                     px={px}
                                                     swapMs={PAGE_MS}
                                                     animate={animate}
                                                     tap={tap}
-                                                    tapKey={tapKey}
+                                                    tapKey={step}
                                                 />
                                             </div>
 

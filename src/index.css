@@ -1330,3 +1330,11 @@ dl {
         transform: scaleX(1);
     }
 }
+
+
+/* The order and offer are readable immediately when motion is reduced. */
+.uber-demo[data-reduced-motion="true"],
+.uber-demo[data-reduced-motion="true"] * {
+    animation: none !important;
+    transition: none !important;
+}
