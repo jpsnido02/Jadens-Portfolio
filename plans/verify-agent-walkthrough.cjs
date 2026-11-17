@@ -100,11 +100,18 @@ for (const size of sizes) {
  check(down.approveScale < 0.95 && down.confirmation === 0, 'depressed button before release')
  check(f(BEATS.approvedHold[0]+120).modal.confirmation > 0 && f(BEATS.approvedHold[0]+120).modal.confirmation < 1, 'green confirmation fades in')
  check(f(BEATS.approvedHold[0]+241).modal.confirmation === 1, 'confirmation settles before dismissal')
- for (const [pickup,landing] of [[BEATS.queuePickup,BEATS.buildingLanding],[BEATS.buildingPickup,BEATS.reviewLanding],[BEATS.reviewPickup,BEATS.completeLanding]]) {
+ for (const [pickup,landing] of [[BEATS.queuePickup,BEATS.buildingLanding],[BEATS.buildingPickup,BEATS.reviewLanding]]) {
   close(f(pickup[1]).cardPose.scale,1.06,1e-6,'enlarged during carry')
   close(f(landing[0]+160).cardPose.scale,1.03,1e-6,'gradual drop')
   check(f(landing[1]-16).cardPose.scale < 1.001 && f(landing[1]-16).shadowOpacity < 0.01,'soft contact at rest')
  }
+ for (let t = BEATS.reviewPickup[0]; t <= BEATS.completeLanding[1]; t += 17) {
+  const frame = f(t); check(!frame.held && frame.contactOpacity === 0 && frame.cardPose.scale === 1 && frame.cardPose.rotation === 0, 'automatic completion has no drag gesture');
+ }
+ const travelStart = BEATS.completeTravel[0], travelDuration = BEATS.completeTravel[1]-travelStart;
+ const first = f(travelStart+travelDuration*0.2).cardPose.x-f(travelStart).cardPose.x;
+ const last = f(travelStart+travelDuration).cardPose.x-f(travelStart+travelDuration*0.8).cardPose.x;
+ check(last > first*3, 'completion slide starts slowly and finishes quickly');
  close(f((BEATS.queueReveal[0]+BEATS.queueReveal[1])/2).cardOpacity,0.5,0.001,'spawn stays visible halfway through fade')
  const settled = f(BEATS.readingHold[0])
  for (let t = BEATS.readingHold[0]; t < BEATS.readingHold[1]; t += 127) {
@@ -130,6 +137,7 @@ for (const size of [{ w:0,h:0 },{ w:100,h:0 },{ w:NaN,h:100 }]) {
 }
 // Clock/pause is a React integration behavior; assert the retained-clock architecture and let browser QA test scheduling.
 const component = fs.readFileSync(path.join(root,'src/AgentOperationsDemo.tsx'),'utf8')
+check(component.includes('f.modal.approved||i<2'), 'approval fills every review stage');
 check(component.includes('return()=>cancelAnimationFrame(raf)'), 'rAF cleanup')
 check(component.includes('let raf=0,last=performance.now()'), 'fresh resume timestamp')
 check(component.includes('if(!playing||reduced)return'), 'no clock while paused or reduced')
