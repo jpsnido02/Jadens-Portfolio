@@ -502,6 +502,13 @@ dl {
     font-size: 36px;
     line-height: 1.1;
 }
+.macys-page .cart-item-count {
+    color: #444;
+    font-size: .62em;
+    font-weight: 500;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
 .macys-page .bag-items {
     margin-bottom: 32px;
 }

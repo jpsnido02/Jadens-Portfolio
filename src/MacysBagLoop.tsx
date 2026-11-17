@@ -961,7 +961,12 @@ export default function MacysBagLoop({
 
                             <main className="bag-page">
                                 <section className="bag-page__main">
-                                    <h1>My Cart</h1>
+                                    <h1>
+                                        My Cart{" "}
+                                        <span className="cart-item-count">
+                                            ({bagCount} {bagCount === 1 ? "item" : "items"})
+                                        </span>
+                                    </h1>
 
                                     <div className="bag-items">
                                         {(gallery ? GALLERY_ROWS : items).map((product, i) => (
