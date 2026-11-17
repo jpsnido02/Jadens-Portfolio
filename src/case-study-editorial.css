@@ -15,3 +15,15 @@
 .study-page .study-figure-tools button { font-size:12px; line-height:1.4; min-height:36px; padding:8px 0; }
 .study-page .study-lightbox button { font-size:13px; line-height:1.4; }
 @media(max-width:720px) { .study-page .study-figure-tools button { min-height:44px; } }
+
+.study-outcome { font-size:14px; line-height:1.75; max-width:70ch; margin:22px 0 0; }
+.study-page ::selection { background:#7456e833; color:var(--study-ink); }
+/* The standalone case-study entries also need the product stage geometry. */
+.study-page .project-cover { position:absolute; inset:0; width:100%; height:100%; overflow:hidden; background:#f5f5f5; }
+.study-page .cover-stage { position:absolute; inset:18px; overflow:hidden; }
+.study-page .cover-canvas { position:absolute; left:50%; top:50%; transform-origin:center; pointer-events:none; }
+.study-page .photo-composition { position:absolute; inset:24px; }
+.study-page .photo-composition>picture { display:block; width:100%; height:100%; }
+.study-page .cover-photo { width:100%; height:100%; object-fit:contain; object-position:center; }
+.study-page .site-icon { display:inline-block; flex:none; vertical-align:-.125em; fill:currentColor; stroke:none; overflow:visible; }
+.study-page .is-paused * { animation-play-state:paused!important; }

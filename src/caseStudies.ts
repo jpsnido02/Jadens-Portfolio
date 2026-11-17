@@ -6,6 +6,7 @@ import { personalCaseStudies } from "./personalProjects"
 export type FigureWidth = "bleed" | "full" | "half" | "strip"
 
 export type Block =
+    | { kind: "uxVisual"; variant: "composition" | "detail"; name: "uber" | "agent" | "kalshi" | "macys" | "branded" | "expedia"; caption: string }
     | { kind: "evidence"; name: "uber-context" | "macys-decision" | "agent-review" | "branded-comparison" | "expedia-proof" | "pantry-proof"; caption?: string }
     /** ≤45 words. Hanging indent, set apart from everything else. */
     | { kind: "abstract"; text: string }
@@ -77,6 +78,7 @@ export interface CaseStudy {
     client: string
     year: string
     role: string
+    collaboration?: string
     duration: string
     /** Named for your own reference; does not render. */
     shape: "Iteration" | "Gallery" | "System" | "Reframe"
@@ -96,284 +98,445 @@ export interface CaseStudy {
  * levels up. Relative rather than root-absolute so the paths survive both the
  * apex domain and the project-pages subpath.
  */
-const img = (n: number) => `../../projects/project-0${n}.jpg`
+
 
 
 export const caseStudies: CaseStudy[] = [
     {
         "slug": "uber-ads",
-        "title": "Uber Eats Contextual Advertising",
+        "title": "An offer that belongs to the wait.",
         "client": "Uber Eats",
         "year": "2026",
-        "role": "Contextual offer UX and visual design",
+        "role": "Design owner · UX and visual design",
+        "collaboration": "Partnered with Uber’s design team on handoff.",
         "duration": "",
         "shape": "Gallery",
         "paletteIndex": 0,
         "numbered": false,
         "next": "",
-        "preview": "Relevant offers during the wait between ordering and delivery.",
-        "result": "One placement connects order context to a relevant next action.",
-        "status": "Recreated prototype",
+        "preview": "Contextual advertising designed around the moment between placing an order and receiving it.",
+        "result": "A contextual offer experience, designed and handed off with Uber’s team.",
+        "status": "Final design · portfolio recreation",
         "blocks": [
             {
                 "kind": "abstract",
-                "text": "The wait after an Uber Eats order is a distinct moment: the purchase is complete, but the customer is still in the app. I designed contextual offers around that moment rather than treating it as an interchangeable ad slot."
+                "text": "After checkout, an Uber Eats customer still has a reason to stay: their order is on its way. I owned the design of contextual offers for that moment and worked with Uber’s design team on handoff."
             },
             {
                 "kind": "section",
-                "label": "Context",
-                "thesis": "An offer that belongs to the wait.",
-                "body": "Keep the order visible and give the offer a specific reason to be there. The Spotify example connects listening to the delivery wait; the coffee example connects the offer to breakfast."
-            },
-            {
-                "kind": "evidence",
-                "name": "uber-context",
-                "caption": "Order context, offer, and customer action remain connected. These are recreated portfolio examples."
+                "label": "The problem",
+                "thesis": "Attention has a purpose.",
+                "body": "The delivery wait creates an advertising opportunity, but the customer’s priority is still the order. I approached the placement as part of that journey: an offer should have a clear connection to the moment and leave the delivery experience easy to follow."
             },
             {
                 "kind": "section",
-                "label": "Design decision",
-                "thesis": "One placement, different kinds of relevance.",
-                "body": "A consistent container holds different partner assets, messages, and actions. The primary action names what happens next, and the secondary action lets the customer continue without accepting."
+                "label": "The approach",
+                "thesis": "Let context do the explaining.",
+                "body": "A listening offer can complement the time before delivery; a coffee offer can connect to breakfast. Those examples give the placement a reason to exist beyond available screen space. The design brings the order context, partner message, and next action into one readable sequence."
+            },
+            {
+                "kind": "uxVisual",
+                "name": "uber",
+                "caption": "Final offer components placed side by side to compare time-based and meal-based relevance.",
+                "variant": "composition"
+            },
+            {
+                "kind": "section",
+                "label": "Design decisions",
+                "thesis": "Keep the order as the anchor.",
+                "body": "The offer sits within the post-order experience, with a specific action and an understandable way to decline. A consistent container accommodates different partner messages without asking customers to relearn the interaction each time. The contextual copy explains the connection; visual emphasis supports it."
+            },
+            {
+                "kind": "uxVisual",
+                "name": "uber",
+                "variant": "detail",
+                "caption": "The final Spotify offer, annotated to explain the relationship between context, action, and choice."
+            },
+            {
+                "kind": "section",
+                "label": "Collaboration",
+                "thesis": "Own the design. Carry it through handoff.",
+                "body": "I owned the UX and visual design and collaborated with Uber’s design team on handoff. The case study focuses on how the placement fits the customer journey and how its message, hierarchy, and actions work together."
+            },
+            {
+                "kind": "section",
+                "label": "Outcome",
+                "thesis": "A partner-specific journey.",
+                "body": "The resulting experience gives contextual offers a defined place in the delivery wait. It combines partner-specific messaging with a repeatable placement structure, and carries the design through collaboration with Uber’s team."
             },
             {
                 "kind": "takeaway",
-                "title": "Reflection",
-                "body": "The contextual message matters as much as the placement. Showing why an offer belongs in this moment makes the interaction easier to understand than adding more visual emphasis."
+                "title": "Relevance starts with the customer’s next few minutes.",
+                "body": "Designing this placement meant connecting a broader customer journey to a specific moment in the interface. The offer earns its place through what the customer is already doing, then makes its value and next action clear."
             },
             {
                 "kind": "confidential",
-                "text": "Screens are recreated and simplified for this portfolio. The demo does not represent a production data connection or a measured campaign result."
-            }
-        ]
-    },
-    {
-        "slug": "macys-bag-page",
-        "title": "A second item. An exclusive discount.",
-        "client": "Macy’s",
-        "year": "2026",
-        "role": "Bag-page offer UX and visual design",
-        "duration": "",
-        "shape": "Iteration",
-        "paletteIndex": 0,
-        "numbered": false,
-        "next": "",
-        "preview": "Give customers a clear incentive to add a second item to their bag.",
-        "result": "The second addition unlocks an exclusive price on a third item.",
-        "status": "Recreated bag-page flow",
-        "blocks": [
-            {
-                "kind": "abstract",
-                "text": "The bag already contains a shirt. The design introduces a simple next step: add another suggested item to unlock an exclusive discount. The incentive needs to be understood before the customer acts, and its unlocked state needs to be clear afterward."
-            },
-            {
-                "kind": "section",
-                "label": "The constraint",
-                "thesis": "Make the condition visible before the reward.",
-                "body": "The suggested item and the locked discount are shown together. Customers can see what they need to add and the price that action will unlock, without leaving the bag."
-            },
-            {
-                "kind": "evidence",
-                "name": "macys-decision",
-                "caption": "The two states isolate the decision: add a second item, then see the exclusive discount become available."
-            },
-            {
-                "kind": "section",
-                "label": "The decision",
-                "thesis": "Keep the change where the customer is looking.",
-                "body": "Confirmation stays on the Add to bag control. The exclusive discount then changes from unavailable to available, keeping the product and its new price in the same location."
-            },
-            {
-                "kind": "section",
-                "label": "The result",
-                "thesis": "Show the updated bag, not just a successful click.",
-                "body": "The demonstration ends with the discounted item added and the bag state updated. This makes the benefit of the sequence visible. No conversion lift is claimed here."
-            },
-            {
-                "kind": "takeaway",
-                "title": "Reflection",
-                "body": "An incentive is only useful when its condition and reward are equally clear. The locked and unlocked states carry that explanation more effectively than an additional promotional banner."
+                "text": "Product screens are simplified portfolio reconstructions. Partner examples illustrate the interaction and do not represent measured campaign results."
             }
         ]
     },
     {
         "slug": "agent-design-operations",
-        "title": "Design Agents",
+        "title": "Scale the work. Keep the judgment.",
         "client": "Rokt",
         "year": "2026",
-        "role": "Agent workflow, review UX, and interface design",
+        "role": "Independent creator · design and implementation",
+        "collaboration": "Created independently, connecting agent production with human review.",
         "duration": "",
         "shape": "System",
         "paletteIndex": 0,
         "numbered": false,
         "next": "",
-        "preview": "An autonomous agent creates designs across more than 5,000 accounts. A shared dashboard lets me track builds, review the work, and approve it.",
-        "result": "A clear human review and feedback step before work is approved.",
-        "status": "Workflow prototype · illustrative tasks",
+        "preview": "An operating workspace for AI-generated designs, from the first queued task to human approval.",
+        "result": "AI design pipeline output scaled from 10–20 to 1,100+ designs per week.",
+        "status": "Final design · portfolio recreation",
         "blocks": [
             {
                 "kind": "abstract",
-                "text": "An autonomous designer needs more than a way to start tasks. It needs a visible queue, a readable build state, and a deliberate handoff where I can inspect its work, give feedback, or approve it."
+                "text": "Generating more designs changes the designer’s job. I independently created Agent Operations to make that work visible: what is waiting, what is building, and what needs my review before it can move forward."
+            },
+            {
+                "kind": "section",
+                "label": "The problem",
+                "thesis": "Output can outgrow oversight.",
+                "body": "As the AI design pipeline grew from 10–20 designs a week to more than 1,100, the challenge extended beyond generation. Work needed an owner, a legible state, and a review step where quality could be assessed. A successful build alone could not stand in for a successful design."
+            },
+            {
+                "kind": "section",
+                "label": "Experience behind the work",
+                "thesis": "I had already seen the cost of inconsistency.",
+                "body": "Before becoming a product designer, I led UX and quality audits across more than 4,000 live ad placements and built automated audit workflows. That experience shaped this project: a production system needs to surface issues in a form a person can act on."
+            },
+            {
+                "kind": "uxVisual",
+                "name": "agent",
+                "caption": "Final dashboard elements recomposed: a completed task build, review summary, quality checks, and approval controls. Example task data comes from the demo.",
+                "variant": "composition"
             },
             {
                 "kind": "section",
                 "label": "The system",
-                "thesis": "Four stages, one clear owner.",
-                "body": "Queue, Building, For review, and Complete separate work waiting for the agent from work waiting for me. A ticket carries the same account and design task through each stage."
+                "thesis": "Make the next owner obvious.",
+                "body": "Queue, Building, For review, and Complete describe what happens next and who needs to act. A ticket carries its account and task through the workflow. The review boundary separates generated output from approved work instead of allowing a successful build to imply a successful design."
+            },
+            {
+                "kind": "uxVisual",
+                "name": "agent",
+                "variant": "detail",
+                "caption": "The dashboard’s four stages, with the feedback path made explicit. This is a workflow explanation, not a record of earlier iterations."
             },
             {
                 "kind": "section",
-                "label": "The handoff",
-                "thesis": "Review the output before the build metadata.",
-                "body": "A representative generated design sits beside the review criteria. Brand treatment, responsive layout, and the customer action are visible together so the decision is grounded in the proposed experience."
-            },
-            {
-                "kind": "evidence",
-                "name": "agent-review",
-                "caption": "A recreated example of the review handoff. The generated output and review criteria lead; ticket metadata stays secondary."
+                "label": "Design decisions",
+                "thesis": "Make the review actionable.",
+                "body": "The review brings together the build summary, links to the output, and quality checks. Brand tokens, responsive layouts, and contrast are explicit review criteria. Request changes and Approve build are distinct paths, so feedback is part of the workflow rather than a separate conversation."
             },
             {
                 "kind": "section",
-                "label": "The decision",
-                "thesis": "Feedback is part of the workflow.",
-                "body": "Requesting changes sends the ticket back to Building with the reviewer’s feedback. Approval sends it to Complete. These are distinct decisions, rather than a generic done state."
+                "label": "Outcome",
+                "thesis": "A designer’s operating system for automation.",
+                "body": "The workspace gives me a way to monitor builds, inspect output, and direct revisions. The broader AI design pipeline scaled from 10–20 designs a week to more than 1,100. The dashboard makes that volume actionable through visible ownership and a deliberate review boundary."
             },
             {
                 "kind": "takeaway",
-                "title": "Reflection",
-                "body": "Autonomy makes the review boundary more important. The system should make the proposed output easy to inspect and leave the final approval unmistakably human."
+                "title": "Automation moves the point of design judgment.",
+                "body": "My operations background and technical execution meet here. As generation scales, the design responsibility shifts toward defining quality, making exceptions visible, and keeping approval deliberate."
             },
             {
                 "kind": "confidential",
-                "text": "Account names and tasks illustrate the workflow. The portfolio animation cannot edit accounts, run a production agent, or publish designs."
-            }
-        ]
-    },
-    {
-        "slug": "branded-layouts",
-        "title": "Branded Offers",
-        "client": "Rokt",
-        "year": "2026",
-        "role": "Branded offer system and scaling workflow",
-        "duration": "",
-        "shape": "System",
-        "paletteIndex": 0,
-        "numbered": false,
-        "next": "",
-        "preview": "Branded offer UX that drove $30 million in revenue.",
-        "result": "$30 million in revenue; 20% value-per-transaction lift in tested accounts.",
-        "status": "Verified test result",
-        "blocks": [
-            {
-                "kind": "abstract",
-                "text": "A shared offer needs to feel at home across different partner experiences. I designed branded treatments that preserve the underlying offer structure while adapting typography, color, and controls to the partner."
-            },
-            {
-                "kind": "section",
-                "label": "The system",
-                "thesis": "Keep the offer stable. Let the brand change.",
-                "body": "The greeting, offer content, primary action, and decline action keep their roles. Brand tokens change how those elements look without changing what the customer needs to do."
-            },
-            {
-                "kind": "evidence",
-                "name": "branded-comparison",
-                "caption": "Recreated offer anatomy held side by side for comparison. The demo above shows the supplied partner screens."
-            },
-            {
-                "kind": "section",
-                "label": "The outcome",
-                "thesis": "$30 million in revenue.",
-                "body": "The branded UX iteration drove $30 million in revenue by adapting the offer experience to the customer’s transaction and the partner’s brand. In tested accounts, it also delivered a verified 20% value-per-transaction lift."
-            },
-            {
-                "kind": "takeaway",
-                "title": "Reflection",
-                "body": "A scalable brand system preserves the customer’s understanding while changing the visual language. The reusable part is the relationship between the elements, not a single frozen skin."
-            }
-        ]
-    },
-    {
-        "slug": "expedia-1p-3p",
-        "title": "Expedia Upsell Experience",
-        "client": "Expedia",
-        "year": "2026",
-        "role": "Post-booking offer UX and visual design",
-        "duration": "",
-        "shape": "Gallery",
-        "paletteIndex": 0,
-        "numbered": false,
-        "next": "",
-        "preview": "Connect a completed flight booking to the next part of the trip.",
-        "result": "Hotel and onward-travel offers presented inside the booking flow.",
-        "status": "Recreated interface",
-        "blocks": [
-            {
-                "kind": "abstract",
-                "text": "A confirmed flight creates a relevant next question: where will the traveler stay, or how will they get there? The placement connects those offers to the trip the customer has just booked."
-            },
-            {
-                "kind": "section",
-                "label": "The context",
-                "thesis": "Continue the trip, not the checkout.",
-                "body": "Booking confirmation remains the anchor. The hotel or onward-travel offer follows as an optional next action, with a clear way to continue without taking it."
-            },
-            {
-                "kind": "evidence",
-                "name": "expedia-proof",
-                "caption": "The supplied desktop and mobile composition, displayed in full rather than cropped into a generic media box."
-            },
-            {
-                "kind": "section",
-                "label": "The design decision",
-                "thesis": "Keep source and next action understandable.",
-                "body": "The offer explains what it is for and gives the customer a specific action. The surrounding confirmation maintains the connection to the original booking."
-            },
-            {
-                "kind": "takeaway",
-                "title": "Reflection",
-                "body": "The next offer feels more coherent when it follows a need created by the completed booking. The trip supplies the context; the interface should not have to manufacture urgency."
+                "text": "The portfolio reconstructs the workflow with illustrative accounts and tasks. It does not connect to the production agent or publish designs."
             }
         ]
     },
     {
         "slug": "kalshi-dynamic-ads",
-        "title": "Kalshi Dynamic Advertising",
+        "title": "Creative that keeps up with the game.",
         "client": "Kalshi",
         "year": "2026",
-        "role": "Dynamic creative and motion design",
+        "role": "Design collaboration · dynamic creative",
+        "collaboration": "Worked with the ads team to develop the design.",
         "duration": "",
         "shape": "Gallery",
         "paletteIndex": 0,
         "numbered": false,
         "next": "",
-        "preview": "An advertisement that responds when the market changes.",
-        "result": "A five-yard loss precedes a lower SF chance and higher potential payout.",
-        "status": "Illustrative market animation",
+        "preview": "A dynamic ad that makes changing market information understandable in place.",
+        "result": "A designed relationship between the live-event context, market chance, and potential payout.",
+        "status": "Final design · portfolio recreation",
         "blocks": [
             {
                 "kind": "abstract",
-                "text": "The ad keeps the selected team and $25 amount anchored while the market chance and potential payout update. A short football sequence gives the change a visible context."
+                "text": "An ad built around a changing market needs to explain movement clearly. Working with the ads team, I developed a design that keeps the customer’s selection anchored while the market chance and potential payout update."
             },
             {
                 "kind": "section",
-                "label": "The interaction",
-                "thesis": "One event. Two connected values.",
-                "body": "San Francisco loses five yards. The illustrative win chance falls from 18% to 16%, while the potential payout rises from $131.16 to $147.56. Both values change in place so their relationship is easy to follow."
+                "label": "The problem",
+                "thesis": "A static message can lose its context.",
+                "body": "When the event changes, the information behind the creative changes with it. The design challenge is to communicate what moved without making the entire advertisement feel like a new decision. The selected team and entry amount need to remain easy to track."
             },
             {
                 "kind": "section",
-                "label": "The hierarchy",
-                "thesis": "Keep the decision in the foreground.",
-                "body": "The selected team, market chance, entry amount, and potential payout carry the most weight. The field sequence supports the change; it does not compete with the offer."
+                "label": "The approach",
+                "thesis": "Separate the event from the choice.",
+                "body": "The football sequence supplies context for the update. The offer remains the focal point: team, market chance, entry amount, and potential payout. This lets the creative explain the relationship between an event and changing values while keeping the customer’s selection stable."
+            },
+            {
+                "kind": "uxVisual",
+                "name": "kalshi",
+                "caption": "The final creative shown in two states. Market values are the illustrative values used in the product demo.",
+                "variant": "composition"
+            },
+            {
+                "kind": "section",
+                "label": "Design decisions",
+                "thesis": "Give motion a job.",
+                "body": "In the portfolio example, San Francisco loses five yards. The displayed chance falls from 18% to 16%, while the potential payout changes from $131.16 to $147.56. The values update in place. Keeping their positions stable makes the change easier to compare and gives the motion explanatory value."
+            },
+            {
+                "kind": "uxVisual",
+                "name": "kalshi",
+                "variant": "detail",
+                "caption": "Fixed selection and entry amount are separated from updating market information. This is a design breakdown of the final creative."
+            },
+            {
+                "kind": "section",
+                "label": "Collaboration",
+                "thesis": "Design within an advertising context.",
+                "body": "I worked with the ads team to make the Kalshi design. My contribution focused on the creative: how the event, market information, and customer action fit together visually. The resulting sequence makes that relationship legible within the advertisement."
+            },
+            {
+                "kind": "section",
+                "label": "Outcome",
+                "thesis": "One coherent update.",
+                "body": "The creative presents the event and the information change as a connected sequence. The selected team and entry amount stay stable while the market chance and potential payout change, giving the viewer a reference point throughout."
             },
             {
                 "kind": "takeaway",
-                "title": "Reflection",
-                "body": "The motion is clearest when it explains a relationship. Keeping both values anchored makes the change legible without animating the entire advertisement."
+                "title": "The best motion makes a relationship visible.",
+                "body": "A changing value should be easier to understand because it moves. Here, the stable selection and paired updates give the viewer a reference point throughout the sequence."
             },
             {
                 "kind": "confidential",
-                "text": "The scenario and quotes are illustrative. The animation is not connected to live market data and does not calculate an executable quote."
+                "text": "The portfolio uses an illustrative football scenario and supplied example values. It is not connected to live market data and does not generate executable quotes."
+            }
+        ]
+    },
+    {
+        "slug": "macys-bag-page",
+        "title": "Make the next addition worth it.",
+        "client": "Macy’s",
+        "year": "2026",
+        "role": "UX and visual design · purchase incentives",
+        "collaboration": "Partnered with the product team to develop the optimization.",
+        "duration": "",
+        "shape": "Iteration",
+        "paletteIndex": 0,
+        "numbered": false,
+        "next": "",
+        "preview": "A bag-page experience that makes the condition and value of an exclusive discount clear.",
+        "result": "A designed flow connecting a second bag addition to an unlocked offer.",
+        "status": "Final design · portfolio recreation",
+        "blocks": [
+            {
+                "kind": "abstract",
+                "text": "An incentive only helps when customers understand how to earn it. I worked with the product team on a Macy’s bag-page optimization that connects an additional item to an exclusive discount and makes the unlocked state visible."
+            },
+            {
+                "kind": "section",
+                "label": "The problem",
+                "thesis": "An extra item needs a clear reason.",
+                "body": "The bag is a high-intent moment, but another recommendation still asks the customer to spend more. The opportunity was to make the value exchange explicit: what to add, what that action unlocks, and how the new price becomes available."
+            },
+            {
+                "kind": "section",
+                "label": "The approach",
+                "thesis": "Show the condition beside the reward.",
+                "body": "The reconstructed journey starts with a shirt in the bag. A suggested second item appears alongside a locked offer for another product. Showing the two together lets the customer understand the condition before acting, rather than discovering the benefit after a click."
+            },
+            {
+                "kind": "uxVisual",
+                "name": "macys",
+                "caption": "The final bag interaction explained as three states: condition, unlocked offer, and confirmation. Screens are simplified for comparison.",
+                "variant": "composition"
+            },
+            {
+                "kind": "section",
+                "label": "Design decisions",
+                "thesis": "Explain progress where it happens.",
+                "body": "The Add to bag control confirms the second addition. The exclusive offer then changes from unavailable to available in the same location. Keeping the item, condition, and price together reduces the amount of interpretation required to follow the sequence."
+            },
+            {
+                "kind": "uxVisual",
+                "name": "macys",
+                "variant": "detail",
+                "caption": "The offer’s product, price, and unlocked state isolated to explain the incentive hierarchy."
+            },
+            {
+                "kind": "section",
+                "label": "Collaboration",
+                "thesis": "Develop the optimization with product.",
+                "body": "I worked with the product team to shape the Macy’s optimization. We connected the incentive to the customer’s next action: adding the suggested item makes an exclusive price available. My design contribution made that condition, action, and state change visible in the bag."
+            },
+            {
+                "kind": "section",
+                "label": "Outcome",
+                "thesis": "Close the loop in the bag.",
+                "body": "The demonstration ends with the discounted item added and the bag updated, making the benefit of the sequence visible. The final flow explains the value before the customer acts and confirms the consequence afterward."
+            },
+            {
+                "kind": "takeaway",
+                "title": "An incentive is an interaction, not just a message.",
+                "body": "The condition, action, and reward form one experience. Designing those states together makes the offer understandable before the customer commits and confirms its value afterward."
+            },
+            {
+                "kind": "confidential",
+                "text": "Product views reproduce the final bag design. State and incentive breakdowns simplify the interface for explanation; no earlier design versions are implied."
+            }
+        ]
+    },
+    {
+        "slug": "branded-layouts",
+        "title": "One system. Many brand voices.",
+        "client": "Rokt",
+        "year": "2026",
+        "role": "Originator · branded UX and visual system",
+        "collaboration": "Conceived the branded UX approach.",
+        "duration": "",
+        "shape": "System",
+        "paletteIndex": 0,
+        "numbered": false,
+        "next": "",
+        "preview": "A shared offer experience that adapts to each partner’s identity without losing its underlying structure.",
+        "result": "An adaptable branded offer approach, conceived across partner experiences.",
+        "status": "Final design · portfolio recreation",
+        "blocks": [
+            {
+                "kind": "abstract",
+                "text": "A shared advertising platform appears inside many different brands. I came up with a branded UX approach that adapts the visual language to the partner while preserving a consistent structure for the customer’s decision."
+            },
+            {
+                "kind": "section",
+                "label": "The problem",
+                "thesis": "A generic placement can feel disconnected.",
+                "body": "Typography, color, controls, and language all signal whose experience a customer is in. An offer that ignores those signals can feel separate from the transaction around it. The challenge was to support brand expression without rebuilding the interaction for every account."
+            },
+            {
+                "kind": "section",
+                "label": "The approach",
+                "thesis": "Define what stays and what adapts.",
+                "body": "The greeting, offer, primary action, and decline action retain clear roles. Typography, palette, button treatment, and partner language adapt. This creates a reusable relationship between elements while allowing each placement to belong visually to its host experience."
+            },
+            {
+                "kind": "uxVisual",
+                "name": "branded",
+                "caption": "The same offer anatomy across Gap, Best Buy, and Depop treatments. Reconstructed from the final branded approach for comparison.",
+                "variant": "composition"
+            },
+            {
+                "kind": "section",
+                "label": "Design decisions",
+                "thesis": "Preserve the decision beneath the styling.",
+                "body": "A change of brand should not change the customer’s ability to understand the offer. I treated hierarchy and action clarity as the shared foundation, then used visual treatments to express identity. The comparison makes those two responsibilities visible side by side."
+            },
+            {
+                "kind": "uxVisual",
+                "name": "branded",
+                "variant": "detail",
+                "caption": "The system separates consistent interaction roles from adaptable brand expression."
+            },
+            {
+                "kind": "section",
+                "label": "Experience behind the work",
+                "thesis": "Design for the network, then respect the account.",
+                "body": "At Rokt, I designed across more than 30 client pages and contributed three ad formats across more than 80 clients. That breadth informed a system that could repeat across accounts while retaining each partner’s identity. The branded UX approach brings those two scales together."
+            },
+            {
+                "kind": "section",
+                "label": "Outcome",
+                "thesis": "A repeatable approach to partner expression.",
+                "body": "The result is a repeatable approach to branded offers: a shared interaction structure with room for partner-specific expression. I originated the concept, connecting the craft of each placement with the needs of a platform serving many different brands."
+            },
+            {
+                "kind": "takeaway",
+                "title": "The reusable unit is a relationship.",
+                "body": "A strong system gives brands room to be recognizable while keeping the customer’s task stable. That is the connection between visual craft at the placement level and product design at network scale."
+            },
+            {
+                "kind": "confidential",
+                "text": "Product views reproduce the final design. Interface comparisons and system breakdowns are explanatory compositions. Project-specific revenue and lift figures are omitted pending confirmed attribution."
+            }
+        ]
+    },
+    {
+        "slug": "expedia-1p-3p",
+        "title": "The booking is the beginning.",
+        "client": "Expedia",
+        "year": "2026",
+        "role": "Design owner · post-booking UX",
+        "collaboration": "Designed Expedia’s new UX.",
+        "duration": "",
+        "shape": "Gallery",
+        "paletteIndex": 0,
+        "numbered": false,
+        "next": "",
+        "preview": "An optional next step that connects a confirmed flight to the rest of the traveler’s trip.",
+        "result": "A redesigned post-booking experience for hotel and onward-travel offers.",
+        "status": "Final design · portfolio recreation",
+        "blocks": [
+            {
+                "kind": "abstract",
+                "text": "Booking a flight resolves one part of a trip and creates the next set of needs. I designed Expedia’s new UX to connect the completed booking with relevant hotel and onward-travel offers while keeping confirmation clear."
+            },
+            {
+                "kind": "section",
+                "label": "The problem",
+                "thesis": "The transaction ends before the journey does.",
+                "body": "A traveler who has booked a flight may still need somewhere to stay or a way out of the airport. The opportunity is to introduce that next step in context, while respecting the immediate need to know the original booking is complete."
+            },
+            {
+                "kind": "section",
+                "label": "The approach",
+                "thesis": "Start with the confirmed trip.",
+                "body": "The booking confirmation remains the anchor. The offer follows as an optional continuation, with language that names its purpose and an action that describes what happens next. The trip itself supplies the relevance; the interface does not need to manufacture urgency."
+            },
+            {
+                "kind": "uxVisual",
+                "name": "expedia",
+                "caption": "The final post-booking experience translated into a journey model. Both accepting an offer and continuing without it remain possible.",
+                "variant": "composition"
+            },
+            {
+                "kind": "section",
+                "label": "Design decisions",
+                "thesis": "Keep the next step optional.",
+                "body": "The composition distinguishes confirmation from the offer and leaves a clear way to continue without accepting. Across desktop and mobile, the priority is the same: understand the completed booking, recognize the next opportunity, and choose whether to explore it."
+            },
+            {
+                "kind": "uxVisual",
+                "name": "expedia",
+                "variant": "detail",
+                "caption": "The final mobile composition alongside the three priorities that govern its hierarchy."
+            },
+            {
+                "kind": "section",
+                "label": "My contribution",
+                "thesis": "Design the experience around the journey.",
+                "body": "I designed Expedia’s new UX, connecting placement design with the larger customer journey. The design carries the same priorities across desktop and mobile: confirmation first, a relevant next offer, and a clear choice about whether to continue."
+            },
+            {
+                "kind": "section",
+                "label": "Outcome",
+                "thesis": "A relevant continuation after booking.",
+                "body": "The experience connects hotel and onward-travel offers to the completed flight booking. It makes the next step relevant to the trip, while preserving confirmation and the option to continue without taking another offer."
+            },
+            {
+                "kind": "takeaway",
+                "title": "Completion can reveal the next useful question.",
+                "body": "The value of a post-booking offer comes from understanding what the traveler still needs. Clear confirmation and optional continuation can work together in the same experience."
+            },
+            {
+                "kind": "confidential",
+                "text": "Product views reproduce the final design. Journey and hierarchy breakdowns rearrange it for explanation; no earlier design versions are implied."
             }
         ]
     }

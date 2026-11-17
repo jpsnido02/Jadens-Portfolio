@@ -70,6 +70,8 @@ const Ticket=memo(function Ticket({task,made,stage,click,pressScale=1,progress=m
  <div className="ado-task-footer"><span>Mock status <b>{made}<em>/{task.total}</em></b></span><span className={`ado-task-action ${stage === "For review"?"review":""}`}>{stage === "Queue" ? "Start build" : stage === "For review" ? "Review build" : "View build"}{click && <span className="uber-tap ado-tap"/>}</span></div>
  <div className="ado-progress"><span style={{transform:`scaleX(${progress})`}}/></div>
  </div>})
+/** Final ticket isolated for the case-study composition. */
+export function AgentStudyTicket() { return <Ticket task={FOCAL} made={14} stage="For review" click={false}/> }
 /** One retained clock; style updates do not go through React's render cycle. */
 function useTimeline(playing:boolean,reduced:boolean,onFrame:(time:number)=>string) {
  const clock=useRef(0), callback=useRef(onFrame), lastRenderKey=useRef("")

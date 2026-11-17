@@ -126,7 +126,7 @@ export const projects: ProjectData[] = [
         },
         year: "2026",
         description:
-            "Branded offer UX that drove $30 million in revenue, tailored to each customer’s transaction and the brand’s logo, styling, and language.",
+            "A branded offer system that adapts to each partner’s identity while keeping the customer’s decision clear.",
         tags: [],
         link: "work/branded-layouts/",
     },
