@@ -92,6 +92,7 @@ function useTimeline(playing:boolean,reduced:boolean,onFrame:(time:number)=>stri
 export function AgentDashboard({playing,interactive:_interactive=false}:{playing:boolean;interactive?:boolean}) {
  const root=useRef<HTMLDivElement>(null),scene=useRef<HTMLDivElement>(null),focal=useRef<HTMLDivElement>(null)
  const modalLayer=useRef<HTMLDivElement>(null),modalBox=useRef<HTMLDivElement>(null),approveButton=useRef<HTMLSpanElement>(null)
+ const hoverFill=useRef<HTMLSpanElement>(null), confirmation=useRef<HTMLSpanElement>(null), approveLabel=useRef<HTMLSpanElement>(null)
  const slots=useRef<(HTMLDivElement|null)[]>([])
  const groups=useRef<{node:HTMLElement;name:EntranceName}[]>([])
  const parts=useRef<{fill:HTMLElement|null;card:HTMLElement|null;contact:HTMLElement|null;shadow:HTMLElement|null}>({fill:null,card:null,contact:null,shadow:null})
@@ -118,6 +119,9 @@ export function AgentDashboard({playing,interactive:_interactive=false}:{playing
   if(modalLayer.current)modalLayer.current.style.opacity=String(f.modal.opacity)
   if(modalBox.current)modalBox.current.style.transform=`translateY(${f.modal.y}px) scale(${f.modal.scale*f.modal.scaleMultiplier})`
   if(approveButton.current)approveButton.current.style.transform=`scale(${f.modal.approveScale})`
+  if(hoverFill.current)hoverFill.current.style.opacity=String(f.modal.approveHover)
+  if(approveLabel.current)approveLabel.current.style.opacity=String(1-f.modal.confirmation)
+  if(confirmation.current)confirmation.current.style.opacity=String(f.modal.confirmation)
  }
  const clock=useTimeline(playing,reduced,time=>{const next=evaluateAgentWalkthrough(time,size);apply(next);return next.renderKey})
  const f=evaluateAgentWalkthrough(clock.current,size,reduced)
@@ -148,7 +152,12 @@ export function AgentDashboard({playing,interactive:_interactive=false}:{playing
    <div className="ado-review-summary"><div><span>Mock status</span><strong>14 / 14</strong></div><div><span>Build time</span><strong>5m 58s</strong></div><div><span>Brand system</span><strong>Shutterfly</strong></div></div>
    <div className="ado-review-links"><span><FigmaMark/>Figma</span><span><Icon icon={faGoogleDrive} size={17}/>Google Drive</span><span><ChatMark/>Google Chat</span></div>
    <div className="ado-review-checks"><div>Before you approve<span>3 checks completed</span></div><span><Icon icon={faCheck} size={12}/>Brand tokens match the account</span><span><Icon icon={faCheck} size={12}/>Responsive layouts reviewed</span><span><Icon icon={faCheck} size={12}/>Contrast and layout QA complete</span></div>
-   <div className="ado-modal-footer"><span>Request changes</span><span ref={approveButton} className={`ado-approve ${f.modal.approved?"approved":""}`} style={{transform:`scale(${f.modal.approveScale})`}}><Icon icon={faCheck} size={13}/>{f.modal.approved?"Approved":"Approve build"}{f.approveRippleVisible&&<span className="uber-tap ado-tap"/>}</span></div>
+   <div className="ado-modal-footer"><span>Request changes</span><span ref={approveButton} className="ado-approve" data-approved={f.modal.approved}>
+    <span ref={hoverFill} className="ado-approve-hover" aria-hidden="true"/>
+    <span ref={approveLabel} className="ado-approve-label" aria-hidden={f.modal.approved}>Approve build</span>
+    <span ref={confirmation} className="ado-approve-success" aria-hidden={!f.modal.approved}><Icon icon={faCheck} size={13}/>Approved</span>
+    {f.approveRippleVisible&&<span className="uber-tap ado-tap"/>}
+   </span></div>
   </div></div>}
  </div>
 }
