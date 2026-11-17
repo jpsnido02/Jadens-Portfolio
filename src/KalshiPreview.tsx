@@ -16,7 +16,6 @@ function FootballPlay({ phase }: { phase: number }) {
     return <div className={`kalshi-football ${finished ? "is-finished" : ""}`} data-play-phase={phase}>
         <div className="kalshi-game-context">
             <span>SF 17 · SEA 24</span>
-            {replay && <span className="kalshi-replay-label">REPLAY</span>}
             <span>Q4 · {finished || replay ? "1:58 · 3RD & 15 · SF 25" : "2:10 · 2ND & 10 · SF 30"}</span>
         </div>
         <svg viewBox="0 0 1200 174" role="img" aria-label="San Francisco loses 5 yards, from the 30-yard line to the 25-yard line.">
