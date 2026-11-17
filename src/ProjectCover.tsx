@@ -3,7 +3,7 @@ import UberAdsLoop from "./UberAdsLoop"
 import MacysBagLoop from "./MacysBagLoop"
 import { AgentDashboard, ShoppableDashboard } from "./PortfolioWorkbench"
 import BrandedLayoutsLoop from "./BrandedLayoutsLoop"
-import { UberPreview, MacysPreview, BrandedPreview } from "./GalleryPreviews"
+import { UberPreview, BrandedPreview } from "./GalleryPreviews"
 import KalshiPreview from "./KalshiPreview"
 import ConceptStudy from "./ConceptStudies"
 import type { ProjectData } from "./PortfolioScroll"
@@ -44,7 +44,7 @@ export default function ProjectCover({ project, index, live = true, focused = fa
     if (kind === "partner-agent" || kind === "shoppable-config") return <div ref={ref} className={`project-cover ${!playing ? "is-paused" : ""}`} aria-hidden="true" inert>{kind === "partner-agent" ? <AgentDashboard playing={playing} /> : <ShoppableDashboard playing={playing} /> }</div>
     if (focused && kind) return <div ref={ref} className={`project-cover focused-cover focus-${kind} ${!playing ? "is-paused" : ""}`} aria-hidden="true" inert>
         {kind === "uber-loop" && <UberPreview playing={playing} />}
-        {kind === "macys-bag" && <MacysPreview key={replayKey} playing={playing} />}
+        {kind === "macys-bag" && <MacysBagLoop key={replayKey} gallery paused={!playing} />}
         {kind === "branded-shuffle" && <BrandedPreview playing={playing} />}
     </div>
     return <div ref={ref} className={`project-cover cover-${index} ${!playing ? "is-paused" : ""}`} aria-hidden="true" inert>

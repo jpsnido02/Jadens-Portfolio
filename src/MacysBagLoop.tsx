@@ -265,8 +265,31 @@ const SCRIPT: Step[] = [
     { kind: "reset", ms: 60 },
 ]
 
+// The gallery holds the actual suggestion and exclusive offer together in one frame.
+const GALLERY_SCRIPT: Step[] = [
+    { kind: "hold", ms: 1000 },
+    { kind: "move", to: "pick", shot: "suggest", ms: 0 },
+    { kind: "hold", ms: 360 },
+    { kind: "press", to: "pick", ms: 280 },
+    { kind: "load", who: "pick", ms: 500 },
+    { kind: "cta", who: "pick", ms: 440 },
+    { kind: "add", who: "pick", ms: 700 },
+    { kind: "unlock", ms: 1300 },
+    { kind: "move", to: "exclusive", shot: "unlock", ms: 0 },
+    { kind: "hold", ms: 420 },
+    { kind: "press", to: "exclusive", ms: 280 },
+    { kind: "load", who: "exclusive", ms: 500 },
+    { kind: "cta", who: "exclusive", ms: 440 },
+    { kind: "add", who: "exclusive", ms: 650 },
+    { kind: "hold", ms: 2300 },
+    { kind: "reset", ms: 60 },
+]
+const GALLERY_FRAME = { w: 620, h: 602 }
+const GALLERY_BAG_ROW_HEIGHT = 60
+
 /** How long one pass of the script takes. */
 const CYCLE = cycleMs(SCRIPT.map((s) => s.ms))
+const GALLERY_CYCLE = cycleMs(GALLERY_SCRIPT.map((s) => s.ms))
 
 /**
  * The pointer's two axes run on curves that disagree, so the path bows instead
@@ -484,12 +507,19 @@ function AddToBag({
 export default function MacysBagLoop({
     alt,
     paused = false,
+    gallery = false,
     onProgress,
 }: {
+    gallery?: boolean
     paused?: boolean
     alt?: string
     onProgress?: LoopReporter
 }) {
+    const script = gallery ? GALLERY_SCRIPT : SCRIPT
+    const pageWidth = gallery ? GALLERY_FRAME.w : FRAME_W
+    const frameHeight = gallery ? GALLERY_FRAME.h : FRAME_H
+    const topPad = gallery ? 0 : FRAME_PAD_TOP
+    const initialRotation = gallery ? 1 : 0
     const wrapRef = useRef<HTMLDivElement>(null)
     const pageRef = useRef<HTMLDivElement>(null)
 
@@ -502,7 +532,7 @@ export default function MacysBagLoop({
     const [reduced, setReduced] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches)
 
     /** How far the carousel has been advanced. */
-    const [rotation, setRotation] = useState(0)
+    const [rotation, setRotation] = useState(initialRotation)
     const [added, setAdded] = useState<Product[]>([])
     const [pickPhase, setPickPhase] = useState<CtaPhase>("idle")
     const [exclusivePhase, setExclusivePhase] = useState<CtaPhase>("idle")
@@ -510,7 +540,7 @@ export default function MacysBagLoop({
     const [pressing, setPressing] = useState(false)
     const [moveMs, setMoveMs] = useState(MOVE_MIN)
     const [arc, setArc] = useState(0)
-    const [cursor, setCursor] = useState({ x: VIEW_W * 0.62, y: VIEW_H * 0.78 })
+    const [cursor, setCursor] = useState({ x: pageWidth * 0.62, y: frameHeight * 0.78 })
     const cursorRef = useRef(cursor)
     /** The slice of the page the frame is looking at, in page pixels. */
     const [camera, setCamera] = useState<Camera>(WIDE)
@@ -548,8 +578,8 @@ export default function MacysBagLoop({
     useEffect(() => {
         if (step !== 0) return
         passes.current += 1
-        onProgress?.(CYCLE, passes.current)
-    }, [step, onProgress])
+        onProgress?.(gallery ? GALLERY_CYCLE : CYCLE, passes.current)
+    }, [step, onProgress, gallery])
 
     useEffect(() => {
         const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
@@ -582,9 +612,9 @@ export default function MacysBagLoop({
     useEffect(() => {
         if (visible) {
             setReplayGeneration(value => value + 1)
-            setStep(SCRIPT.length - 1)
+            setStep(script.length - 1)
         }
-    }, [visible])
+    }, [visible, script])
 
     /**
      * A shot, measured off the laid-out page and widened to the frame's own
@@ -598,7 +628,7 @@ export default function MacysBagLoop({
         const el = page.querySelector(sel)
         if (!el) return WIDE
         const pr = page.getBoundingClientRect()
-        const k = pr.width / VIEW_W || 1
+        const k = pr.width / pageWidth || 1
         const pageH = Math.max(VIEW_H, page.scrollHeight)
         const r = el.getBoundingClientRect()
         const left = (r.left - pr.left) / k - SHOT_PAD
@@ -628,7 +658,7 @@ export default function MacysBagLoop({
         if (!page || !el) return cursorRef.current
         const pr = page.getBoundingClientRect()
         const r = el.getBoundingClientRect()
-        const k = pr.width / VIEW_W || 1
+        const k = pr.width / pageWidth || 1
         return {
             x: (r.left + r.width / 2 - pr.left) / k,
             y: (r.top + r.height / 2 - pr.top) / k,
@@ -641,7 +671,7 @@ export default function MacysBagLoop({
     useLayoutEffect(() => {
         if (!playing || appliedEntry.current === entryKey) return
         appliedEntry.current = entryKey
-        const current = SCRIPT[step]
+        const current = script[step]
         let dur = current.ms
 
         switch (current.kind) {
@@ -659,7 +689,7 @@ export default function MacysBagLoop({
                 setArc((a) => 1 - a)
                 // The camera leaves with the pointer and arrives with it.
                 setShotMs(dur)
-                setCamera(measureShot(current.shot))
+                if (!gallery) setCamera(measureShot(current.shot))
                 setPressing(false)
                 break
             }
@@ -692,7 +722,7 @@ export default function MacysBagLoop({
                 setPulsing(true)
                 break
             case "reset":
-                setRotation(0)
+                setRotation(initialRotation)
                 setAdded([])
                 setUnlocked(false)
                 setCamera(WIDE)
@@ -700,7 +730,7 @@ export default function MacysBagLoop({
                 setExclusivePhase("idle")
                 setPulsing(false)
                 setPressing(false)
-                cursorRef.current = { x: VIEW_W * 0.62, y: VIEW_H * 0.78 }
+                cursorRef.current = { x: pageWidth * 0.62, y: frameHeight * 0.78 }
                 setCursor(cursorRef.current)
                 break
             case "hold":
@@ -717,9 +747,9 @@ export default function MacysBagLoop({
         duration: timing?.key === entryKey ? timing.duration : null,
         playing,
         onElapsed: () => {
-            if (SCRIPT[step].kind === "add") setPulsing(false)
-            if (step === SCRIPT.length - 1) setReplayGeneration(value => value + 1)
-            setStep(value => (value + 1) % SCRIPT.length)
+            if (script[step].kind === "add") setPulsing(false)
+            if (step === script.length - 1) setReplayGeneration(value => value + 1)
+            setStep(value => (value + 1) % script.length)
         },
     })
 
@@ -728,19 +758,19 @@ export default function MacysBagLoop({
     const displayUnlocked = reduced || unlocked
     const displayPickPhase: CtaPhase = reduced ? "added" : pickPhase
     const displayExclusivePhase: CtaPhase = reduced ? "added" : exclusivePhase
-    const displayCamera = reduced ? WIDE : camera
+    const displayCamera = gallery ? { x: 0, y: 0, w: pageWidth } : reduced ? WIDE : camera
     const displayRotation = reduced ? 1 : rotation
     const reducedSummary = "Add a suggested second item to unlock the shirt’s $39.99 price. Shown: 3 items, including the claimed exclusive offer."
 
     /* ---- layout ---------------------------------------------------------- */
-    const pad = box.w < 480 ? 8 : 16
+    const pad = gallery ? 8 : box.w < 480 ? 8 : 16
     const availW = Math.max(0, box.w - pad * 2)
-    const availH = Math.max(0, box.h - pad * 2 - FRAME_PAD_TOP - (reduced ? 76 : 0))
-    const width = Math.max(0, Math.min(availW, availH * (FRAME_W / FRAME_H)))
+    const availH = Math.max(0, box.h - pad * 2 - topPad - (reduced && !gallery ? 76 : 0))
+    const width = Math.max(0, Math.min(availW, availH * (pageWidth / frameHeight)))
     /** The camera's slice of the page, filling the frame. */
     const scale = width / displayCamera.w
     /** How far in we are, for anything that should not grow with the zoom. */
-    const zoom = displayCamera.w / VIEW_W
+    const zoom = displayCamera.w / pageWidth
     // Half the hero pane's own corner, by the same rule it uses, so the frame
     // nests inside it rather than echoing it.
     const frameRadius =
@@ -759,7 +789,7 @@ export default function MacysBagLoop({
     return (
         <div
             ref={wrapRef}
-            className="macys-demo"
+            className={gallery ? "macys-demo macys-gallery" : "macys-demo"}
             data-reduced-motion={reduced}
             role="img"
             aria-label={
@@ -781,7 +811,7 @@ export default function MacysBagLoop({
                 <div
                     style={{
                         width,
-                        height: width * (FRAME_H / FRAME_W) + FRAME_PAD_TOP,
+                        height: width * (frameHeight / pageWidth) + topPad,
                         position: "relative",
                         flexShrink: 0,
                     }}
@@ -798,7 +828,7 @@ export default function MacysBagLoop({
                             overflow: "hidden",
                             background: "#FFFFFF",
                             borderRadius: frameRadius,
-                            paddingTop: FRAME_PAD_TOP,
+                            paddingTop: topPad,
                         }}
                     >
                         {/* The page at its own size, the result scaled. */}
@@ -806,7 +836,7 @@ export default function MacysBagLoop({
                             ref={pageRef}
                             className="macys-page"
                             style={{
-                                width: VIEW_W,
+                                width: pageWidth,
                                 // Translate first in page pixels, then scale,
                                 // so the camera's x/y stay in the page's own
                                 // coordinates whatever the zoom.
@@ -890,16 +920,17 @@ export default function MacysBagLoop({
                                 <section className="bag-page__main">
                                     <h1>Bag</h1>
 
-                                    <div className="bag-items">
+                                    <div className="bag-items" style={gallery ? { height: GALLERY_BAG_ROW_HEIGHT } : undefined}>
                                         {items.map((product, i) => (
                                             <div
                                                 key={`${product.id}-${i}`}
+                                                style={gallery ? { height: GALLERY_BAG_ROW_HEIGHT, transform: `translateY(-${displayAdded.length * GALLERY_BAG_ROW_HEIGHT}px)` } : undefined}
                                                 // Everything after the first
                                                 // line arrived during the
                                                 // loop, so it opens out
                                                 // rather than appearing.
                                                 className={
-                                                    i === 0
+                                                    gallery || i === 0
                                                         ? undefined
                                                         : "bag-item-enter"
                                                 }
@@ -1028,7 +1059,7 @@ export default function MacysBagLoop({
                                                     alt=""
                                                 />
                                                 <div className="exclusive-card__badge">
-                                                    <Lock />
+                                                    {displayUnlocked ? <Check /> : <Lock />}
                                                     <span>50% OFF</span>
                                                 </div>
                                             </div>
@@ -1252,7 +1283,7 @@ export default function MacysBagLoop({
                     </div>
                 </div>
             )}
-            {reduced && <p className="macys-reduced-summary">{reducedSummary}</p>}
+            {reduced && !gallery && <p className="macys-reduced-summary">{reducedSummary}</p>}
         </div>
     )
 }
