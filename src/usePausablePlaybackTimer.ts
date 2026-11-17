@@ -19,12 +19,15 @@ export class PausablePlaybackTimer {
     private timer: number | null = null
     private completed = false
     constructor(private readonly complete: () => void, private readonly scheduler: Scheduler = browserScheduler) {}
+    get remainingMs() {
+        if (this.remaining === null) return null
+        const elapsed = this.startedAt === null ? 0 : this.scheduler.now() - this.startedAt
+        return Math.max(0, this.remaining - elapsed)
+    }
     pause() {
         if (this.timer !== null) this.scheduler.cancel(this.timer)
         this.timer = null
-        if (this.startedAt !== null && this.remaining !== null) {
-            this.remaining = Math.max(0, this.remaining - (this.scheduler.now() - this.startedAt))
-        }
+        this.remaining = this.remainingMs
         this.startedAt = null
     }
     sync(key: string | number, duration: number | null, playing: boolean) {
@@ -62,6 +65,7 @@ export default function usePausablePlaybackTimer({ entryKey, duration, playing, 
         clock.current!.sync(entryKey, duration, playing)
         return () => clock.current!.pause()
     }, [entryKey, duration, playing])
+    return clock.current as Pick<PausablePlaybackTimer, "remainingMs">
 }
 
 /** CSS animations AND transitions pause at the same point as the story clock. */

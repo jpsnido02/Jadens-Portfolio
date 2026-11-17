@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react"
-import useStudySequence from "./useStudySequence"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import usePausablePlaybackTimer, { usePausableSubtreeAnimations } from "./usePausablePlaybackTimer"
 import "./kalshi-preview.css"
 
 // Illustrative quotes for the portfolio loop, not a live feed or a payout model.
@@ -53,16 +53,48 @@ function RollingValue({ value, previous, revision }: { value: string; previous: 
 export default function KalshiPreview({ playing }: { playing: boolean }) {
     const root = useRef<HTMLDivElement>(null)
     const [scale, setScale] = useState(0)
-    const phase = useStudySequence(PLAY_TIMING, playing, 3)
+    const [livePhase, setLivePhase] = useState(0)
+    const [reduced, setReduced] = useState(() => matchMedia("(prefers-reduced-motion: reduce)").matches)
+    useEffect(() => {
+        const preference = matchMedia("(prefers-reduced-motion: reduce)")
+        const sync = () => setReduced(preference.matches)
+        sync()
+        preference.addEventListener("change", sync)
+        return () => preference.removeEventListener("change", sync)
+    }, [])
+
+    const phase = reduced ? 3 : livePhase
+    const running = playing && !reduced
+    const duration = PLAY_TIMING[livePhase]
+    const clock = usePausablePlaybackTimer({
+        entryKey: livePhase,
+        duration,
+        playing: running,
+        onElapsed: () => setLivePhase(current => (current + 1) % PLAY_TIMING.length),
+    })
+    usePausableSubtreeAnimations(root, running, phase)
+
+    const wasReduced = useRef(reduced)
+    useLayoutEffect(() => {
+        // The poster replaces live CSS keyframes. Restore their playhead when
+        // returning to the live phase, including when the player is still paused.
+        if (wasReduced.current && !reduced) {
+            const elapsed = duration - (clock.remainingMs ?? duration)
+            for (const animation of root.current?.getAnimations?.({ subtree: true }) ?? []) {
+                if ("animationName" in animation) animation.currentTime = elapsed
+            }
+        }
+        wasReduced.current = reduced
+    }, [reduced, duration, clock])
     useEffect(() => {
         const observer = new ResizeObserver(([entry]) => setScale(Math.max(0, Math.min((entry.contentRect.width - 80) / 1200, (entry.contentRect.height - 80) / 870))))
         observer.observe(root.current!)
         return () => observer.disconnect()
     }, [])
     const quote = phase === 3 || phase === 4 ? QUOTES[1] : QUOTES[0]
-    const previous = phase === 3 ? QUOTES[0] : quote
+    const previous = !reduced && phase === 3 ? QUOTES[0] : quote
     const revision = phase
-    return <div ref={root} className="kalshi-preview" data-playing={playing} data-quote={quote.probability} data-play-phase={phase}>
+    return <div ref={root} className="kalshi-preview" data-playing={running} data-quote={quote.probability} data-play-phase={phase}>
         <div className="kalshi-stage" style={{ transform: `translate(-50%, -50%) scale(${scale})` }}>
             <FootballPlay phase={phase} />
             <div className="kalshi-ad">
