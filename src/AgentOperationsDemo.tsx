@@ -31,7 +31,7 @@ const TASKS:Task[]=[
 
 ]
 // Establish → arrive → pick up → drag → inspect/build → review → approve → drag to complete.
-const DURATIONS=[1100,1800,450,1300,400,1000,5200,1000,400,1300,1900,700,3200,450,1000,250,400,1300,2300,350,100]
+const DURATIONS=[1100,1800,180,1050,240,850,5200,180,180,1100,1900,160,3200,160,1000,220,180,1050,2300,350,100]
 const STARTS=DURATIONS.reduce<number[]>((a,d)=>[...a,a[a.length-1]+d],[0])
 const TOTAL=STARTS[STARTS.length-1]
 const clamp=(n:number)=>Math.max(0,Math.min(1,n))
@@ -75,11 +75,11 @@ const Shell=memo(function Shell(){return <>
  <div className="ado-action-bar"><span className="ado-search"><Icon icon={faMagnifyingGlass} size={15}/>Search requests</span><span className="ado-control"><Icon icon={faGear}/>Agent settings</span><span className="ado-control">Imports / Export<Icon icon={faChevronDown} size={10}/></span><span className="ado-add"><Icon icon={faPlus}/>Add request<Icon icon={faChevronDown} size={11}/></span></div>
  <div className="ado-view-bar"><div className="ado-view-switch"><span><Icon icon={faList} size={12}/>List</span><span className="selected"><Icon icon={faTableColumns} size={12}/>Kanban</span><span><Icon icon={faChartColumn} size={12}/>Timeline</span></div><div><span className="ado-control"><Icon icon={faFilter} size={12}/>Filter</span><span className="ado-control"><Icon icon={faSort} size={12}/>Sort</span><span className="ado-control"><Icon icon={faSliders} size={12}/>Group<Icon icon={faChevronDown} size={10}/></span></div></div>
  </div></>})
-const Ticket=memo(function Ticket({task,made,stage,click,press=0}:{task:Task;made:number;stage:Stage;click:boolean;press?:number}) {return <div className="ado-task" style={{transform:`scale(${1-press*.025})`}}>
+const Ticket=memo(function Ticket({task,made,stage,click,press=0,progress=made/task.total}:{task:Task;made:number;stage:Stage;click:boolean;press?:number;progress?:number}) {return <div className="ado-task" style={{transform:`scale(${1-press*.025})`}}>
  <div className="ado-task-brand"><img src={LOGOS[task.account]} alt={task.account}/><Icon icon={faEllipsis} size={13}/></div>
  <div className="ado-task-title">{task.title}</div><div className="ado-task-meta"><span>{task.owner}</span><i/><span>{task.due === "Today" ? "Due today" : task.due}</span></div>
  <div className="ado-task-footer"><span>Mock status <b>{made}<em>/{task.total}</em></b></span><span className={`ado-task-action ${stage === "For review"?"review":""}`}>{stage === "Queue" ? "Start build" : stage === "For review" ? "Review build" : "View build"}{click && <span className="uber-tap ado-tap"/>}</span></div>
- <div className="ado-progress"><span style={{transform:`scaleX(${made/task.total})`}}/></div>
+ <div className="ado-progress"><span style={{transform:`scaleX(${progress})`}}/></div>
  </div>})
 function frame(time:number,size:{w:number;h:number}) {
  let phase=0;while(phase<DURATIONS.length-1&&time>=STARTS[phase+1])phase++
@@ -99,22 +99,25 @@ function frame(time:number,size:{w:number;h:number}) {
  if([3,9,17].includes(phase)){held=true;rotation=mix(-2.7,-.7,dragProgress)-1.4*Math.sin(2*Math.PI*dragProgress);lift=-5-24*Math.sin(Math.PI*dragProgress)}
  if([4,10,18].includes(phase)){rotation=-.7*(1-ease(local/220));lift=-5*(1-ease(local/220))}
  const stage:Stage=phase<4||phase===20?"Queue":phase<10?"Building":phase<18?"For review":"Complete"
- const made=phase<6||phase===20?0:Math.floor(14*ease((time-STARTS[6])/4800))
- let zoom=0;if(phase===5)zoom=ease(p);else if(phase===6)zoom=1;else if(phase===7)zoom=1-ease(p)
+ const buildProgress=phase<6||phase===20?0:ease((time-STARTS[6])/4800)
+ const made=Math.floor(14*buildProgress)
+ let zoom=0;if(phase===5)zoom=ease(p);else if(phase>=6&&phase<=8)zoom=1;else if(phase===9)zoom=1-ease(p)
  const compact=size.w>0&&size.w<500
  const base=Math.max(0,(size.w-48)/W)
  const s=compact?Math.max(0,(size.w-44)/CARD_W):base*mix(1,1.85,zoom)
- const anchor={x:BOARD_X+COL_STEP+8+CARD_W/2,y:CARD_Y+CARD_H/2}
+ const anchor={x:BOARD_X+col*COL_STEP+8+CARD_W/2,y:CARD_Y+CARD_H/2}
  const wide={x:(size.w-W*base)/2,y:24},close={x:size.w/2-anchor.x*base*1.85,y:size.h/2-anchor.y*base*1.85}
  const tx=compact?size.w/2-(BOARD_X+8+col*COL_STEP+CARD_W/2)*s:mix(wide.x,close.x,zoom)
  const ty=compact?110-CARD_Y*s:mix(wide.y,close.y,zoom)
- const opacity=phase===19?1-ease(p):phase===20?0:1
+ const opacity=1
+ const contact=[2,8,16].includes(phase)?ease(p):[3,9,17].includes(phase)?1:[4,10,18].includes(phase)?1-ease(local/220):0
  const modal=phase>=12&&phase<=15,approved=phase>=14
  const modalIn=phase===12?ease(local/280):phase===15?1-ease(local/220):1
  const modalScale=compact?Math.min(1,(size.w-36)/326,(size.h-36)/340):Math.min(.82,(size.w*.68)/620,(size.h*.8)/480)
- const focalPress=phase===11?Math.sin(clamp(local/300)*Math.PI):0
+ const pressTime=phase===11?local:phase===12?local+DURATIONS[11]:280
+ const focalPress=Math.sin(clamp(pressTime/280)*Math.PI)
  const focusX=BOARD_X+8+col*COL_STEP,focusY=CARD_Y+lift
- return {phase,local,p,present,arrival,occupancy,col,held,stage,made,compact,s,tx,ty,opacity,modal,approved,modalIn,modalScale,focalPress,focusX,focusY,rotation}
+ return {phase,local,p,present,arrival,occupancy,col,held,stage,made,buildProgress,contact,compact,s,tx,ty,opacity,modal,approved,modalIn,modalScale,focalPress,focusX,focusY,rotation}
 }
 function useTimeline(playing:boolean,reduced:boolean,onFrame:(t:number)=>void) {
  const [time,setTime]=useState(()=>reduced?STARTS[10]+500:0)
@@ -135,18 +138,23 @@ export function AgentDashboard({playing,interactive:_interactive=false}:{playing
  useEffect(()=>{const ro=new ResizeObserver(([e])=>setSize({w:e.contentRect.width,h:e.contentRect.height}));ro.observe(root.current!);return()=>ro.disconnect()},[])
  const scene=useRef<HTMLDivElement>(null),focal=useRef<HTMLDivElement>(null),slots=useRef<(HTMLDivElement|null)[]>([]),modalLayer=useRef<HTMLDivElement>(null),modalBox=useRef<HTMLDivElement>(null)
  const entranceGroups=useRef<HTMLElement[]>([])
+ const progressFill=useRef<HTMLElement|null>(null),contactMark=useRef<HTMLElement|null>(null),liftShadow=useRef<HTMLElement|null>(null)
+ useEffect(()=>{progressFill.current=focal.current?.querySelector(".ado-progress>span")??null;contactMark.current=focal.current?.querySelector(".ado-grab")??null;liftShadow.current=focal.current?.querySelector(".ado-lift-shadow")??null},[])
  useEffect(()=>{entranceGroups.current=Array.from(scene.current?.querySelectorAll<HTMLElement>(".ado-entry-group")??[])},[])
  const elapsed=useTimeline(playing,reduced,t=>{
   const f=frame(t,size)
-  entranceGroups.current.forEach(el=>{const progress=f.phase===0?ease((f.local-Number(el.dataset.entryStart))/Number(el.dataset.entryDuration)):1;el.style.opacity=String(progress);el.style.transform=`translateY(${Number(el.dataset.entryDistance)*(1-progress)}px)`})
+  entranceGroups.current.forEach(el=>{const progress=f.phase===0?ease((f.local-Number(el.dataset.entryStart))/Number(el.dataset.entryDuration)):f.phase===19?1-ease(f.p):f.phase===20?0:1;el.style.opacity=String(progress);el.style.transform=`translateY(${Number(el.dataset.entryDistance)*(f.phase===0?1-progress:0)}px)`})
   if(scene.current){scene.current.style.transform=`matrix(${f.s},0,0,${f.s},${f.tx},${f.ty})`;scene.current.style.opacity=String(f.opacity)}
   slots.current.forEach((el,index)=>{if(!el)return;const task=TASKS[index],i=COLUMNS.indexOf(task.stage),row=TASKS.filter(t=>t.stage===task.stage).findIndex(t=>t.id===task.id);el.style.transform=`translate(${BOARD_X+8+i*COL_STEP}px,${CARD_Y+(row+f.occupancy[i])*ROW_STEP}px)`})
   if(focal.current){focal.current.style.transform=`translate(${f.focusX}px,${f.focusY+(f.phase===1?8*(1-f.arrival):0)}px) rotate(${f.rotation}deg)`;focal.current.style.opacity=String(f.arrival);const card=focal.current.firstElementChild as HTMLElement|null;if(card)card.style.transform=`scale(${1-f.focalPress*.025})`}
+  if(progressFill.current)progressFill.current.style.transform=`scaleX(${f.buildProgress})`
+  if(contactMark.current)contactMark.current.style.opacity=String(f.contact)
+  if(liftShadow.current)liftShadow.current.style.opacity=String(f.contact)
   if(modalLayer.current)modalLayer.current.style.opacity=String(f.modalIn)
   if(modalBox.current)modalBox.current.style.transform=`scale(${f.modalScale*mix(.98,1,f.modalIn)}) translateY(${8*(1-f.modalIn)}px)`
  }),time=reduced?STARTS[10]+500:elapsed
  const f=frame(time,size)
- const {phase,local,p,present,arrival,occupancy,col,held,stage,made,compact,s,tx,ty,opacity,modal,approved,modalIn,modalScale,focalPress,focusX,focusY,rotation}=f
+ const {phase,local,p,present,arrival,occupancy,col,held,stage,made,buildProgress,contact,compact,s,tx,ty,opacity,modal,approved,modalIn,modalScale,focalPress,focusX,focusY,rotation}=f
 
  return <div ref={root} className={`ado-stage ${compact?"ado-compact":""} ${!playing?"ado-paused":""}`} data-agent-phase={phase} data-agent-stage={stage} data-agent-mocks={made}>
   <div ref={scene} className="ado-scene" style={{width:W,height:H,opacity,transform:`matrix(${s},0,0,${s},${tx},${ty})`}}>
@@ -156,7 +164,7 @@ export function AgentDashboard({playing,interactive:_interactive=false}:{playing
    </div>
    {TASKS.map((task,index)=>{const i=COLUMNS.indexOf(task.stage),row=TASKS.filter(t=>t.stage===task.stage).findIndex(t=>t.id===task.id);return <div ref={el=>{slots.current[index]=el}} key={task.id} className="ado-ticket-slot" data-ticket={task.id} style={{width:CARD_W,height:CARD_H,transform:`translate(${BOARD_X+8+i*COL_STEP}px,${CARD_Y+(row+occupancy[i])*ROW_STEP}px)`}}><Ticket task={task} made={task.made} stage={task.stage} click={false}/></div>})}
    <div ref={focal} className={`ado-ticket-slot ado-focal ${held?"ado-held":""}`} data-ticket="DS-103" style={{width:CARD_W,height:CARD_H,opacity:arrival,transform:`translate(${focusX}px,${focusY+(phase===1?8*(1-arrival):0)}px) rotate(${rotation}deg)`,zIndex:held?10:3}}>
-    <Ticket task={FOCAL} made={made} stage={stage} click={phase===11} press={focalPress}/>{held&&<span className="ado-grab"/>}
+    <Ticket task={FOCAL} made={made} stage={stage} progress={buildProgress} click={phase===11||(phase===12&&local<120)} press={focalPress}/><span className="ado-lift-shadow" style={{opacity:contact}}/><span className="ado-grab" style={{opacity:contact}}/>
    </div></div>
   </div>
   {compact&&<div className="ado-mini-browser"><span className="ado-lights"><i/><i/><i/></span><span>Design Agents</span><Icon icon={faEllipsis} size={12}/></div>}
@@ -167,7 +175,7 @@ export function AgentDashboard({playing,interactive:_interactive=false}:{playing
    <div className="ado-review-summary"><div><span>Mock status</span><strong>14 / 14</strong></div><div><span>Build time</span><strong>5m 58s</strong></div><div><span>Brand system</span><strong>Shutterfly</strong></div></div>
    <div className="ado-review-links"><span><FigmaMark/>Figma</span><span><Icon icon={faGoogleDrive} size={17}/>Google Drive</span><span><ChatMark/>Google Chat</span></div>
    <div className="ado-review-checks"><div>Before you approve<span>3 checks completed</span></div><span><Icon icon={faCheck} size={12}/>Brand tokens match the account</span><span><Icon icon={faCheck} size={12}/>Responsive layouts reviewed</span><span><Icon icon={faCheck} size={12}/>Contrast and layout QA complete</span></div>
-   <div className="ado-modal-footer"><span>Request changes</span><span className={`ado-approve ${approved?"approved":""}`}><Icon icon={faCheck} size={13}/>{approved?"Approved":"Approve build"}{phase===13&&<span className="uber-tap ado-tap"/>}</span></div>
+   <div className="ado-modal-footer"><span>Request changes</span><span className={`ado-approve ${approved?"approved":""}`}><Icon icon={faCheck} size={13}/>{approved?"Approved":"Approve build"}{(phase===13||(phase===14&&local<120))&&<span className="uber-tap ado-tap"/>}</span></div>
   </div></div>}
  </div>
 }
