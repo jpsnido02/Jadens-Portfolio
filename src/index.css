@@ -720,8 +720,7 @@ dl {
 }
 .macys-page .quick-picks__nav {
     position: absolute;
-    /* Card padding (12px) + half the image height (119px). */
-    top: calc(12px + 119px / 2);
+    top: 50%;
     transform: translateY(-50%);
     display: flex;
     align-items: center;
