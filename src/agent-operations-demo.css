@@ -96,3 +96,7 @@
 .ado-stage[data-agent-phase="0"] .ado-board-group{opacity:0;transform:translateY(32px)}
 .ado-stage[data-agent-phase="0"] .ado-side-group{opacity:0;transform:translateY(20px)}
 .ado-stage[data-agent-phase="0"] .ado-controls-group{opacity:0;transform:translateY(16px)}
+
+/* A sustained hold keeps contact and depth continuous through pickup and release. */
+.ado-held>.ado-task{box-shadow:0 1px 2px #26344807;border-color:#dfe3e9}
+.ado-lift-shadow{position:absolute;inset:0;border-radius:10px;box-shadow:0 15px 30px #28374728,0 3px 6px #2026300c;pointer-events:none}
