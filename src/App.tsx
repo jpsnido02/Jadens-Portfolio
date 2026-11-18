@@ -26,8 +26,13 @@ function transition(update: () => void) {
     activeTransition?.skipTransition()
     const commit = () => { if (version === transitionVersion) flushSync(update) }
     if (document.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        // Capture square-edged content; one transition mask owns the silhouette.
+        if (CSS.supports("view-transition-class", "project-card")) document.documentElement.classList.add("project-snapshots")
         activeTransition = document.startViewTransition(commit)
-    } else { activeTransition = undefined; commit() }
+        void activeTransition.finished.catch(() => {}).then(() => {
+            if (version === transitionVersion) document.documentElement.classList.remove("project-snapshots")
+        })
+    } else { document.documentElement.classList.remove("project-snapshots"); activeTransition = undefined; commit() }
 }
 export default function App() {
     const { theme, palette, toggle } = useTheme()
@@ -56,6 +61,7 @@ export default function App() {
             ++transitionVersion
             activeTransition?.skipTransition()
             activeTransition = undefined
+            document.documentElement.classList.remove("project-snapshots")
             flushSync(() => { setNavigationBusy(true); setSelected(slug) })
         } else transition(() => { setNavigationBusy(true); setSelected(slug) })
         if (push) {
@@ -173,7 +179,7 @@ export default function App() {
             </section>
             <div className="work-heading"><span>WORK PROJECTS <span className="project-count">{String(workCount).padStart(2, "0")}</span></span><button className="motion-control" aria-pressed={motion} onClick={() => setMotion(!motion)}><SiteIcon name={motion ? "pause" : "play"} size={12} /> <span>{motion ? "Motion on" : "Motion paused"}</span></button></div>
             <div className="project-grid">
-                {projects.map((project, index) => <Fragment key={project.title}>{index === workCount && <h2 className="project-group-heading">PERSONAL PROJECTS <span>{String(projects.length - workCount).padStart(2, "0")}</span></h2>}<a ref={element => { if (element) projectTiles.current.set(slugs[index], element); else projectTiles.current.delete(slugs[index]) }} data-project={slugs[index]} href={`?project=${slugs[index]}`} className={`project-tile ${selected === slugs[index] ? "is-selected" : ""}`} onClick={event => open(event, slugs[index])} onPointerEnter={project.component === "macys-bag" ? () => setMacysReplay(value => value + 1) : undefined} onFocus={project.component === "macys-bag" ? () => setMacysReplay(value => value + 1) : undefined} aria-current={selected === slugs[index] ? "page" : undefined} aria-label={`${project.title}${project.comingSoon ? ", case study in progress" : ""}`} style={{ "--tile-index": index, viewTransitionName: `project-${index}` } as CSSProperties}>
+                {projects.map((project, index) => <Fragment key={project.title}>{index === workCount && <h2 className="project-group-heading">PERSONAL PROJECTS <span>{String(projects.length - workCount).padStart(2, "0")}</span></h2>}<a ref={element => { if (element) projectTiles.current.set(slugs[index], element); else projectTiles.current.delete(slugs[index]) }} data-project={slugs[index]} href={`?project=${slugs[index]}`} className={`project-tile ${selected === slugs[index] ? "is-selected" : ""}`} onClick={event => open(event, slugs[index])} onPointerEnter={project.component === "macys-bag" ? () => setMacysReplay(value => value + 1) : undefined} onFocus={project.component === "macys-bag" ? () => setMacysReplay(value => value + 1) : undefined} aria-current={selected === slugs[index] ? "page" : undefined} aria-label={`${project.title}${project.comingSoon ? ", case study in progress" : ""}`} style={{ "--tile-index": index, viewTransitionName: `project-${index}`, viewTransitionClass: "project-card" } as CSSProperties}>
                     <div className="tile-visual gallery-preview" hidden={Boolean(selected)}><ProjectCover project={project} index={Math.max(0, workProjects.indexOf(project))} live={motion && !selected && !navigationBusy} focused replayKey={project.component === "macys-bag" ? macysReplay : 0} /><div className="tile-caption"><div className="tile-caption-line"><strong>{projectLabels[slugs[index]] ?? personalMeta[slugs[index]]?.label ?? project.title}</strong><span className="tile-caption-separator">: </span><span>{personalMeta[slugs[index]]?.summary ?? project.description}</span></div>{project.comingSoon && <span className="tile-wip">Case study in progress</span>}</div></div>
                     {selected && <div className="tile-visual rail-mark" title={project.title}>
                         <ProjectRailMark slug={slugs[index]} title={project.title} />

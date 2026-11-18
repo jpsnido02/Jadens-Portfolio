@@ -55,3 +55,35 @@
     .portfolio.is-reading .tile-visual { border-radius: 16px; }
     .study-page .study-hero.reader-hero { border-radius: 20px; }
 }
+
+/* Keep the rail-to-gallery handoff inside one continuously rounded silhouette.
+   Square capture surfaces avoid scaling their baked-in corner radii. */
+html.project-snapshots .portfolio .project-tile,
+html.project-snapshots .portfolio .tile-visual { border-radius: 0; }
+html.project-snapshots .portfolio .project-tile { opacity: 1; transition: none; }
+::view-transition-image-pair(*.project-card) {
+    overflow: clip;
+    border-radius: 18px;
+    animation: project-snapshot-corners var(--project-transition-duration) var(--project-transition-ease) both;
+}
+html:has(.portfolio.is-reading)::view-transition-image-pair(*.project-card) { animation-direction: reverse; }
+::view-transition-old(*.project-card),
+::view-transition-new(*.project-card) {
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    mix-blend-mode: normal;
+}
+/* Keep the preview solid beneath the departing logo, instead of two translucent
+   surfaces revealing the page through each other. Travel still lasts 700ms. */
+::view-transition-old(*.project-card) {
+    z-index: 2;
+    animation: project-snapshot-out 180ms ease-out both;
+}
+::view-transition-new(*.project-card) { z-index: 1; animation: none; }
+@keyframes project-snapshot-out { to { opacity: 0; } }
+@keyframes project-snapshot-corners { from { border-radius: 12px; } to { border-radius: 18px; } }
+@supports (corner-shape: superellipse(1.4)) {
+    ::view-transition-image-pair(*.project-card) { corner-shape: superellipse(1.4); }
+    @keyframes project-snapshot-corners { from { border-radius: 16px; } to { border-radius: 24px; } }
+}
