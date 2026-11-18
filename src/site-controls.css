@@ -44,9 +44,9 @@
 
 @supports (corner-shape: superellipse(1.4)) {
     /* A slightly longer corner lets the curve ease into the straight edge. */
-    .project-tile,
-    .tile-visual { border-radius: 24px; }
-    .is-reading .project-tile,
-    .is-reading .tile-visual { border-radius: 16px; }
+    .portfolio .project-tile,
+    .portfolio .tile-visual { border-radius: 24px; }
+    .portfolio.is-reading .project-tile,
+    .portfolio.is-reading .tile-visual { border-radius: 16px; }
     .study-page .study-hero.reader-hero { border-radius: 20px; }
 }
