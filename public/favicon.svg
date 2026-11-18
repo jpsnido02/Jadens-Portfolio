@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="palette" x1="0" y1="0.45" x2="1" y2="0.55">
+      <stop stop-color="#ff7a35"/>
+      <stop offset=".5" stop-color="#ed3b78"/>
+      <stop offset="1" stop-color="#7456e8"/>
+    </linearGradient>
+    <radialGradient id="light" cx=".49" cy=".5" r=".56">
+      <stop stop-color="#fff" stop-opacity=".88"/>
+      <stop offset=".36" stop-color="#fff" stop-opacity=".65"/>
+      <stop offset=".72" stop-color="#fff" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft-edge" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="1.2"/>
+    </filter>
+    <filter id="glow" x="-15%" y="-15%" width="130%" height="130%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+  </defs>
+  <circle cx="128" cy="128" r="112" fill="url(#palette)" opacity=".3" filter="url(#glow)"/>
+  <g filter="url(#soft-edge)">
+    <circle cx="128" cy="128" r="112" fill="url(#palette)"/>
+    <circle cx="128" cy="128" r="112" fill="url(#light)"/>
+  </g>
+</svg>

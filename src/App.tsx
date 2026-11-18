@@ -146,10 +146,10 @@ export default function App() {
         select(slug)
     }
     const style = { "--gallery-bg": theme === "dark" ? "#111111" : "#ffffff", "--gallery-ink": theme === "dark" ? "#ffffff" : "#171717", "--gallery-muted": theme === "dark" ? "#b5b5b5" : "#707070", "--gallery-line": theme === "dark" ? "#353535" : "#e5e5e5", "--gallery-surface": theme === "dark" ? "#1a1a1a" : "#ffffff" } as CSSProperties
-    return <div className={`portfolio ${selected ? "is-reading" : ""} ${hasOpenedProject.current ? "has-opened-project" : ""} ${!motion ? "motion-paused" : ""}`} style={style}>
+    return <div className={`portfolio ${selected ? "is-reading" : ""} ${hasOpenedProject.current ? "has-opened-project" : ""} ${!motion ? "motion-paused" : ""}`} style={style} data-theme={theme}>
         <div ref={gallery} className="gallery-scroll" inert={about} aria-label={selected ? "Choose another project" : "Portfolio"}>
             <header className="gallery-header">
-                <a className="wordmark" href="./" aria-label="Jaden Snyder home"><img src="/favicon.png" alt="" width="42" height="42" /></a>
+                <a className="wordmark" href="./" aria-label="Jaden Snyder home"><img src="/favicon.svg" alt="" width="42" height="42" /></a>
                 <nav aria-label="Main navigation"><button onClick={() => setAbout(true)}>About</button><a href={intro.links.find(l => l.label === "Resume")?.url} target="_blank" rel="noreferrer">Resume</a><a className="contact-link" href="mailto:jadenpsnyder02@gmail.com"><span>Let’s talk</span><SiteIcon name="external" size={13} /></a></nav>
             </header>
             <section className="gallery-intro">

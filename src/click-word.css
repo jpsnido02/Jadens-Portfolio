@@ -6,22 +6,23 @@
     padding:0; margin:0; border:0; background:none; border-radius:0;
     color:var(--gallery-ink); font:inherit; font-weight:inherit; letter-spacing:inherit;
     line-height:inherit; cursor:pointer; white-space:nowrap; touch-action:manipulation;
-    -webkit-tap-highlight-color:transparent; --click-pink:var(--accent-pink,#f52d9c); --click-lavender:var(--accent-lavender,#b49bd5); --click-cyan:var(--accent-cyan,#06a0c5);
+    -webkit-tap-highlight-color:transparent; --click-tangerine:var(--accent-tangerine,#ff7a35); --click-raspberry:var(--accent-raspberry,#ed3b78); --click-violet:var(--accent-violet,#7456e8);
 }
 .portfolio .click-word:focus-visible { outline:2px solid currentColor; outline-offset:8px; border-radius:2px; }
 .click-letters { display:inline-block; position:relative; transform-origin:50% 78%; scale:1; }
 .click-letter { display:inline-block; position:relative; }
-.click-ink { position:absolute; inset:-.12em; padding:.12em; color:transparent; -webkit-text-fill-color:transparent; background-image:var(--click-ribbon); background-origin:content-box; background-size:var(--word-width) 100%; background-position:calc(var(--word-width) * (var(--click-front) - 1) - var(--glyph-left)) 0; background-repeat:no-repeat; -webkit-background-clip:text; background-clip:text;
+.click-ink { position:absolute; inset:-.12em; padding:.12em; color:transparent; -webkit-text-fill-color:transparent; background-image:var(--click-ink-ribbon); background-origin:content-box; background-size:var(--word-width) 100%; background-position:calc(var(--word-width) * (var(--click-front) - 1) - var(--glyph-left)) 0; background-repeat:no-repeat; -webkit-background-clip:text; background-clip:text;
     /* Both the traveling fill and black erase move cl -> ic -> k. */
     clip-path:inset(0 clamp(0px,calc(var(--glyph-right) + .24em - (var(--word-width) + .24em) * var(--click-front)),calc(var(--glyph-width) + .24em)) 0 clamp(0px,calc((var(--word-width) + .24em) * var(--click-back) - var(--glyph-left)),calc(var(--glyph-width) + .24em)));
 }
 .click-line-track { position:absolute; left:0; right:0; bottom:-.1em; height:.09em; min-height:3px; overflow:hidden; pointer-events:none; }
 .click-line { display:block; width:100%; height:100%; background:var(--click-colors); }
-/* Pink, lavender, and logo-hued blue share the same palette in the line and text. */
+/* Original palette. Only the light-theme orange letter fill is deepened for contrast. */
 .click-word { --click-cycle:2000ms; --click-ease:cubic-bezier(.65,0,.35,1);
-    --click-forward:linear-gradient(90deg,var(--click-pink) 0 var(--click-first-stop,33.333%),var(--click-lavender) var(--click-first-stop,33.333%) var(--click-second-stop,66.666%),var(--click-cyan) var(--click-second-stop,66.666%) 100%);
-    --click-reverse:linear-gradient(90deg,var(--click-cyan) 0 var(--click-first-stop,33.333%),var(--click-lavender) var(--click-first-stop,33.333%) var(--click-second-stop,66.666%),var(--click-pink) var(--click-second-stop,66.666%) 100%);
+    --click-forward:linear-gradient(90deg,var(--click-tangerine) 0 var(--click-first-stop,33.333%),var(--click-raspberry) var(--click-first-stop,33.333%) var(--click-second-stop,66.666%),var(--click-violet) var(--click-second-stop,66.666%) 100%);
+    --click-reverse:linear-gradient(90deg,var(--click-violet) 0 var(--click-first-stop,33.333%),var(--click-raspberry) var(--click-first-stop,33.333%) var(--click-second-stop,66.666%),var(--click-tangerine) var(--click-second-stop,66.666%) 100%);
     --click-colors:var(--click-forward); --click-ribbon:var(--click-reverse);
+    --click-ink-ribbon:linear-gradient(90deg,var(--click-violet) 0 var(--click-first-stop,33.333%),var(--click-raspberry) var(--click-first-stop,33.333%) var(--click-second-stop,66.666%),var(--accent-ink-tangerine,#ec6b25) var(--click-second-stop,66.666%) 100%);
 }
 .click-word.is-running .click-line { animation:click-line-cycle var(--click-cycle) var(--click-ease) forwards; }
 .click-word.is-running .click-letter { animation:click-letter-hop 380ms var(--click-ease) both; animation-delay:calc(var(--letter-index)*70ms); }
