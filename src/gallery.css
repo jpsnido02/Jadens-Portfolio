@@ -8,7 +8,9 @@ html[data-page="home"] #root { overflow:hidden; }
 .wordmark { font-size:19px; font-weight:800; letter-spacing:-.06em; }
 .gallery-header nav { display:flex; gap:28px; align-items:center; font-size:12px; font-weight:600; }
 .gallery-header button { padding:12px 0; border:0; background:none; }
-.contact-link { display:flex; align-items:center; gap:26px; border-radius:30px; padding:13px 19px; color:#fff!important; background:var(--homepage-primary); transition:background .25s,transform .25s; }
+.contact-link { display:inline-flex; align-items:center; justify-content:center; gap:12px; line-height:1; white-space:nowrap; border-radius:30px; padding:13px 19px; color:#fff!important; background:var(--homepage-primary); transition:background .25s,transform .25s; }
+.contact-link>span { display:block; }
+.contact-link>.site-icon { display:block; vertical-align:0; }
 .contact-link:hover { background:var(--homepage-primary-hover); color:#fff!important; transform:translateY(-2px); }
 .gallery-intro { display:flex; align-items:flex-end; justify-content:space-between; gap:35px; padding:18px 0 34px; }
 .eyebrow { margin:0 0 19px; font-size:10px; font-weight:600; letter-spacing:.11em; display:flex; align-items:center; gap:9px; }

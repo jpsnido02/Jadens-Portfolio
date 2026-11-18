@@ -150,7 +150,7 @@ export default function App() {
         <div ref={gallery} className="gallery-scroll" inert={about} aria-label={selected ? "Choose another project" : "Portfolio"}>
             <header className="gallery-header">
                 <a className="wordmark" href="./" aria-label="Jaden Snyder home"><img src="/favicon.png" alt="" width="42" height="42" /></a>
-                <nav aria-label="Main navigation"><button onClick={() => setAbout(true)}>About</button><a href={intro.links.find(l => l.label === "Resume")?.url} target="_blank" rel="noreferrer">Resume</a><a className="contact-link" href="mailto:jadenpsnyder02@gmail.com">Let’s talk <SiteIcon name="external" size={13} /></a></nav>
+                <nav aria-label="Main navigation"><button onClick={() => setAbout(true)}>About</button><a href={intro.links.find(l => l.label === "Resume")?.url} target="_blank" rel="noreferrer">Resume</a><a className="contact-link" href="mailto:jadenpsnyder02@gmail.com"><span>Let’s talk</span><SiteIcon name="external" size={13} /></a></nav>
             </header>
             <section className="gallery-intro">
                 <div><h1>Hi, I’m Jaden<br /><span>I create designs that</span>{" "}<ClickWord /></h1></div>
