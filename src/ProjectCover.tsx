@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react"
+import { memo, useEffect, useRef, useState, type ReactNode } from "react"
 import UberAdsLoop from "./UberAdsLoop"
 import MacysBagLoop from "./MacysBagLoop"
 import { AgentDashboard, ShoppableDashboard } from "./PortfolioWorkbench"
@@ -26,19 +26,26 @@ function Stage({ children, kind }: { children: ReactNode; kind: string }) {
     </div>
 }
 
-export default function ProjectCover({ project, index, live = true, focused = false, replayKey = 0 }: { project: ProjectData; index: number; live?: boolean; focused?: boolean; replayKey?: number; interactive?: boolean }) {
+function ProjectCover({ project, index, live = true, focused = false, replayKey = 0 }: { project: ProjectData; index: number; live?: boolean; focused?: boolean; replayKey?: number; interactive?: boolean }) {
     const ref = useRef<HTMLDivElement>(null)
     const [visible, setVisible] = useState(false)
+    const [activated, setActivated] = useState(!focused)
     const [reduced, setReduced] = useState(() => matchMedia("(prefers-reduced-motion: reduce)").matches)
     useEffect(() => {
         const mq = matchMedia("(prefers-reduced-motion: reduce)")
         const change = () => setReduced(mq.matches)
         mq.addEventListener("change", change)
-        const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { rootMargin: "80px" })
+        const observer = new IntersectionObserver(([entry]) => {
+            setVisible(entry.isIntersecting)
+            if (entry.isIntersecting) setActivated(true)
+        }, { rootMargin: "80px" })
         observer.observe(ref.current!)
         return () => { observer.disconnect(); mq.removeEventListener("change", change) }
     }, [])
     const playing = live && visible && !reduced
+    // Mount gallery demos only once they approach the viewport; keep visited demos
+    // alive so returning from a case study does not reconstruct the whole gallery.
+    if (!activated) return <div ref={ref} className="project-cover" aria-hidden="true" inert />
     const kind = project.component
     if (project.link?.includes("expedia-1p-3p")) return <div ref={ref} className="project-cover project-cover--expedia" aria-hidden="true" inert><ExpediaComposition /></div>
     if (kind === "kalshi-live") return <div ref={ref} className={`project-cover ${!playing ? "is-paused" : ""}`} aria-hidden="true" inert><KalshiPreview playing={playing} /></div>
@@ -56,3 +63,5 @@ export default function ProjectCover({ project, index, live = true, focused = fa
         {!kind && <div className="photo-composition"><picture>{project.imageMobile && <source media="(max-width:620px)" srcSet={project.imageMobile}/>}<img className="cover-photo" src={project.image.src} alt="" loading="lazy" /></picture></div>}
     </div>
 }
+
+export default memo(ProjectCover)

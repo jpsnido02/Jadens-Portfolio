@@ -35,6 +35,7 @@ export default function App() {
     const selectedRef = useRef(selected)
     const hasOpenedProject = useRef(Boolean(selected))
     const [motion, setMotion] = useState(true)
+    const [navigationBusy, setNavigationBusy] = useState(false)
     const [about, setAbout] = useState(false)
     const [macysReplay, setMacysReplay] = useState(0)
     const gallery = useRef<HTMLDivElement>(null)
@@ -48,15 +49,15 @@ export default function App() {
     const selectedIndex = selected ? slugs.indexOf(selected) : -1
     const select = (slug: string | null, push = true) => {
         if (slug === selectedRef.current) return
-        const opening = Boolean(slug && !selectedRef.current)
         if (!selectedRef.current) galleryPosition.current = gallery.current?.scrollTop ?? 0
         if (slug) hasOpenedProject.current = true
         selectedRef.current = slug
         if (slug && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            ++transitionVersion
             activeTransition?.skipTransition()
             activeTransition = undefined
-            flushSync(() => setSelected(slug))
-        } else transition(() => setSelected(slug))
+            flushSync(() => { setNavigationBusy(true); setSelected(slug) })
+        } else transition(() => { setNavigationBusy(true); setSelected(slug) })
         if (push) {
             const url = new URL(location.href)
             url.hash = ""
@@ -71,7 +72,7 @@ export default function App() {
             if (!selectedRef.current && next) galleryPosition.current = gallery.current?.scrollTop ?? 0
             if (next) hasOpenedProject.current = true
             selectedRef.current = next
-            transition(() => setSelected(next))
+            transition(() => { setNavigationBusy(true); setSelected(next) })
         }
         window.addEventListener("popstate", pop)
         return () => window.removeEventListener("popstate", pop)
@@ -101,6 +102,13 @@ export default function App() {
             opener.current?.focus({ preventScroll: true })
         }
         previousSelected.current = selected
+    }, [selected])
+    useEffect(() => {
+        let cancelled = false
+        const completion = activeTransition?.finished ?? casePanel.current?.getAnimations()[0]?.finished
+        if (completion) void completion.catch(() => {}).then(() => { if (!cancelled) setNavigationBusy(false) })
+        else setNavigationBusy(false)
+        return () => { cancelled = true }
     }, [selected])
     useEffect(() => {
         if (!selected) return
@@ -165,16 +173,13 @@ export default function App() {
             <div className="work-heading"><span>WORK PROJECTS <span className="project-count">{String(workCount).padStart(2, "0")}</span></span><button className="motion-control" aria-pressed={motion} onClick={() => setMotion(!motion)}><SiteIcon name={motion ? "pause" : "play"} size={12} /> <span>{motion ? "Motion on" : "Motion paused"}</span></button></div>
             <div className="project-grid">
                 {projects.map((project, index) => <Fragment key={project.title}>{index === workCount && <h2 className="project-group-heading">PERSONAL PROJECTS <span>{String(projects.length - workCount).padStart(2, "0")}</span></h2>}<a ref={element => { if (element) projectTiles.current.set(slugs[index], element); else projectTiles.current.delete(slugs[index]) }} data-project={slugs[index]} href={`?project=${slugs[index]}`} className={`project-tile ${selected === slugs[index] ? "is-selected" : ""}`} onClick={event => open(event, slugs[index])} onPointerEnter={project.component === "macys-bag" ? () => setMacysReplay(value => value + 1) : undefined} onFocus={project.component === "macys-bag" ? () => setMacysReplay(value => value + 1) : undefined} aria-current={selected === slugs[index] ? "page" : undefined} aria-label={`${project.title}${project.comingSoon ? ", case study in progress" : ""}`} style={{ "--tile-index": index, viewTransitionName: `project-${index}` } as CSSProperties}>
-                    {selected ? (
-                        <div className="tile-visual rail-mark" title={project.title}>
-                            <ProjectRailMark slug={slugs[index]} title={project.title} />
-                            {selected === slugs[index] && <span className="rail-selected-name" aria-hidden="true">
-                                {railProjectTitle[slugs[index]] ?? project.title}
-                            </span>}
-                        </div>
-                    ) : (
-                        <div className="tile-visual"><ProjectCover project={project} index={Math.max(0, workProjects.indexOf(project))} live={motion} focused replayKey={macysReplay} /><div className="tile-caption"><div className="tile-caption-line"><strong>{projectLabels[slugs[index]] ?? personalMeta[slugs[index]]?.label ?? project.title}</strong><span className="tile-caption-separator">: </span><span>{personalMeta[slugs[index]]?.summary ?? project.description}</span></div>{project.comingSoon && <span className="tile-wip">Case study in progress</span>}</div></div>
-                    )}
+                    <div className="tile-visual gallery-preview" hidden={Boolean(selected)}><ProjectCover project={project} index={Math.max(0, workProjects.indexOf(project))} live={motion && !selected && !navigationBusy} focused replayKey={project.component === "macys-bag" ? macysReplay : 0} /><div className="tile-caption"><div className="tile-caption-line"><strong>{projectLabels[slugs[index]] ?? personalMeta[slugs[index]]?.label ?? project.title}</strong><span className="tile-caption-separator">: </span><span>{personalMeta[slugs[index]]?.summary ?? project.description}</span></div>{project.comingSoon && <span className="tile-wip">Case study in progress</span>}</div></div>
+                    {selected && <div className="tile-visual rail-mark" title={project.title}>
+                        <ProjectRailMark slug={slugs[index]} title={project.title} />
+                        {selected === slugs[index] && <span className="rail-selected-name" aria-hidden="true">
+                            {railProjectTitle[slugs[index]] ?? project.title}
+                        </span>}
+                    </div>}
                 </a></Fragment>)}
             </div>
             <footer className="gallery-footer"><div className="footer-links">{intro.links.map(link => <a key={link.label} href={link.url} target={link.url.startsWith("mailto:") ? undefined : "_blank"} rel="noreferrer">{link.label}</a>)}<button onClick={toggle}>{theme === "dark" ? "Light" : "Dark"} mode <SiteIcon name={theme === "dark" ? "sun" : "moon"} size={13} /></button></div><p>© Jaden Snyder 2026</p></footer>
@@ -189,7 +194,7 @@ export default function App() {
             }}>
                 <div key={selected} className="reader-content" style={{animation:"none"}}>
                     
-                    <CaseStudyPage slug={selected} embedded playing={motion} appearance={{ theme, palette: { ...palette, background: theme === "dark" ? "#111111" : "#ffffff", text: theme === "dark" ? "#ffffff" : "#171717", textMuted: theme === "dark" ? "#b5b5b5" : "#707070", cardBorder: theme === "dark" ? "#353535" : "#e5e5e5", cardThumbBackground: theme === "dark" ? "#222222" : "#f5f5f5" } }} />
+                    <CaseStudyPage slug={selected} embedded playing={motion && !navigationBusy} appearance={{ theme, palette: { ...palette, background: theme === "dark" ? "#111111" : "#ffffff", text: theme === "dark" ? "#ffffff" : "#171717", textMuted: theme === "dark" ? "#b5b5b5" : "#707070", cardBorder: theme === "dark" ? "#353535" : "#e5e5e5", cardThumbBackground: theme === "dark" ? "#222222" : "#f5f5f5" } }} />
                 </div>
             </div>
         </section>}

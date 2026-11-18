@@ -1,4 +1,4 @@
-:root { --project-transition-duration:700ms; --project-transition-ease:cubic-bezier(.65,0,.35,1); }
+:root { --project-transition-duration:700ms; --project-transition-ease:cubic-bezier(.32,.72,0,1); }
 html[data-page="home"] #root { overflow:hidden; }
 .portfolio { --accent-tangerine:#ff7a35; --accent-raspberry:#ed3b78; --accent-violet:#7456e8; --accent-ink-tangerine:#ec6b25; --homepage-primary:var(--accent-violet); --homepage-primary-hover:#6343d5; --contact-hover:#333333; height:100dvh; background:var(--gallery-bg); color:var(--gallery-ink); }
 .portfolio[data-theme="dark"] { --accent-ink-tangerine:var(--accent-tangerine); --contact-hover:#dedede; }
@@ -638,3 +638,6 @@ html[data-page="home"] #root { overflow:hidden; }
 .rail-thought::after { width: 27%; bottom: 0; left: 0; }
 
 .footer-links button { display:inline-flex; align-items:center; justify-content:center; gap:6px; border-radius:999px; padding:10px 16px; border:1px solid var(--gallery-line); color:var(--gallery-ink); }
+
+/* Retain preview state while lightweight project marks occupy the reader rail. */
+.gallery-preview[hidden] { display:none; }
