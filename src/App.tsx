@@ -82,10 +82,15 @@ export default function App() {
         if (selected) {
             const panel = casePanel.current
             if (panel && selected !== previousSelected.current && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                const timing = getComputedStyle(panel)
+                panel.getAnimations().forEach(animation => animation.cancel())
                 panel.animate([
                     { transform: "scale(.88)", opacity: .35 },
                     { transform: "scale(1)", opacity: 1 }
-                ], { duration:460, easing:"cubic-bezier(.22,.8,.2,1)" })
+                ], {
+                    duration:parseFloat(timing.getPropertyValue("--project-transition-duration")),
+                    easing:timing.getPropertyValue("--project-transition-ease").trim()
+                })
             }
             if (!previousSelected.current) gallery.current?.scrollTo({ top: 0, behavior: "instant" })
             closeButton.current?.focus({ preventScroll: true })

@@ -1,3 +1,4 @@
+:root { --project-transition-duration:700ms; --project-transition-ease:cubic-bezier(.65,0,.35,1); }
 html[data-page="home"] #root { overflow:hidden; }
 .portfolio { --accent-tangerine:#ff7a35; --accent-raspberry:#ed3b78; --accent-violet:#7456e8; --accent-ink-tangerine:#ec6b25; --homepage-primary:var(--accent-violet); --homepage-primary-hover:#6343d5; --contact-hover:#333333; height:100dvh; background:var(--gallery-bg); color:var(--gallery-ink); }
 .portfolio[data-theme="dark"] { --accent-ink-tangerine:var(--accent-tangerine); --contact-hover:#dedede; }
@@ -166,7 +167,9 @@ html[data-page="home"] #root { overflow:hidden; }
 .reader-toolbar button:first-child { display:flex; gap:9px; align-items:center; padding-inline:16px; white-space:nowrap; flex-shrink:0; font-size:12px; }
 .reader-toolbar button:hover { background:var(--gallery-bg); }
 .reader-toolbar>span { margin:auto; font-size:11px; color:var(--gallery-muted); }
-.reader-scroll { overflow:auto; flex:1; overscroll-behavior:contain; scrollbar-width:thin; }
+.reader-scroll { overflow:auto; flex:1; overscroll-behavior:contain; scrollbar-width:none; }
+.is-reading .gallery-scroll { scrollbar-width:none; }
+.reader-scroll::-webkit-scrollbar,.is-reading .gallery-scroll::-webkit-scrollbar { display:none; width:0; height:0; }
 .reader-content { animation:reader-content .55s both; }
 .reader-hero { margin:28px auto 8px; max-width:960px; width:calc(100% - 80px); height:min(55vw,520px); overflow:hidden; border-radius:16px; position:relative; border:1px solid var(--gallery-line); background:#fff; }
 .reader-content figure>div { max-width:100%; margin-left:0!important; }
@@ -180,7 +183,7 @@ html[data-page="home"] #root { overflow:hidden; }
 .about-card a { display:flex; gap:5px; align-items:center; }
 .about-card svg { width:15px; height:15px; }
 .is-paused *,.motion-paused .project-cover * { animation-play-state:paused!important; }
-::view-transition-group(*) { animation-duration:700ms; animation-timing-function:cubic-bezier(.65,0,.35,1); }
+::view-transition-group(*) { animation-duration:var(--project-transition-duration); animation-timing-function:var(--project-transition-ease); }
 ::view-transition-old(root),::view-transition-new(root) { animation-duration:350ms; }
 @keyframes tile-arrive { from { opacity:0; translate:0 25px; } to { opacity:1; translate:0 0; } }
 @keyframes dot-breathe { 50% { opacity:.5; } }
