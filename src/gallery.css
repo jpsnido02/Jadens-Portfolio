@@ -1,5 +1,5 @@
 html[data-page="home"] #root { overflow:hidden; }
-.portfolio { --accent-pink:#f52d9c; --accent-lavender:#b49bd5; --accent-cyan:#28cdec; --accent-ink-pink:#c51e82; --accent-ink-lavender:#7954b5; --accent-ink-cyan:#087f9c; --homepage-primary:#8563c9; --homepage-primary-hover:#6242a7; height:100dvh; background:var(--gallery-bg); color:var(--gallery-ink); }
+.portfolio { --accent-pink:#f52d9c; --accent-lavender:#b49bd5; --accent-cyan:#0d827a; --accent-ink-pink:#c51e82; --accent-ink-lavender:#7954b5; --accent-ink-cyan:#0d827a; --homepage-primary:#8563c9; --homepage-primary-hover:#6242a7; height:100dvh; background:var(--gallery-bg); color:var(--gallery-ink); }
 .portfolio a { color:inherit; text-decoration:none; -webkit-tap-highlight-color:transparent; }
 .portfolio button { color:inherit; font:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent; }
 .portfolio a:focus-visible,.portfolio button:focus-visible { outline:3px solid var(--gallery-ink); outline-offset:5px; }
