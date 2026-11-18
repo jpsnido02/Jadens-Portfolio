@@ -133,6 +133,7 @@ const DISC_GAP = 6
 const BODY_GAP_MEDIA = 12
 const BODY_GAP_BARE = 4
 const PILL_SIZE = 14.5
+const PILL_WEIGHT = 600
 const FILL = "#F6F6F6"
 const HAIRLINE = "#E8E8E8"
 const INK = "#030303"
@@ -241,7 +242,7 @@ function Pill({
                 boxSizing: "border-box",
                 fontFamily: UBER_TEXT,
                 fontSize: px(PILL_SIZE),
-                fontWeight: 500,
+                fontWeight: PILL_WEIGHT,
                 color: INK,
                 whiteSpace: "nowrap",
                 // The width follows the label, so it has to be able to move.
@@ -334,7 +335,7 @@ export default function UberOfferCard({ offer, index, px, swapMs, animate, tap, 
                     whiteSpace: "nowrap",
                     fontFamily: UBER_TEXT,
                     fontSize: px(PILL_SIZE),
-                    fontWeight: 500,
+                    fontWeight: PILL_WEIGHT,
                 }}
             >
                 {OFFERS.map((o) => (
