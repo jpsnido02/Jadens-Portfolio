@@ -683,6 +683,14 @@ export default function UberAdsLoop({
 
                             {!comparisonMeal && <div className="uber-store-listing" aria-hidden="true" data-open={storeOpen} style={{fontSize:px(16), transformOrigin:`${px(STORE_SLOT.x + ICON/2)}px ${px(STORE_SLOT.y + ICON/2)}px`, transition:animate ? undefined : "none"}}>
                                 <img className="uber-store-capture" src={BASE + "/starbucks-store-listing.jpg"} alt=""/>
+                                {/* Match the bottom-aligned capture so the icon follows the listing at every scale. */}
+                                <svg viewBox="0 0 1206 2465" preserveAspectRatio="xMidYMax meet" aria-hidden="true"
+                                    style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
+                                    <rect x="453" y="932" width="241" height="113" fill="#f6f6f6" />
+                                    <svg x="462" y="945" width="106" height="88" viewBox="0 0 24 20">
+                                        <path fill="#007aff" fillRule="evenodd" d="M6 17a5.5 5.5 0 0 1-.6-10.97A7 7 0 0 1 18.9 6.6 5.2 5.2 0 0 1 18.8 17H6Zm5-10v5.14L9.2 10.4l-1.3 1.35L12 15.7l4.1-3.95-1.3-1.35-1.8 1.74V7h-2Z" />
+                                    </svg>
+                                </svg>
                             </div>}
                             {/* Black stays inside the real phone frame. The
                                 gallery returns to the tracking page under this layer. */}
