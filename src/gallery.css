@@ -160,7 +160,7 @@ html[data-page="home"] #root { overflow:hidden; }
 .reader-toolbar button { min-width:36px; min-height:36px; border:0; background:none; border-radius:30px; }
 .reader-toolbar button:not(:first-child) { display:grid; place-items:center; flex:0 0 36px; width:36px; height:36px; padding:0; line-height:1; }
 .reader-toolbar button:not(:first-child) .site-icon { display:block; vertical-align:0; }
-.reader-toolbar button:first-child { display:flex; gap:9px; align-items:center; font-size:12px; }
+.reader-toolbar button:first-child { display:flex; gap:9px; align-items:center; padding-inline:16px; white-space:nowrap; flex-shrink:0; font-size:12px; }
 .reader-toolbar button:hover { background:var(--gallery-bg); }
 .reader-toolbar>span { margin:auto; font-size:11px; color:var(--gallery-muted); }
 .reader-scroll { overflow:auto; flex:1; overscroll-behavior:contain; scrollbar-width:thin; }
