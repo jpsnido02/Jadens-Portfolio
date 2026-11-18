@@ -56,11 +56,13 @@
     .study-page .study-hero.reader-hero { border-radius: 20px; }
 }
 
-/* Keep the rail-to-gallery handoff inside one continuously rounded silhouette.
-   Square capture surfaces avoid scaling their baked-in corner radii. */
-html.project-snapshots .portfolio .project-tile,
-html.project-snapshots .portfolio .tile-visual { border-radius: 0; }
-html.project-snapshots .portfolio .project-tile { opacity: 1; transition: none; }
+/* The live anchor always owns its rounded clip. Capture its square inner
+   surface instead: ancestor clipping is not baked into the transition bitmap,
+   so the shared snapshot mask can round it without a pre-capture flash. */
+@supports (view-transition-class: project-card) {
+    .portfolio .project-tile { overflow: hidden; }
+    .portfolio .project-tile .tile-visual { border-radius: 0; }
+}
 ::view-transition-image-pair(*.project-card) {
     overflow: clip;
     border-radius: 18px;
