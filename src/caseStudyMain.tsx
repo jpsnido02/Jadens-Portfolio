@@ -3,6 +3,7 @@ import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import CaseStudyPage from "./CaseStudyPage"
 import "./index.css"
+import "./gallery.css"
 
 const root = document.getElementById("root")!
 // Each case study is its own HTML entry, and names itself on the mount node.

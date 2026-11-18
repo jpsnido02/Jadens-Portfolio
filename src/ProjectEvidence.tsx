@@ -1,3 +1,4 @@
+import UberOrderComparison from "./UberOrderComparison"
 import { SiteIcon } from "./icons"
 import { ExpediaMobileOffer } from "./ExpediaComposition"
 import useStudySequence from "./useStudySequence"
@@ -69,7 +70,7 @@ export default function ProjectEvidence({ name, playing = false }: { name: strin
     if (name === "agent-review") return <AgentReviewScene posterOnly />
     if (name === "branded-comparison") return <BrandedComparison />
     if (name === "macys-decision") return <MacysDecision />
-    if (name === "uber-context") return <div className="uber-evidence"><div><span className="evidence-label">ORDER CONTEXT</span><strong>Your breakfast is on its way.</strong><p>The wait gives the offer a reason to be here.</p><span className="uber-evidence-order">Breakfast order <span>→</span> Delivery wait</span></div><div className="uber-evidence-offer"><img src="/projects/uber/media-spotify.webp" alt="Spotify"/><strong>Soundtrack your wait with Spotify Premium.</strong><p>Your Uber Eats order is on the way. Press play while you wait.</p><span>Open Spotify</span><small>Not now</small></div></div>
+    if (name === "uber-context") return <UberOrderComparison />
     if (name === "expedia-proof") return <ExpediaDecision />
     return null
 }

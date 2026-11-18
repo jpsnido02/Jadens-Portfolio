@@ -24,7 +24,7 @@ import { useLayoutEffect, useRef, useState } from "react"
 /** Uber's own faces, in the two families the app uses: Text for UI, the
  *  display cut for anything large. Declared in index.css. */
 export const UBER_TEXT =
-    '"Uber Move Text", "Uber Move", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif'
+    '"Uber Move", "Uber Move Text", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif'
 export const UBER_DISPLAY =
     '"Uber Move", "Uber Move Text", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif'
 
@@ -64,52 +64,49 @@ export const OFFERS: Offer[] = [
             w: 48,
             h: 48,
         },
-        headline: "Soundtrack your wait with Spotify Premium.",
+        headline: "Your breakfast is on the way. Put on a morning mix.",
         body: "Your Uber Eats order is on the way, press play on music, podcasts, and more with Spotify.",
-        primary: "Open Spotify",
+        primary: "Play Mix",
         disclaimer: "Spotify Premium subscription required.",
         claim: { x: 32, y: 614 },
         notNow: { x: 160, y: 614 },
     },
     {
-        id: "farmers",
-        label: "The Farmer's Dog",
-        media: {
-            kind: "inline",
-            src: `${BASE}/media-farmers.webp`,
-            w: 121,
-            h: 62,
-        },
-        headline: "Breakfast for you. The Farmer's Dog for them.",
-        body: "While your Uber Eats order is on the way, explore fresh, personalized meals from The Farmer's Dog.",
-        primary: "Explore meals",
-        disclaimer: "Availability and terms may vary.",
-        claim: { x: 32, y: 629 },
-        notNow: { x: 160, y: 629 },
+        id: "mini", label: "NYT Games",
+        media: { kind: "inline", src: `${BASE}/mini-grid.svg`, w: 52, h: 52 },
+        headline: "A few minutes before breakfast? Try today’s Mini.",
+        body: "Fill in a little of your morning with The New York Times Games.",
+        primary: "Play Mini", disclaimer: "Subscription may be required.",
+        claim: { x: 32, y: 629 }, notNow: { x: 160, y: 629 },
     },
     {
-        id: "starbucks",
-        label: "Starbucks",
-        badge: "Buy 1 get 1",
+        id: "headspace", label: "Headspace", badge: "1-minute break",
         media: { kind: "none" },
-        headline: "Breakfast's coming. Coffee next?",
-        body: "Your Lenwich breakfast is on the way, keep the morning going with Starbucks.",
-        primary: "Add to Order",
-        disclaimer: "Availability varies by location.",
-        claim: { x: 32, y: 612 },
-        notNow: { x: 160, y: 612 },
+        headline: "Take a breath before the first bite.",
+        body: "Settle into your morning with a short guided breathing break from Headspace.",
+        primary: "Start session", disclaimer: "Headspace terms apply.",
+        claim: { x: 32, y: 612 }, notNow: { x: 160, y: 612 },
     },
     {
+        id: "starbucks", label: "Starbucks", badge: "Buy 1, get 1",
+        media: { kind: "bleed", src: `${BASE}/media-starbucks-breakfast.jpg`, h: 130 },
+        headline: "Breakfast is on its way. Pick up two coffees at Starbucks.",
+        primary: "Get the app", disclaimer: "At participating stores. Terms apply.",
+        claim: { x: 33, y: 672 }, notNow: { x: 161, y: 672 },
+    },
+]
+
+export const DINNER_OFFER: Offer = {
         id: "disney",
         label: "Disney+",
         media: { kind: "bleed", src: `${BASE}/media-disney.webp`, h: 130 },
-        headline: "Breakfast's on the way. Queue up Disney+.",
-        primary: "Open App Store",
+        headline: "Your pizza’s on the way. Pick a movie for dinner on Disney+.",
+        primary: "Sign Up",
+        badge: "Free trial",
         disclaimer: "Disney+ subscription required. Terms apply.",
         claim: { x: 33, y: 672 },
         notNow: { x: 161, y: 672 },
-    },
-]
+}
 
 /* ----------------------------------------------------------- the measurements */
 
@@ -145,6 +142,7 @@ const MUTED = "#9A9A9A"
 const DOT_D = 8
 const DOT_GAP = 16
 const DOT_X = 20
+const pagerWidth = DOT_D + (OFFERS.length - 1) * DOT_GAP
 const DOT_UP = 15
 const DOT_ON = "#030303"
 const DOT_OFF = "#E3E3E3"
@@ -274,6 +272,7 @@ function Pill({
 
 export type SwapPhase = "idle" | "out" | "resize" | "in"
 interface UberOfferCardProps {
+    primaryWidth?: number
     offer: Offer
     index: number
     px: (v: number) => number
@@ -292,7 +291,7 @@ export function swapDurations(ms: number) {
 }
 
 /** The parent playhead advances the contents, shell and pager together. */
-export default function UberOfferCard({ offer, index, px, swapMs, animate, tap, tapKey, phase, pagerIndex }: UberOfferCardProps) {
+export default function UberOfferCard({ offer, index, px, swapMs, animate, tap, tapKey, phase, pagerIndex, primaryWidth }: UberOfferCardProps) {
     const { exitMs, resizeMs, enterMs } = swapDurations(swapMs)
     const hidden = phase === "out" || phase === "resize"
     const { ref: measureRef, widths } = usePillWidths(px)
@@ -472,7 +471,7 @@ export default function UberOfferCard({ offer, index, px, swapMs, animate, tap, 
                     <Pill
                         label={offer.primary}
                         primary
-                        width={widths ? widths[index] : undefined}
+                        width={primaryWidth ?? (widths && offer.primary === OFFERS[index]?.primary ? widths[index] : undefined)}
                         px={px}
                         ms={resizeMs}
                         tapKey={tap === "claim" ? tapKey : undefined}
@@ -516,27 +515,29 @@ export default function UberOfferCard({ offer, index, px, swapMs, animate, tap, 
             </div>
 
             {/* The pager, against the card's own bottom edge. */}
-            {OFFERS.map((_, i) => (
-                <span
-                    key={i}
-                    style={{
-                        position: "absolute",
-                        left: px(DOT_X + i * DOT_GAP - DOT_D / 2),
-                        bottom: px(DOT_UP - DOT_D / 2),
-                        width: px(DOT_D),
-                        height: px(DOT_D),
-                        borderRadius: "50%",
-                        background: i === pagerIndex ? DOT_ON : DOT_OFF,
-                        // No delay: the dots are anchored to the card's
-                        // bottom edge, so they travel with the height, and
-                        // the one that lights up should be moving with them
-                        // rather than catching up afterwards.
-                        transition: animate
-                            ? `background-color ${Math.round(swapMs * 0.45)}ms linear`
-                            : "none",
-                    }}
-                />
-            ))}
+            <svg
+                aria-hidden="true"
+                viewBox={`0 0 ${pagerWidth} ${DOT_D}`}
+                style={{
+                    position: "absolute",
+                    left: px(DOT_X - DOT_D / 2),
+                    bottom: px(DOT_UP - DOT_D / 2),
+                    width: px(pagerWidth),
+                    height: px(DOT_D),
+                    display: "block",
+                }}
+            >
+                {OFFERS.map((item, i) => (
+                    <circle
+                        key={item.id}
+                        cx={DOT_D / 2 + i * DOT_GAP}
+                        cy={DOT_D / 2}
+                        r={DOT_D / 2}
+                        fill={i === pagerIndex ? DOT_ON : DOT_OFF}
+                        style={{ transition: animate ? `fill ${Math.round(swapMs * 0.45)}ms linear` : "none" }}
+                    />
+                ))}
+            </svg>
         </div>
     )
 }

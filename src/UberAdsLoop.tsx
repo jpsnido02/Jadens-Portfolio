@@ -1,11 +1,11 @@
-import UberOfferCard, { OFFERS, UBER_DISPLAY, UBER_TEXT, swapDurations, type SwapPhase } from "./UberOfferCard"
+import UberOfferCard, { DINNER_OFFER, OFFERS, UBER_DISPLAY, UBER_TEXT, swapDurations, type SwapPhase } from "./UberOfferCard"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import usePausablePlaybackTimer, { usePausableSubtreeAnimations } from "./usePausablePlaybackTimer"
 import { cycleMs, type LoopReporter } from "./LoopProgress"
 
 /**
  * The Uber Ads hero: the Rokt placement cycling through four offers, then the
- * Disney+ offer opening the App Store.
+ * Starbucks App Store listing.
  *
  * The tracking page uses the original map and chrome. The order status and
  * offer cards are live text, so their animations stay sharp at each zoom level.
@@ -90,40 +90,17 @@ const NOMINAL_CARD_H = 250
  * presentations: a long, decelerating tail with no overshoot, which is what
  * makes the motion read as a system transition rather than a web animation.
  */
-/**
- * The home screen the app closes to. iOS does not cut from one app to
- * another: it shrinks the first into its icon, shows the home screen, then
- * grows the second out of its icon. Without that middle beat the App Store
- * appears to erupt from a button inside Uber Eats, which is not a thing the
- * system does.
- *
- * The screen is the design file's own, and the two icon rects were measured
- * off it rather than estimated — the Uber Eats icon by its green, the App
- * Store by the columns of strong blue across that icon's own rows, so the
- * label beneath and the wallpaper behind are excluded. Both come out ~59
- * square on one row, 91 apart.
- */
 const ICON = 59
 const ICON_R = 13
 const UBER_SLOT = { x: 28.5, y: 577 }
 const STORE_SLOT = { x: 119.5, y: 577 }
 
-const APPLE_EASE = "cubic-bezier(0.32, 0.72, 0, 1)"
-/**
- * How far the home screen is pushed back while an app is over it.
- *
- * On iOS the home screen is not a backdrop the app happens to cover — it
- * moves. Opening an app zooms the home screen in and fades it out behind the
- * window growing out of the icon; closing one brings it back from slightly
- * over-size and settles it. That counter-motion is most of what makes the
- * transition read as depth rather than as a sprite being scaled, and holding
- * the home screen still was why this did not feel like the real thing.
- */
 const HOME_ZOOM = 1.12
+const APPLE_EASE = "cubic-bezier(0.32, 0.72, 0, 1)"
 const PAGE_EASE = "cubic-bezier(0.33, 1, 0.68, 1)"
 
-const OPEN_MS = 620
-const CLOSE_MS = 520
+
+
 /**
  * An offer giving way to the next. Slower than the 460ms it ran at: with the
  * camera in close the swap is the thing being watched, and at that speed it
@@ -197,25 +174,14 @@ const SCRIPT: Step[] = [
     { kind: "hold", ms: 1700 },
     { kind: "tap", on: "notNow", ms: 320 },
     { kind: "advance", ms: PAGE_MS },
-    // The Disney+ offer holds a beat longer, because its button is the one
-    // that gets pressed.
     { kind: "hold", ms: 2000 },
     { kind: "tap", on: "claim", ms: 320 },
-    // Back out to the whole phone before it leaves, or the window would
-    // shrink into an icon that is off screen.
+    // Pull back before switching apps.
     { kind: "zoom", to: "wide", ms: ZOOM_MS },
-    // Uber Eats closes to the home screen, the home screen is held long
-    // enough to be read as a place, then the App Store opens out of its icon.
-    { kind: "stage", to: "home", ms: CLOSE_MS },
+    { kind: "stage", to: "home", ms: 520 },
     { kind: "hold", ms: 560 },
-    { kind: "stage", to: "store", ms: OPEN_MS },
-    // And it ends there. Going back home and reopening Uber Eats was a tail
-    // on a story that had already finished: the point is the offer getting
-    // someone to the App Store, so that is the last thing shown.
+    { kind: "stage", to: "store", ms: 620 },
     { kind: "hold", ms: 2800 },
-    // Then out, on a cut rather than on the App Store shrinking back into
-    // its icon. The window going away was the loop tidying up after itself
-    // in full view; black is just the end.
     { kind: "cut", ms: 900 },
     // Everything is put back behind the black, so none of it is seen.
     { kind: "reset", ms: 60 },
@@ -236,9 +202,9 @@ const GALLERY_SCRIPT: Step[] = [
     { kind: "hold", ms: 2600 },
     { kind: "tap", on: "claim", ms: 320 },
     { kind: "zoom", to: "wide", ms: ZOOM_MS },
-    { kind: "stage", to: "home", ms: CLOSE_MS },
+    { kind: "stage", to: "home", ms: 520 },
     { kind: "hold", ms: 560 },
-    { kind: "stage", to: "store", ms: OPEN_MS },
+    { kind: "stage", to: "store", ms: 620 },
     { kind: "hold", ms: 3200 },
     // Rewind to the order behind the curtain before the next pass.
     { kind: "cut", ms: LOOP_BLACKOUT_MS },
@@ -305,6 +271,7 @@ const TRACKING_POSTER: PhoneState = { ...openingState(), zoom: "offer", scrollY:
 
 interface UberAdsLoopProps {
     /** Settled homepage offer; the case study retains the full walkthrough. */
+    comparisonMeal?: "breakfast" | "dinner"
     poster?: boolean
     gallery?: boolean
     paused?: boolean
@@ -323,6 +290,7 @@ export default function UberAdsLoop({
     alt,
     paused = false,
     poster = false,
+    comparisonMeal,
     gallery = false,
     fit = "width",
     onProgress,
@@ -408,7 +376,7 @@ export default function UberAdsLoop({
     }, [visible, timeline])
 
     const frame = timeline[step] ?? timeline[0]
-    const playing = !poster && !paused && visible && !reduced
+    const playing = !comparisonMeal && !poster && !paused && visible && !reduced
     usePausablePlaybackTimer({
         entryKey: step,
         duration: frame.ms,
@@ -416,18 +384,18 @@ export default function UberAdsLoop({
         onElapsed: () => setStep(current => (current + 1) % timeline.length),
     })
     usePausableSubtreeAnimations(wrapRef, playing, step)
-    const { index, stage, zoom, sheetOpen, scrollY, cut, tap, animate, phase, pagerIndex } = poster ? { ...TRACKING_POSTER, index: 3, pagerIndex: 3, animate: false } : reduced ? TRACKING_POSTER : frame
-    const offer = OFFERS[index]
-    // Each surface morphs to and from its own icon on the home screen, not
-    // from the button that was pressed.
-    const appAway = stage !== "app"
-    /** The home screen is only at rest when nothing is over it. */
+    const dinner = comparisonMeal === "dinner"
+    const comparisonIndex = OFFERS.findIndex(offer => offer.id === "starbucks")
+    const comparisonState: PhoneState = {
+        ...TRACKING_POSTER, index: comparisonIndex, pagerIndex: 1,
+        zoom: "wide", scrollY: TRACKING_MAP_H, animate: false,
+    }
+    const { index, stage, zoom, sheetOpen, scrollY, cut, tap, animate, phase, pagerIndex } = comparisonMeal ? comparisonState : poster ? { ...TRACKING_POSTER, index: 3, pagerIndex: 3, animate: false } : reduced ? TRACKING_POSTER : frame
+    const offer = dinner ? DINNER_OFFER : comparisonMeal ? { ...OFFERS[index], primary: "Redeem" } : OFFERS[index]
     const atHome = stage === "home"
     const storeOpen = stage === "store"
-    // Opening an app and closing one are not the same length on iOS, and the
-    // stage being entered is what says which this is: anything but the home
-    // screen is a window growing out of an icon.
-    const MORPH_MS = atHome ? CLOSE_MS : OPEN_MS
+    const appAway = stage !== "app"
+    const MORPH_MS = atHome ? 520 : 620
 
     /** Every measured Figma unit goes through this to reach its real size. */
     const px = (v: number) => v * scale
@@ -444,7 +412,7 @@ export default function UberAdsLoop({
             role="img"
             aria-label={
                 reduced ? "Lenwich received your breakfast order and is preparing it. The tracking page offers Spotify Premium to listen to while you wait." : alt ??
-                "Lenwich is preparing a breakfast order. The Uber Eats tracking page scrolls to four offers, ending with Disney+ opening the App Store."
+                "Lenwich is preparing a breakfast order. The Uber Eats tracking page scrolls to four offers, ending with a Starbucks App Store listing."
             }
             style={{
                 ...(fit === "contain"
@@ -607,7 +575,7 @@ export default function UberAdsLoop({
                                         // of the icon, so it never dissolves in
                                         // mid-air.
                                         `opacity ${Math.round(MORPH_MS * 0.3)}ms linear ${Math.round(MORPH_MS * 0.7)}ms`,
-                                    ].join(", ") : "none",
+                                     ].join(", ") : "none",
                                 }}
                             >
                                 {/* The page travels underneath the fixed navigation bar. */}
@@ -656,19 +624,19 @@ export default function UberAdsLoop({
                                                 <div className="uber-order-summary" style={{ height: px(SUMMARY_H), marginBottom: px(OFFER_GAP) }}>
                                                     <div className="uber-sheet-grip" aria-hidden="true" />
                                                     <div className="uber-summary-heading"><strong>Order summary</strong><span>View receipt</span></div>
-                                                    <div className="uber-summary-merchant">Lenwich</div>
+                                                    <div className="uber-summary-merchant">{dinner ? "Joe’s Pizza" : "Lenwich"}{comparisonMeal && <span> · {dinner ? "7:15 PM" : "8:15 AM"}</span>}</div>
                                                     <div className="uber-summary-item">
                                                         <span className="uber-summary-quantity">1</span>
                                                         <div>
-                                                            Egg and cheese sandwich
-                                                            <div className="uber-summary-choices">Kaiser roll · American cheese</div>
+                                                            {dinner ? "Margherita pizza" : "Egg and cheese sandwich"}
+                                                            <div className="uber-summary-choices">{dinner ? "12-inch · Fresh mozzarella" : "Kaiser roll · American cheese"}</div>
                                                         </div>
                                                     </div>
                                                     <dl className="uber-summary-charges">
-                                                        <div><dt>Subtotal</dt><dd>$8.50</dd></div>
+                                                        <div><dt>Subtotal</dt><dd>{dinner ? "$15.00" : "$8.50"}</dd></div>
                                                         <div><dt>Service fee</dt><dd>$0.45</dd></div>
-                                                        <div><dt>Tax</dt><dd>$0.76</dd></div>
-                                                        <div className="uber-summary-total"><dt>Total</dt><dd>$9.71</dd></div>
+                                                        <div><dt>Tax</dt><dd>{dinner ? "$1.37" : "$0.76"}</dd></div>
+                                                        <div className="uber-summary-total"><dt>Total</dt><dd>{dinner ? "$16.82" : "$9.71"}</dd></div>
                                                     </dl>
                                                 </div>
                                                 <div
@@ -682,6 +650,7 @@ export default function UberAdsLoop({
                                                         index={index}
                                                         phase={phase}
                                                         pagerIndex={pagerIndex}
+                                                        primaryWidth={comparisonMeal ? px(80) : undefined}
                                                         px={px}
                                                         swapMs={PAGE_MS}
                                                         animate={animate}
@@ -712,66 +681,9 @@ export default function UberAdsLoop({
                                 </div>
                             </div>
 
-                            {/*
-                             * The App Store open.
-                             *
-                             * The window morphs from the claim button's rect to the
-                             * full screen while its corner radius grows from the
-                             * button's 8 to the screen's 56, and the page inside
-                             * scales up in step so the artwork never distorts.
-                             * That pairing — a rect morphing while its contents
-                             * scale — is what iOS does when an app launches.
-                             */}
-                            <div
-                                aria-hidden="true"
-                                style={{
-                                    position: "absolute",
-                                    left: storeOpen ? 0 : px(STORE_SLOT.x),
-                                    top: storeOpen ? 0 : px(STORE_SLOT.y),
-                                    width: px(storeOpen ? SCREEN_W : ICON),
-                                    height: px(storeOpen ? SCREEN_H : ICON),
-                                    borderRadius: px(
-                                        storeOpen ? SCREEN_R : ICON_R,
-                                    ),
-                                    overflow: "hidden",
-                                    opacity: storeOpen ? 1 : 0,
-                                    pointerEvents: "none",
-                                    boxShadow: "none",
-                                    transition: animate
-                                        ? [
-                                              `left ${MORPH_MS}ms ${APPLE_EASE}`,
-                                              `top ${MORPH_MS}ms ${APPLE_EASE}`,
-                                              `width ${MORPH_MS}ms ${APPLE_EASE}`,
-                                              `height ${MORPH_MS}ms ${APPLE_EASE}`,
-                                              `border-radius ${MORPH_MS}ms ${APPLE_EASE}`,
-                                              // Opacity resolves early on the
-                                              // way in and late on the way
-                                              // out, so the morph is never
-                                              // visible as an empty rectangle.
-                                              `opacity ${Math.round(MORPH_MS * 0.45)}ms linear`,
-                                          ].join(", ")
-                                        : "none",
-                                }}
-                            >
-                                <img
-                                    src={`${BASE}/appstore-941.webp`}
-                                    alt=""
-                                    loading="lazy"
-                                    style={{
-                                        position: "absolute",
-                                        left: "50%",
-                                        top: "50%",
-                                        width: px(SCREEN_W),
-                                        height: px(SCREEN_H),
-                                        display: "block",
-                                        transform: `translate(-50%, -50%) scale(${storeOpen ? 1 : ICON / SCREEN_W})`,
-                                        transition: animate
-                                            ? `transform ${MORPH_MS}ms ${APPLE_EASE}`
-                                            : "none",
-                                    }}
-                                />
-                            </div>
-
+                            {!comparisonMeal && <div className="uber-store-listing" aria-hidden="true" data-open={storeOpen} style={{fontSize:px(16), transformOrigin:`${px(STORE_SLOT.x + ICON/2)}px ${px(STORE_SLOT.y + ICON/2)}px`, transition:animate ? undefined : "none"}}>
+                                <img className="uber-store-capture" src={BASE + "/starbucks-store-listing.jpg"} alt=""/>
+                            </div>}
                             {/* Black stays inside the real phone frame. The
                                 gallery returns to the tracking page under this layer. */}
                             <div

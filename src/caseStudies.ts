@@ -122,13 +122,12 @@ export const caseStudies: CaseStudy[] = [
             {
                 "kind": "section",
                 "label": "Context",
-                "thesis": "An offer that belongs to the wait.",
-                "body": "Keep the order visible and give the offer a specific reason to be there. The Spotify example connects listening to the delivery wait; the coffee example connects the offer to breakfast."
+                "thesis": "An offer that belongs to the wait."
             },
             {
                 "kind": "evidence",
                 "name": "uber-context",
-                "caption": "Order context, offer, and customer action remain connected. These are recreated portfolio examples."
+                "caption": "Illustrative order scenarios and recreated offers."
             },
             {
                 "kind": "section",
