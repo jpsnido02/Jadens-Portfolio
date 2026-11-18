@@ -14,7 +14,12 @@
     .study-topbar > div > button,
     .study-figure-tools > button,
     .study-lightbox-toolbar > button,
-    .visitor-gate-card > button,
+    .visitor-gate-card > button
+) {
+    corner-shape: superellipse(1.15);
+}
+
+:is(
     .project-tile,
     .tile-visual,
     .study-hero.reader-hero
