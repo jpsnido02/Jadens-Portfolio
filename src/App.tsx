@@ -83,12 +83,13 @@ export default function App() {
             const panel = casePanel.current
             if (panel && selected !== previousSelected.current && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
                 const timing = getComputedStyle(panel)
+                const duration = timing.getPropertyValue("--project-transition-duration").trim()
                 panel.getAnimations().forEach(animation => animation.cancel())
                 panel.animate([
                     { transform: "scale(.88)", opacity: .35 },
                     { transform: "scale(1)", opacity: 1 }
                 ], {
-                    duration:parseFloat(timing.getPropertyValue("--project-transition-duration")),
+                    duration:parseFloat(duration) * (duration.endsWith("ms") ? 1 : 1000),
                     easing:timing.getPropertyValue("--project-transition-ease").trim()
                 })
             }
