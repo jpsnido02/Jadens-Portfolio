@@ -1336,9 +1336,24 @@ dl {
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    border-bottom: .4em solid #e7e7e7;
+    position: relative;
     padding: .5em 1em 1em;
 }
+.uber-delivery-details { position: relative; }
+.uber-delivery-details img {
+    /* The original capture includes its own divider in this blank top margin. */
+    clip-path: inset(2em 0 0);
+}
+.uber-order-summary::after,
+.uber-delivery-details::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    height: .25em;
+    background: #f3f3f3;
+}
+.uber-order-summary::after { bottom: 0; }
+.uber-delivery-details::before { top: 1.5em; }
 .uber-sheet-grip {
     align-self: center;
     width: 2em;

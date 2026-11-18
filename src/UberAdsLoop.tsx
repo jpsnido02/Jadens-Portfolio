@@ -659,7 +659,7 @@ export default function UberAdsLoop({
                                                     />
                                                 </div>
 
-                                                <div style={{ height: px(DETAILS_H), overflow: "hidden" }}>
+                                                <div className="uber-delivery-details" style={{ height: px(DETAILS_H), overflow: "hidden" }}>
                                                     <img src={`${BASE}/flow-page-b2.webp`} alt=""
                                                         style={{ width: px(SCREEN_W), height: px(DETAILS_CAPTURE_H), display: "block" }} />
                                                 </div>
