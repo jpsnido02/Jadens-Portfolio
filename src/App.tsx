@@ -19,6 +19,16 @@ function selectedFromURL() {
     const slug = new URLSearchParams(location.search).get("project")
     return slug && bySlug(slug) ? slug : null
 }
+let transitionVersion = 0
+let activeTransition: ViewTransition | undefined
+function transition(update: () => void) {
+    const version = ++transitionVersion
+    activeTransition?.skipTransition()
+    const commit = () => { if (version === transitionVersion) flushSync(update) }
+    if (document.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        activeTransition = document.startViewTransition(commit)
+    } else { activeTransition = undefined; commit() }
+}
 export default function App() {
     const { theme, palette, toggle } = useTheme()
     const [selected, setSelected] = useState<string | null>(selectedFromURL)
@@ -34,50 +44,19 @@ export default function App() {
     const opener = useRef<HTMLAnchorElement | null>(null)
     const galleryPosition = useRef(0)
     const previousSelected = useRef<string | null>(selected)
-    const navigationVersion = useRef(0)
-    const activeTransition = useRef<ViewTransition | null>(null)
-    const nativeReady = useRef(false)
-    const panelAnimation = useRef<Animation | null>(null)
-    const contentAnimation = useRef<Animation | null>(null)
-    const panelOpacityAnimation = useRef<Animation | null>(null)
-    const nativeDirection = useRef<"enter" | "exit" | null>(null)
     const projectTiles = useRef(new Map<string, HTMLAnchorElement>())
     const selectedIndex = selected ? slugs.indexOf(selected) : -1
     const select = (slug: string | null, push = true) => {
         if (slug === selectedRef.current) return
-        const version = ++navigationVersion.current
-        const wasSelected = selectedRef.current
-        const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches
-        const interrupted = Boolean(activeTransition.current || panelAnimation.current)
-        // Preserve the visible reader pose before cancelling an in-flight navigation.
-        let pose: Keyframe | undefined
-        if (panelAnimation.current && casePanel.current) {
-            const style = getComputedStyle(casePanel.current)
-            pose = { transform: style.transform, opacity: style.opacity }
-        } else if (activeTransition.current && nativeDirection.current) {
-            if (nativeReady.current) {
-                const snapshot = nativeDirection.current === "enter" ? "new" : "old"
-                const style = getComputedStyle(document.documentElement, `::view-transition-${snapshot}(case-reader)`)
-                pose = { transform: style.transform, opacity: style.opacity }
-            } else {
-                // Reading pseudo styles before capture is ready can block pending snapshots.
-                pose = nativeDirection.current === "enter"
-                    ? { transform: "scale(.88)", opacity: 0 }
-                    : { transform: "scale(1)", opacity: 1 }
-            }
-        }
-        activeTransition.current?.skipTransition()
-        activeTransition.current = null
-        nativeReady.current = false
-        panelAnimation.current?.cancel()
-        panelAnimation.current = null
-        panelOpacityAnimation.current?.cancel()
-        panelOpacityAnimation.current = null
-        contentAnimation.current?.cancel()
-        document.documentElement.classList.remove("project-navigation")
-        if (!wasSelected && slug && !casePanel.current) galleryPosition.current = gallery.current?.scrollTop ?? 0
+        const opening = Boolean(slug && !selectedRef.current)
+        if (!selectedRef.current) galleryPosition.current = gallery.current?.scrollTop ?? 0
         if (slug) hasOpenedProject.current = true
         selectedRef.current = slug
+        if (slug && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            activeTransition?.skipTransition()
+            activeTransition = undefined
+            flushSync(() => setSelected(slug))
+        } else transition(() => setSelected(slug))
         if (push) {
             const url = new URL(location.href)
             url.hash = ""
@@ -85,72 +64,15 @@ export default function App() {
             else url.searchParams.delete("project")
             history.pushState({ portfolio: true }, "", url)
         }
-        const commit = () => {
-            if (version === navigationVersion.current) flushSync(() => setSelected(slug))
-        }
-        const animatePanel = (from: Keyframe, closing: boolean) => {
-            const panel = casePanel.current
-            if (!panel) { commit(); return }
-            const timing = getComputedStyle(panel)
-            const duration = timing.getPropertyValue("--project-transition-duration").trim()
-            const durationMs = parseFloat(duration) * (duration.endsWith("ms") ? 1 : 1000)
-            const animation = panel.animate([{ transform: from.transform }, {
-                transform: closing ? "scale(.88)" : "scale(1)"
-            }], {
-                duration: durationMs,
-                easing: timing.getPropertyValue("--project-transition-ease").trim(),
-                fill: "both"
-            })
-            const opacityAnimation = panel.animate([
-                { opacity: from.opacity }, { opacity: closing ? 0 : 1 }
-            ], {
-                duration: 200, delay: closing ? Math.max(0, durationMs - 200) : 0,
-                easing: closing ? "cubic-bezier(.68,0,.77,0)" : "cubic-bezier(.23,1,.32,1)", fill: "both"
-            })
-            panelAnimation.current = animation
-            panelOpacityAnimation.current = opacityAnimation
-            void animation.finished.then(() => {
-                if (version !== navigationVersion.current) return
-                if (closing) commit()
-                animation.cancel()
-                opacityAnimation.cancel()
-                panelAnimation.current = null
-                panelOpacityAnimation.current = null
-            }).catch(() => {})
-        }
-        if (reduced) { commit(); return }
-        if (wasSelected && slug) {
-            commit()
-            const content = reader.current?.firstElementChild
-            if (content) contentAnimation.current = content.animate([{ opacity: 0 }, { opacity: 1 }], {
-                duration: 200, easing: "cubic-bezier(0.23,1,0.32,1)"
-            })
-            // An interrupted entrance continues from its current pose; settled frames never move.
-            if (pose) animatePanel(pose, false)
-        } else if (document.startViewTransition && !interrupted) {
-            nativeDirection.current = slug ? "enter" : "exit"
-            document.documentElement.classList.add("project-navigation")
-            const transition = document.startViewTransition(commit)
-            activeTransition.current = transition
-            void transition.ready.then(() => {
-                if (version === navigationVersion.current) nativeReady.current = true
-            }).catch(() => {})
-            void transition.finished.finally(() => {
-                if (version !== navigationVersion.current) return
-                activeTransition.current = null
-                nativeDirection.current = null
-                document.documentElement.classList.remove("project-navigation")
-            }).catch(() => {})
-        } else if (slug) {
-            commit()
-            animatePanel(pose ?? { transform: "scale(.88)", opacity: 0 }, false)
-        } else {
-            // Keep the fallback reader mounted until its exit completes.
-            animatePanel(pose ?? { transform: "scale(1)", opacity: 1 }, true)
-        }
     }
     useEffect(() => {
-        const pop = () => select(selectedFromURL(), false)
+        const pop = () => {
+            const next = selectedFromURL()
+            if (!selectedRef.current && next) galleryPosition.current = gallery.current?.scrollTop ?? 0
+            if (next) hasOpenedProject.current = true
+            selectedRef.current = next
+            transition(() => setSelected(next))
+        }
         window.addEventListener("popstate", pop)
         return () => window.removeEventListener("popstate", pop)
     }, [])
@@ -158,26 +80,67 @@ export default function App() {
         document.title = selected ? `${bySlug(selected)?.title} — Jaden Snyder` : "Jaden Snyder"
         reader.current?.scrollTo(0, 0)
         if (selected) {
-            // This layout effect runs inside the navigation commit, before new snapshots.
-            // Align once so neither a delayed scroll nor a queued callback can fight user input.
-            const rail = gallery.current
-            const tile = projectTiles.current.get(selected)
-            if (rail && tile && rail.clientWidth > 0) {
-                const railBox = rail.getBoundingClientRect()
-                const tileBox = tile.getBoundingClientRect()
-                rail.scrollTop = Math.max(0, Math.min(rail.scrollHeight - rail.clientHeight,
-                    rail.scrollTop + tileBox.top - railBox.top - (rail.clientHeight - tileBox.height) / 2))
+            const panel = casePanel.current
+            if (panel && selected !== previousSelected.current && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                const timing = getComputedStyle(panel)
+                const duration = timing.getPropertyValue("--project-transition-duration").trim()
+                panel.getAnimations().forEach(animation => animation.cancel())
+                panel.animate([
+                    { transform: "scale(.88)", opacity: .35 },
+                    { transform: "scale(1)", opacity: 1 }
+                ], {
+                    duration:parseFloat(duration) * (duration.endsWith("ms") ? 1 : 1000),
+                    easing:timing.getPropertyValue("--project-transition-ease").trim()
+                })
             }
-            if (!previousSelected.current) closeButton.current?.focus({ preventScroll: true })
-        } else {
+            if (!previousSelected.current) gallery.current?.scrollTo({ top: 0, behavior: "instant" })
+            closeButton.current?.focus({ preventScroll: true })
+        }
+        else {
             gallery.current?.scrollTo({ top: galleryPosition.current, behavior: "instant" })
             opener.current?.focus({ preventScroll: true })
         }
         previousSelected.current = selected
     }, [selected])
     useEffect(() => {
+        if (!selected) return
+        const rail = gallery.current
+        const tile = projectTiles.current.get(selected)
+        if (!rail || !tile) return
+        const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches
+        let cancelled = false
+        let timer = 0
+        let frame = 0
+        const stop = () => { cancelled = true; window.clearTimeout(timer); cancelAnimationFrame(frame) }
+        const align = () => {
+            if (cancelled || rail.clientWidth === 0) return
+            const railBox = rail.getBoundingClientRect()
+            const tileBox = tile.getBoundingClientRect()
+            const target = Math.max(0, Math.min(rail.scrollHeight - rail.clientHeight,
+                rail.scrollTop + tileBox.top - railBox.top - (rail.clientHeight - tileBox.height) / 2))
+            if (reduced) { rail.scrollTop = target; return }
+            const from = rail.scrollTop
+            const started = performance.now()
+            const tick = (now: number) => {
+                if (cancelled) return
+                const progress = Math.min(1, (now - started) / 560)
+                const eased = progress < .5 ? 4 * progress ** 3 : 1 - (-2 * progress + 2) ** 3 / 2
+                rail.scrollTop = from + (target - from) * eased
+                if (progress < 1) frame = requestAnimationFrame(tick)
+            }
+            frame = requestAnimationFrame(tick)
+        }
+        rail.addEventListener("wheel", stop, { passive: true })
+        rail.addEventListener("touchstart", stop, { passive: true })
+        const settled = reduced ? Promise.resolve() : activeTransition?.finished.catch(() => {}) ?? new Promise<void>(resolve => { timer = window.setTimeout(resolve, 700) })
+        void settled.then(() => {
+            if (!cancelled) timer = window.setTimeout(align, reduced ? 0 : 120)
+        })
+        return () => { stop(); rail.removeEventListener("wheel", stop); rail.removeEventListener("touchstart", stop) }
+    }, [selected])
+    useEffect(() => {
         const key = (event: KeyboardEvent) => {
-            if (event.key === "Escape" && !document.querySelector("dialog[open]")) { if (about) setAbout(false); else if (selectedRef.current) select(null) }
+            if (event.key === "Escape" && !document.querySelector("dialog[open]")) { if (about) setAbout(false); else if (selected) select(null) }
         }
         window.addEventListener("keydown", key)
         return () => window.removeEventListener("keydown", key)
@@ -217,14 +180,14 @@ export default function App() {
             <footer className="gallery-footer"><div className="footer-links">{intro.links.map(link => <a key={link.label} href={link.url} target={link.url.startsWith("mailto:") ? undefined : "_blank"} rel="noreferrer">{link.label}</a>)}<button onClick={toggle}>{theme === "dark" ? "Light" : "Dark"} mode <SiteIcon name={theme === "dark" ? "sun" : "moon"} size={13} /></button></div><p>© Jaden Snyder 2026</p></footer>
         </div>
         {selected && <button ref={closeButton} className="project-close" onClick={() => select(null)} aria-label="Close project and return to all work" inert={about}><SiteIcon name="close" size={21} /></button>}
-        {selected && <section ref={casePanel} className="case-reader" inert={about} aria-label="Case study">
+        {selected && <section ref={casePanel} className="case-reader" style={{animation:"none",transformOrigin:"center center"}} inert={about} aria-label="Case study">
             <div className="reader-toolbar"><button onClick={() => select(null)} aria-label="Back to all work"><SiteIcon name="back" size={12} /> <span>All work</span></button><span>{selectedIndex >= 0 ? projects[selectedIndex].title : bySlug(selected)?.title}</span><button onClick={() => setMotion(!motion)} aria-label={motion ? "Pause animations" : "Play animations"} aria-pressed={!motion}><SiteIcon name={motion ? "pause" : "play"} size={12} /></button><button onClick={toggle} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}><SiteIcon name={theme === "dark" ? "sun" : "moon"} /></button></div>
             <div className="reader-scroll" ref={reader} onClick={event => {
                 const link = (event.target as HTMLElement).closest("a")
                 const match = link?.getAttribute("href")?.match(/^\.\.\/([^/]+)\/$/)
                 if (match && bySlug(match[1]) && !event.metaKey && !event.ctrlKey) { event.preventDefault(); select(match[1]) }
             }}>
-                <div key={selected} className="reader-content">
+                <div key={selected} className="reader-content" style={{animation:"none"}}>
                     
                     <CaseStudyPage slug={selected} embedded playing={motion} appearance={{ theme, palette: { ...palette, background: theme === "dark" ? "#111111" : "#ffffff", text: theme === "dark" ? "#ffffff" : "#171717", textMuted: theme === "dark" ? "#b5b5b5" : "#707070", cardBorder: theme === "dark" ? "#353535" : "#e5e5e5", cardThumbBackground: theme === "dark" ? "#222222" : "#f5f5f5" } }} />
                 </div>
