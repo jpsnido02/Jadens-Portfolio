@@ -66,7 +66,7 @@ export const OFFERS: Offer[] = [
         },
         headline: "Your breakfast is on the way. Put on a morning mix.",
         body: "Your Uber Eats order is on the way, press play on music, podcasts, and more with Spotify.",
-        primary: "Play Mix",
+        primary: "Download now",
         disclaimer: "Spotify Premium subscription required.",
         claim: { x: 32, y: 614 },
         notNow: { x: 160, y: 614 },
@@ -76,7 +76,7 @@ export const OFFERS: Offer[] = [
         media: { kind: "inline", src: `${BASE}/mini-grid.svg`, w: 52, h: 52 },
         headline: "A few minutes before breakfast? Try today’s Mini.",
         body: "Fill in a little of your morning with The New York Times Games.",
-        primary: "Play Mini", disclaimer: "Subscription may be required.",
+        primary: "Start trial", disclaimer: "Subscription may be required.",
         claim: { x: 32, y: 629 }, notNow: { x: 160, y: 629 },
     },
     {
