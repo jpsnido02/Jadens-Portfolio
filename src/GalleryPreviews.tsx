@@ -25,7 +25,7 @@ function Scene({ children, width = 460, height = 340, style }: { children: React
     return <div className="focus-scene" ref={ref} style={style}><div className="focus-canvas" style={{ width, height, transform: `translate(-50%, -50%) scale(${Math.max(0, scale)})` }}>{children}</div></div>
 }
 export function UberPreview({ playing }: { playing: boolean }) {
-    return <Scene width={700} height={520}><UberAdsLoop fit="contain" gallery poster paused={!playing} /></Scene>
+    return <Scene width={700} height={520}><UberAdsLoop fit="contain" gallery paused={!playing} /></Scene>
 }
 export function AgentPreview({ playing }: { playing: boolean }) {
     const [compact, setCompact] = useState(() => matchMedia("(max-width:720px)").matches)

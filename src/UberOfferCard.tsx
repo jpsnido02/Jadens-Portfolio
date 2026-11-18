@@ -350,21 +350,24 @@ export default function UberOfferCard({ offer, index, px, swapMs, animate, tap, 
                 transition: !animate || phase === "resize" ? "none" : `opacity ${phase === "out" ? exitMs : enterMs}ms ease, transform ${phase === "out" ? exitMs : enterMs}ms ${EASE}`,
             }}>
             {bleed && (
+                <div style={{ position: "absolute", left: 0, top: 0, width: "100%", height: px(bleed.h), overflow: "hidden" }}>
                 <img
                     key={offer.id}
                     src={bleed.src}
                     alt=""
                     style={{
                         position: "absolute",
-                        left: 0,
-                        top: 0,
-                        width: "100%",
-                        height: px(bleed.h),
+                        left: "-5%",
+                        top: "-5%",
+                        width: "110%",
+                        maxWidth: "none",
+                        height: px(bleed.h * 1.1),
                         objectFit: "cover",
                         display: "block",
                         animation: "none",
                     }}
                 />
+                </div>
             )}
 
             <div
