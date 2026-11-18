@@ -10,7 +10,7 @@ import { COLUMNS, GEOMETRY, TOTAL_MS, evaluateAgentWalkthrough, type Stage, type
 const { W, H, BOARD_X, BOARD_Y, COL_W, COL_STEP, CARD_W, CARD_H, ROW_STEP, CARD_Y } = GEOMETRY
 type Task={id:string; account:string; title:string; stage:Stage; made:number; total:number; due:string; owner:string}
 const LOGOS:Record<string,string>={Shutterfly:"/projects/agent-logos/shutterfly.svg",OpenTable:"/projects/agent-logos/opentable.svg",eBay:"/projects/agent-logos/ebay.svg","Best Buy":"/projects/agent-logos/bestbuy.svg",Gap:"/projects/agent-logos/gap.svg"}
-const FOCAL:Task={id:"DS-103",account:"Shutterfly",title:"Create photo book checkout designs",stage:"Queue",made:0,total:14,owner:"Elena Park",due:"Today"}
+const FOCAL:Task={id:"DS-103",account:"Shutterfly",title:"Build full lookbook for Shutterfly checkout",stage:"Queue",made:0,total:14,owner:"Elena Park",due:"Today"}
 const TASKS:Task[]=[
  {id:"DS-104",account:"OpenTable",title:"Build reservation confirmation offers",stage:"Queue",made:0,total:18,owner:"Maya Chen",due:"Nov 18"},
  {id:"DS-100",account:"eBay",title:"Create order confirmation variants",stage:"Queue",made:0,total:24,owner:"Alex Rivera",due:"Nov 19"},
@@ -148,7 +148,7 @@ export function AgentDashboard({playing,interactive:_interactive=false}:{playing
   {f.compact&&<div className="ado-mini-browser"><span className="ado-lights"><i/><i/><i/></span><span>Design Agents</span><Icon icon={faEllipsis} size={12}/></div>}
   {f.modal.visible&&<div ref={modalLayer} className="ado-modal-layer" style={{opacity:f.modal.opacity}}><div className="ado-modal-backdrop"/><div ref={modalBox} className="ado-modal" role="img" aria-label="Shutterfly design review" style={{transform:`translateY(${f.modal.y}px) scale(${f.modal.scale*f.modal.scaleMultiplier})`}}>
    <div className="ado-modal-top"><img src={LOGOS.Shutterfly} alt="Shutterfly"/><span>DS-103</span><Icon icon={faXmark} size={15}/></div>
-   <div className="ado-modal-title">Create photo book checkout designs</div><div className="ado-modal-sub">Requested by Elena Park<span>Due today</span></div>
+   <div className="ado-modal-title">Build full lookbook for Shutterfly checkout</div><div className="ado-modal-sub">Requested by Elena Park<span>Due today</span></div>
    <div className="ado-review-stages">{COLUMNS.map((column,i)=><div key={column} className={f.modal.lifecycleComplete||i<2?"done":i===2?"current":""}><i>{i>=2&&<em className="ado-stage-fill" style={{transform:`scaleX(${Math.max(0,Math.min(1,f.modal.lifecycleProgress*2-(i-2)))})`}}/>}</i><span>{column}</span></div>)}</div>
    <div className="ado-review-summary"><div><span>Mock status</span><strong>14 / 14</strong></div><div><span>Build time</span><strong>5m 58s</strong></div><div><span>Brand system</span><strong>Shutterfly</strong></div></div>
    <div className="ado-review-links"><span><FigmaMark/>Figma</span><span><Icon icon={faGoogleDrive} size={17}/>Google Drive</span><span><ChatMark/>Google Chat</span></div>

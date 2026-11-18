@@ -304,6 +304,8 @@ const FULL_TIMELINE = makeTimeline(SCRIPT)
 const TRACKING_POSTER: PhoneState = { ...openingState(), zoom: "offer", scrollY: SCROLL_TO, sheetOpen: true }
 
 interface UberAdsLoopProps {
+    /** Settled homepage offer; the case study retains the full walkthrough. */
+    poster?: boolean
     gallery?: boolean
     paused?: boolean
     alt?: string
@@ -320,6 +322,7 @@ interface UberAdsLoopProps {
 export default function UberAdsLoop({
     alt,
     paused = false,
+    poster = false,
     gallery = false,
     fit = "width",
     onProgress,
@@ -405,7 +408,7 @@ export default function UberAdsLoop({
     }, [visible, timeline])
 
     const frame = timeline[step] ?? timeline[0]
-    const playing = !paused && visible && !reduced
+    const playing = !poster && !paused && visible && !reduced
     usePausablePlaybackTimer({
         entryKey: step,
         duration: frame.ms,
@@ -413,7 +416,7 @@ export default function UberAdsLoop({
         onElapsed: () => setStep(current => (current + 1) % timeline.length),
     })
     usePausableSubtreeAnimations(wrapRef, playing, step)
-    const { index, stage, zoom, sheetOpen, scrollY, cut, tap, animate, phase, pagerIndex } = reduced ? TRACKING_POSTER : frame
+    const { index, stage, zoom, sheetOpen, scrollY, cut, tap, animate, phase, pagerIndex } = poster ? { ...TRACKING_POSTER, index: 3, pagerIndex: 3, animate: false } : reduced ? TRACKING_POSTER : frame
     const offer = OFFERS[index]
     // Each surface morphs to and from its own icon on the home screen, not
     // from the button that was pressed.
@@ -472,7 +475,7 @@ export default function UberAdsLoop({
                 // the way in; vertically anchored on the offer so the offer is
                 // what the move frames.
                 transformOrigin: `50% ${ZOOM_ORIGIN_Y}%`,
-                transform: zoom === "offer" ? `scale(${gallery ? 2.25 : ZOOM_SCALE})` : "none",
+                transform: poster ? "scale(1.65)" : zoom === "offer" ? `scale(${gallery ? 2.25 : ZOOM_SCALE})` : "none",
                 transition: animate
                     ? `transform ${ZOOM_MS}ms ${APPLE_EASE}`
                     : "none",
@@ -597,14 +600,14 @@ export default function UberAdsLoop({
                                         : px(SCREEN_R),
                                     overflow: "hidden",
                                     opacity: appAway ? 0 : 1,
-                                    transition: [
+                                    transition: animate && appAway ? [
                                         `transform ${MORPH_MS}ms ${APPLE_EASE}`,
                                         `border-radius ${MORPH_MS}ms ${APPLE_EASE}`,
                                         // Held opaque until it is nearly the size
                                         // of the icon, so it never dissolves in
                                         // mid-air.
                                         `opacity ${Math.round(MORPH_MS * 0.3)}ms linear ${Math.round(MORPH_MS * 0.7)}ms`,
-                                    ].join(", "),
+                                    ].join(", ") : "none",
                                 }}
                             >
                                 {/* The page travels underneath the fixed navigation bar. */}

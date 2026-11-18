@@ -641,3 +641,7 @@ html[data-page="home"] #root { overflow:hidden; }
 
 /* Retain preview state while lightweight project marks occupy the reader rail. */
 .gallery-preview[hidden] { display:none; }
+
+/* Keep one moving story in the first row; the Uber offer is a settled poster. */
+.focus-uber-loop { background:#17191e; }
+.tile-visual:has(.focus-uber-loop) { --caption-tone:#e6e8ed; }
