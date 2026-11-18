@@ -104,12 +104,13 @@ export default function App() {
         previousSelected.current = selected
     }, [selected])
     useEffect(() => {
+        if (!navigationBusy) return
         let cancelled = false
         const completion = activeTransition?.finished ?? casePanel.current?.getAnimations()[0]?.finished
         if (completion) void completion.catch(() => {}).then(() => { if (!cancelled) setNavigationBusy(false) })
         else setNavigationBusy(false)
         return () => { cancelled = true }
-    }, [selected])
+    }, [selected, navigationBusy])
     useEffect(() => {
         if (!selected) return
         const rail = gallery.current
