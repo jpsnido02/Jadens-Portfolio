@@ -31,17 +31,17 @@ export default function CaseStudyPage({ slug, embedded = false, appearance, play
     return <main className={`study-page study-page--${type}`} style={style}>
         <div className="study-column">
             {!embedded && <div className="study-topbar"><a href="../../"><SiteIcon name="back" size={12}/> All work</a><div><button onClick={() => setMotion(value => !value)} aria-label={motion ? "Pause animations" : "Play animations"}><SiteIcon name={motion ? "pause" : "play"}/></button><button onClick={ownTheme.toggle} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}><SiteIcon name={theme === "dark" ? "sun" : "moon"}/></button></div></div>}
-            <figure className="study-opening"><div className="study-hero reader-hero"><ProjectCover project={project} index={visibleProjects.indexOf(project)} live={active}/></div><div className="study-figure-tools"><figcaption>{project.description}</figcaption><button type="button" onClick={() => setExpanded("project")}><SiteIcon name="search" size={12}/> Expand preview</button></div></figure>
+            <figure className="study-opening" aria-label={project.description}><div className="study-hero reader-hero"><ProjectCover project={project} index={visibleProjects.indexOf(project)} live={active}/></div><div className="study-figure-tools"><button type="button" onClick={() => setExpanded("project")}><SiteIcon name="search" size={12}/> Expand preview</button></div></figure>
             <header className="study-masthead"><h1>{study.title}</h1><p className="study-summary">{study.preview}</p><dl className="study-facts"><div><dt>My role</dt><dd>{study.role}</dd></div>{study.result && <div><dt>Result</dt><dd>{study.result}</dd></div>}</dl><p className="study-scope">{study.status ?? study.client}{study.year && ` · ${study.year}`}</p></header>
             {abstract?.kind === "abstract" && <p className="study-abstract">{abstract.text}</p>}
             {sections.length > 1 && <nav className="study-chapters" aria-label="Case study chapters">{sections.map(section => <a href={`#${slug}-section-${section.index}`} key={section.index}>{section.label}</a>)}</nav>}
             <div className="study-story">{study.blocks.map((block,index) => {
                 if (block.kind === "abstract") return null
                 if (block.kind === "section") return <section key={index} id={`${slug}-section-${index}`} className="study-section"><div className="study-section-heading"><h2>{block.thesis ?? block.label}</h2></div>{block.body && <p>{block.body}</p>}</section>
-                if (block.kind === "evidence") return <figure className="study-evidence" key={index}><ProjectEvidence name={block.name} playing={active}/>{block.caption && <figcaption>{block.caption}</figcaption>}</figure>
+                if (block.kind === "evidence") return <figure className="study-evidence" key={index} aria-label={block.caption}><ProjectEvidence name={block.name} playing={active}/></figure>
                 if (block.kind === "takeaway") return null
                 if (block.kind === "confidential") return <p key={index} className="study-disclosure">{block.text}</p>
-                if (block.kind === "figure" && block.src) return <figure className="study-evidence" key={index}><button className="study-image-button" type="button" onClick={() => setExpanded(block.src!)} aria-label={`Expand ${block.alt ?? "project image"}`}><img src={block.src} alt={block.alt ?? ""} loading="lazy"/></button>{block.caption && <figcaption>{block.caption}</figcaption>}</figure>
+                if (block.kind === "figure" && block.src) return <figure className="study-evidence" key={index} aria-label={block.caption}><button className="study-image-button" type="button" onClick={() => setExpanded(block.src!)} aria-label={`Expand ${block.alt ?? "project image"}`}><img src={block.src} alt={block.alt ?? ""} loading="lazy"/></button></figure>
                 return null
             })}</div>
             {reflection?.kind === "takeaway" && <section className="study-reflection"><h2>{reflection.title.replace(/^Takeaway:\s*/i, "")}</h2><p>{reflection.body}</p></section>}
