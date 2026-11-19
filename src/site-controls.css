@@ -12,7 +12,6 @@
     .tile-open,
     .study-topbar > a,
     .study-topbar > div > button,
-    .study-figure-tools > button,
     .study-lightbox-toolbar > button,
     .visitor-gate-card > button
 ) {
@@ -29,7 +28,7 @@
 
 /* Text-only actions still get a softly shaped keyboard focus treatment. */
 :is(.gallery-header nav > button, .motion-control, .study-topbar > a,
-    .study-figure-tools > button, .study-lightbox-toolbar > button) {
+    .study-lightbox-toolbar > button) {
     border-radius: 8px;
 }
 
@@ -42,7 +41,7 @@
 
 :is(.reader-toolbar > button, .footer-links > button,
     .about-card > button, .study-topbar > div > button,
-    .study-figure-tools > button, .study-lightbox-toolbar > button) > .site-icon {
+    .study-lightbox-toolbar > button) > .site-icon {
     display: block;
     vertical-align: 0;
 }

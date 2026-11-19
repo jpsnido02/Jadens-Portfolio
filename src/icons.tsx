@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { config, type IconDefinition } from "@fortawesome/fontawesome-svg-core"
-import { faArrowLeft, faArrowRight, faArrowUpRightFromSquare, faEnvelope, faGlobe, faFileLines, faXmark, faPause, faPlay, faSun, faMoon, faTableCellsLarge, faListCheck, faLayerGroup, faClockRotateLeft, faMagnifyingGlass, faCheck, faTableColumns } from "@fortawesome/free-solid-svg-icons"
+import { faArrowLeft, faArrowRight, faArrowUpRightFromSquare, faEnvelope, faGlobe, faFileLines, faXmark, faPause, faPlay, faSun, faMoon, faTableCellsLarge, faListCheck, faLayerGroup, faClockRotateLeft, faMagnifyingGlass, faExpand, faCheck, faTableColumns } from "@fortawesome/free-solid-svg-icons"
 import { faLinkedinIn, faTwitter, faXTwitter, faInstagram, faGithub, faDribbble, faBehance } from "@fortawesome/free-brands-svg-icons"
 import "@fortawesome/fontawesome-svg-core/styles.css"
 
@@ -50,7 +50,7 @@ const LINK_ICONS: Record<IntroIconName, IconDefinition> = {
 const UI_ICONS = { external: faArrowUpRightFromSquare, back: faArrowLeft, next: faArrowRight,
     close: faXmark, pause: faPause, play: faPlay, sun: faSun, moon: faMoon,
     overview: faTableCellsLarge, tasks: faListCheck, library: faLayerGroup,
-    activity: faClockRotateLeft, search: faMagnifyingGlass, check: faCheck, board: faTableColumns }
+    activity: faClockRotateLeft, search: faMagnifyingGlass, expand: faExpand, check: faCheck, board: faTableColumns }
 
 export function SiteIcon({ name, size = 14 }: { name: keyof typeof UI_ICONS; size?: number }) {
     return <FontAwesomeIcon icon={UI_ICONS[name]} className="site-icon" aria-hidden="true" focusable="false" style={{ width: size, height: size }} />
