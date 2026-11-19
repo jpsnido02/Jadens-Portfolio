@@ -1,3 +1,4 @@
+import UberOfferGallery from "./UberOfferGallery"
 import UberOrderComparison from "./UberOrderComparison"
 import { SiteIcon } from "./icons"
 import { ExpediaMobileOffer } from "./ExpediaComposition"
@@ -70,6 +71,7 @@ export default function ProjectEvidence({ name, playing = false }: { name: strin
     if (name === "agent-review") return <AgentReviewScene posterOnly />
     if (name === "branded-comparison") return <BrandedComparison />
     if (name === "macys-decision") return <MacysDecision />
+    if (name === "uber-formats") return <UberOfferGallery />
     if (name === "uber-context") return <UberOrderComparison />
     if (name === "expedia-proof") return <ExpediaDecision />
     return null

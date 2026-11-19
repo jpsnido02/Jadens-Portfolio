@@ -6,7 +6,7 @@ import { personalCaseStudies } from "./personalProjects"
 export type FigureWidth = "bleed" | "full" | "half" | "strip"
 
 export type Block =
-    | { kind: "evidence"; name: "uber-context" | "macys-decision" | "agent-review" | "branded-comparison" | "expedia-proof" | "pantry-proof"; caption?: string }
+    | { kind: "evidence"; name: "uber-context" | "uber-formats" | "macys-decision" | "agent-review" | "branded-comparison" | "expedia-proof" | "pantry-proof"; caption?: string }
     /** ≤45 words. Hanging indent, set apart from everything else. */
     | { kind: "abstract"; text: string }
     /** One sentence, ≤20 words. The largest type in the body. */
@@ -132,6 +132,10 @@ export const caseStudies: CaseStudy[] = [
                 "label": "Design decision",
                 "thesis": "One placement, different kinds of relevance.",
                 "body": "A consistent container holds different partner assets, messages, and actions. The primary action names what happens next, and the secondary action lets the customer continue without accepting."
+            },
+            {
+                "kind": "evidence",
+                "name": "uber-formats"
             },
             {
                 "kind": "takeaway",
