@@ -26,6 +26,7 @@ function Offer({ index }: { index: number }) {
     }, [step, beat])
 
     function reset() {
+        setCoffee("Hot")
         setBeat(0)
         setWrongAnswer(false)
         setStep("offer")
@@ -35,38 +36,43 @@ function Offer({ index }: { index: number }) {
     }
 
     let message: string
-    let actions: ReactNode
+    let creativeControl: ReactNode
+    const finished = step === "claimed" || step === "dismissed"
     if (step === "claimed") {
         message = index === 2 ? coffee + " coffee · 2-for-1 pass" : format.reward
-        actions = action("Try again", reset)
     } else if (step === "dismissed") {
         message = "Your breakfast is being prepared."
-        actions = action("View offer again", reset)
     } else if (step === "ready") {
         message = ["That’s right. Pan means bread.", "Two breaths, nicely done.", coffee + " coffee for your next visit."][index]
-        actions = action(format.claim, () => setStep("claimed"))
     } else if (index === 0) {
         message = wrongAnswer ? "Butter is mantequilla. What does pan mean?" : "What does “pan” mean in Spanish?"
-        actions = <>{action("Bread", () => setStep("ready"))}{action("Butter", () => setWrongAnswer(true))}</>
+        creativeControl = <>{action("Bread", () => setStep("ready"))}{action("Butter", () => setWrongAnswer(true))}</>
     } else if (index === 1) {
         message = step === "breathing" ? "Follow the circle for two slow breaths." : "Take a 12-second breathing break while breakfast cooks."
-        actions = step === "breathing" ? action("Stop", reset) : action("Start breathing", () => setStep("breathing"))
+        creativeControl = step === "breathing" ? action("Stop", reset) : action("Start breathing", () => setStep("breathing"))
     } else {
         message = "Choose your 2-for-1 coffee pass."
-        actions = <>{["Hot", "Iced"].map(choice => <button type="button" key={choice} onClick={() => {setCoffee(choice); setStep("ready")}}>{choice}</button>)}</>
+        creativeControl = <>{["Hot", "Iced"].map(choice => <button type="button" key={choice} onClick={() => {setCoffee(choice); setStep("ready")}}>{choice}</button>)}</>
     }
 
     return <article className="uf-card" style={{ maxWidth: CARD_W, fontFamily: UBER_TEXT }} aria-label={format.brand + " offer"}>
+        <div className="uf-creative">
         {index === 0 && <div className="uf-art uf-letters" aria-hidden="true">{["p", "a", "n"].map(letter => <b key={letter}>{letter}</b>)}</div>}
         {index === 1 && <div className="uf-art uf-pause"><i aria-hidden="true" data-running={step === "breathing"}/><b>{step === "breathing" ? (beat % 2 ? "Breathe out" : "Breathe in") : "Two breaths"}</b></div>}
         {index === 2 && <div className="uf-art uf-pass"><div><span>Starbucks<br/>Morning coffee pass</span><b>2 for 1</b></div></div>}
+        {creativeControl && <div className="uf-tools" role="group" aria-label={["Answer the lesson", "Breathing exercise", "Choose a coffee"][index]}>{creativeControl}</div>}
+        </div>
         <div className="uf-copy">
             <small>{format.brand}</small>
             <div aria-live="polite" aria-atomic="true">
                 <h3>{step === "claimed" ? "Offer claimed" : step === "dismissed" ? "Back to your order" : format.title}</h3>
                 <p>{message}</p>
             </div>
-            <div className="uf-actions">{actions}{step !== "dismissed" && step !== "claimed" && action("Not now", () => setStep("dismissed"), true)}</div>
+            {finished ? <button type="button" className="uf-replay" onClick={reset}>Replay offer</button> :
+                <div className="uf-actions">
+                    {action(format.claim, () => setStep("claimed"))}
+                    {action("Not now", () => setStep("dismissed"), true)}
+                </div>}
             <div className="uf-meta"><span>{["Spanish · Weekly pass", "12 seconds · Sound off", "At participating stores."][index]}</span><span>Ad</span></div>
         </div>
     </article>

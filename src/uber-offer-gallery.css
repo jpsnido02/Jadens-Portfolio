@@ -28,3 +28,13 @@
 .uf-picker { justify-content:center; gap:2px; padding:0 8px; }
 .study-page .uf-picker button { padding:8px; border:0; background:transparent; color:var(--study-muted); font-size:13px; min-height:44px; }
 .study-page .uf-picker button[aria-pressed=true] { color:var(--study-ink); text-decoration:underline; text-underline-offset:5px; }
+
+.uf-creative:has(.uf-letters) { background:#e0f4ba; }
+.uf-creative:has(.uf-pause) { background:#fff0db; }
+.uf-creative:has(.uf-pass) { background:#e4efe9; }
+.uf-tools { display:flex; justify-content:center; gap:8px; padding:0 12px 8px; }
+.study-page .uf-tools button,.study-page .uf-replay {
+    min-height:36px; padding:0 8px; color:#252525; background:transparent; border:0;
+    font:500 13px "Uber Move",Arial,sans-serif; text-decoration:underline; text-underline-offset:3px;
+}
+@media(pointer:coarse) { .study-page .uf-tools button,.study-page .uf-replay { min-height:44px; } }
