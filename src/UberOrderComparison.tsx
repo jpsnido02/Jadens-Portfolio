@@ -10,7 +10,7 @@ export default function UberOrderComparison() {
             <div className="meal-screen" aria-hidden="true"><UberAdsLoop comparisonMeal="dinner" fit="contain" /></div>
             <div className="meal-screen meal-breakfast" aria-hidden="true"><UberAdsLoop comparisonMeal="breakfast" fit="contain" /></div>
             <input className="meal-range" type="range" min="0" max="100" value={breakfast}
-                aria-label="Compare illustrative Uber Eats orders"
+                aria-label="Compare breakfast and dinner offers on Uber Eats"
                 aria-valuetext={breakfast + "% breakfast with Starbucks, " + (100 - breakfast) + "% dinner with Disney+"}
                 onChange={event => setBreakfast(event.currentTarget.valueAsNumber)} />
             <div className="meal-divider" aria-hidden="true"><span>

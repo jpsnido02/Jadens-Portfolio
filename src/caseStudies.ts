@@ -113,7 +113,6 @@ export const caseStudies: CaseStudy[] = [
         "next": "",
         "preview": "Relevant offers during the wait between ordering and delivery.",
         "result": "One placement connects order context to a relevant next action.",
-        "status": "Recreated prototype",
         "blocks": [
             {
                 "kind": "abstract",
@@ -127,7 +126,7 @@ export const caseStudies: CaseStudy[] = [
             {
                 "kind": "evidence",
                 "name": "uber-context",
-                "caption": "Illustrative order scenarios and recreated offers."
+                "caption": "Slide between breakfast and dinner to see how the meal and time of day shape the offer."
             },
             {
                 "kind": "section",
@@ -139,10 +138,6 @@ export const caseStudies: CaseStudy[] = [
                 "kind": "takeaway",
                 "title": "Reflection",
                 "body": "The contextual message matters as much as the placement. Showing why an offer belongs in this moment makes the interaction easier to understand than adding more visual emphasis."
-            },
-            {
-                "kind": "confidential",
-                "text": "Screens are recreated and simplified for this portfolio. The demo does not represent a production data connection or a measured campaign result."
             }
         ]
     },
@@ -159,7 +154,6 @@ export const caseStudies: CaseStudy[] = [
         "next": "",
         "preview": "Give customers a clear incentive to add a second item to their bag.",
         "result": "The second addition unlocks an exclusive price on a third item.",
-        "status": "Recreated bag-page flow",
         "blocks": [
             {
                 "kind": "abstract",
@@ -186,7 +180,7 @@ export const caseStudies: CaseStudy[] = [
                 "kind": "section",
                 "label": "The result",
                 "thesis": "Show the updated bag, not just a successful click.",
-                "body": "The demonstration ends with the discounted item added and the bag state updated. This makes the benefit of the sequence visible. No conversion lift is claimed here."
+                "body": "When the shopper adds the discounted item, the bag shows the new item and its price together."
             },
             {
                 "kind": "takeaway",
@@ -208,7 +202,6 @@ export const caseStudies: CaseStudy[] = [
         "next": "",
         "preview": "An autonomous agent creates designs across more than 5,000 accounts. A shared dashboard lets me track builds, review the work, and approve it.",
         "result": "A clear human review and feedback step before work is approved.",
-        "status": "Workflow prototype · illustrative tasks",
         "blocks": [
             {
                 "kind": "abstract",
@@ -224,12 +217,12 @@ export const caseStudies: CaseStudy[] = [
                 "kind": "section",
                 "label": "The handoff",
                 "thesis": "Review the output before the build metadata.",
-                "body": "A representative generated design sits beside the review criteria. Brand treatment, responsive layout, and the customer action are visible together so the decision is grounded in the proposed experience."
+                "body": "I review the generated design alongside three checks. Does it use the account’s typography and colors? Does the layout adapt to the screen? Is the customer’s next action clear?"
             },
             {
                 "kind": "evidence",
                 "name": "agent-review",
-                "caption": "A recreated example of the review handoff. The generated output and review criteria lead; ticket metadata stays secondary."
+                "caption": "I can approve the design or request changes from the same review screen."
             },
             {
                 "kind": "section",
@@ -241,10 +234,6 @@ export const caseStudies: CaseStudy[] = [
                 "kind": "takeaway",
                 "title": "Reflection",
                 "body": "Autonomy makes the review boundary more important. The system should make the proposed output easy to inspect and leave the final approval unmistakably human."
-            },
-            {
-                "kind": "confidential",
-                "text": "Account names and tasks illustrate the workflow. The portfolio animation cannot edit accounts, run a production agent, or publish designs."
             }
         ]
     },
@@ -304,7 +293,6 @@ export const caseStudies: CaseStudy[] = [
         "next": "",
         "preview": "Connect a completed flight booking to the next part of the trip.",
         "result": "Hotel and onward-travel offers presented inside the booking flow.",
-        "status": "Recreated interface",
         "blocks": [
             {
                 "kind": "abstract",
@@ -319,7 +307,7 @@ export const caseStudies: CaseStudy[] = [
             {
                 "kind": "evidence",
                 "name": "expedia-proof",
-                "caption": "A close-up of the mobile offer, recreated as interface elements, and the decisions connecting it to the completed booking."
+                "caption": "The mobile sheet confirms the flight to Honolulu before offering to find a hotel for the same dates."
             },
             {
                 "kind": "section",
@@ -347,7 +335,6 @@ export const caseStudies: CaseStudy[] = [
         "next": "",
         "preview": "An advertisement that responds when the market changes.",
         "result": "A five-yard loss precedes a lower SF chance and higher potential payout.",
-        "status": "Illustrative market animation",
         "blocks": [
             {
                 "kind": "abstract",
@@ -357,7 +344,7 @@ export const caseStudies: CaseStudy[] = [
                 "kind": "section",
                 "label": "The interaction",
                 "thesis": "One event. Two connected values.",
-                "body": "San Francisco loses five yards. The illustrative win chance falls from 18% to 16%, while the potential payout rises from $131.16 to $147.56. Both values change in place so their relationship is easy to follow."
+                "body": "San Francisco loses five yards. The displayed win chance falls from 18% to 16%, while the potential payout rises from $131.16 to $147.56. Both values change in place so their relationship is easy to follow."
             },
             {
                 "kind": "section",
@@ -369,10 +356,6 @@ export const caseStudies: CaseStudy[] = [
                 "kind": "takeaway",
                 "title": "Reflection",
                 "body": "The motion is clearest when it explains a relationship. Keeping both values anchored makes the change legible without animating the entire advertisement."
-            },
-            {
-                "kind": "confidential",
-                "text": "The scenario and quotes are illustrative. The animation is not connected to live market data and does not calculate an executable quote."
             }
         ]
     }

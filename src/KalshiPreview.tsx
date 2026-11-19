@@ -108,7 +108,7 @@ export default function KalshiPreview({ playing }: { playing: boolean }) {
                 <span className="kalshi-payout-label">POTENTIAL PAYOUT</span><strong className="kalshi-payout"><span>$</span><RollingValue value={quote.payout} previous={previous.payout} revision={revision} /></strong>
                 <span className="kalshi-condition">if San Francisco wins this game</span>
                 <span className="kalshi-comparison kalshi-previous-payout">Was ${QUOTES[0].payout}</span>
-                <p className="kalshi-terms">Illustrative scenario and prices for a new $25 entry.<br />Trading involves risk of loss. Not available in all states. 18+.</p>
+                <p className="kalshi-terms">Potential payout shown for a $25 entry.<br />Trading involves risk of loss. Not available in all states. 18+.</p>
             </div>
         </div>
     </div>

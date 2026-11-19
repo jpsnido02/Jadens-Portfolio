@@ -851,7 +851,7 @@ export default function MacysBagLoop({
             role="img"
             aria-label={
                 reduced ? reducedSummary : alt ??
-                "The Macy's bag page prototype: adding a suggested item unlocks an exclusive 50% discount, which comes up out of grey as the order summary updates."
+                "On the Macy’s bag page, adding a suggested item unlocks an exclusive 50% discount, which comes up out of grey as the order summary updates."
             }
             style={{
                 width: "100%",
