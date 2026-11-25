@@ -90,6 +90,7 @@ function useTimeline(playing:boolean,reduced:boolean,onFrame:(time:number)=>stri
  return clock
 }
 export function AgentDashboard({playing,interactive:_interactive=false}:{playing:boolean;interactive?:boolean}) {
+ const viewport=useRef<HTMLDivElement>(null)
  const root=useRef<HTMLDivElement>(null),scene=useRef<HTMLDivElement>(null),focal=useRef<HTMLDivElement>(null)
  const modalLayer=useRef<HTMLDivElement>(null),modalBox=useRef<HTMLDivElement>(null),approveButton=useRef<HTMLSpanElement>(null)
  const hoverFill=useRef<HTMLSpanElement>(null), confirmation=useRef<HTMLSpanElement>(null), approveLabel=useRef<HTMLSpanElement>(null)
@@ -99,7 +100,7 @@ export function AgentDashboard({playing,interactive:_interactive=false}:{playing
  const [size,setSize]=useState({w:0,h:0})
  const [reduced,setReduced]=useState(()=>matchMedia("(prefers-reduced-motion: reduce)").matches)
  useEffect(()=>{const q=matchMedia("(prefers-reduced-motion: reduce)");const change=()=>setReduced(q.matches);q.addEventListener("change",change);return()=>q.removeEventListener("change",change)},[])
- useEffect(()=>{const ro=new ResizeObserver(([e])=>setSize({w:e.contentRect.width,h:e.contentRect.height}));ro.observe(root.current!);return()=>ro.disconnect()},[])
+ useEffect(()=>{const ro=new ResizeObserver(([e])=>setSize({w:e.contentRect.width,h:e.contentRect.height}));ro.observe(viewport.current!);return()=>ro.disconnect()},[])
  useLayoutEffect(()=>{
   groups.current=Array.from(scene.current?.querySelectorAll<HTMLElement>("[data-entrance]")??[]).map(node=>({node,name:node.dataset.entrance as EntranceName}))
   parts.current={fill:focal.current?.querySelector(".ado-progress>span")??null,card:focal.current?.querySelector(".ado-task")??null,contact:focal.current?.querySelector(".ado-grab")??null,shadow:focal.current?.querySelector(".ado-lift-shadow")??null}
@@ -132,6 +133,7 @@ export function AgentDashboard({playing,interactive:_interactive=false}:{playing
  const columnEntrances:EntranceName[]=["queue","building","review","complete"]
  const p=f.cardPose,c=f.camera
  return <div ref={root} className={`ado-stage ${f.compact?"ado-compact":""} ${!playing?"ado-paused":""}`} data-agent-phase={f.phase} data-agent-beat={f.beat} data-agent-stage={f.stage} data-agent-mocks={f.made}>
+  <div ref={viewport} className="ado-scene-viewport">
   <div ref={scene} className="ado-scene" style={{width:W,height:H,opacity:f.sceneOpacity,transform:`matrix(${c.s},0,0,${c.s},${c.tx},${c.ty})`}}>
    <Shell/>
    {COLUMNS.map((name,i)=><div className="ado-entry-group ado-column-track" key={name} data-entrance={columnEntrances[i]} style={entranceStyle(columnEntrances[i])}>
@@ -145,7 +147,6 @@ export function AgentDashboard({playing,interactive:_interactive=false}:{playing
     <Ticket task={FOCAL} made={f.made} stage={f.stage} progress={f.buildProgress} click={f.reviewRippleVisible} pressScale={f.cardPressScale}/><span className="ado-lift-shadow" style={{opacity:f.shadowOpacity}}/><span className="ado-grab" style={{opacity:f.contactOpacity}}/>
    </div>
   </div>
-  {f.compact&&<div className="ado-mini-browser"><span className="ado-lights"><i/><i/><i/></span><span>Design Agents</span><Icon icon={faEllipsis} size={12}/></div>}
   {f.modal.visible&&<div ref={modalLayer} className="ado-modal-layer" style={{opacity:f.modal.opacity}}><div className="ado-modal-backdrop"/><div ref={modalBox} className="ado-modal" role="img" aria-label="Shutterfly design review" style={{transform:`translateY(${f.modal.y}px) scale(${f.modal.scale*f.modal.scaleMultiplier})`}}>
    <div className="ado-modal-top"><img src={LOGOS.Shutterfly} alt="Shutterfly"/><span>DS-103</span><Icon icon={faXmark} size={15}/></div>
    <div className="ado-modal-title">Build full lookbook for Shutterfly checkout</div><div className="ado-modal-sub">Requested by Elena Park<span>Due today</span></div>
@@ -160,5 +161,7 @@ export function AgentDashboard({playing,interactive:_interactive=false}:{playing
     {f.approveRippleVisible&&<span className="uber-tap ado-tap"/>}
    </span></div>
   </div></div>}
+  </div>
+  {f.compact&&<div className="ado-mini-browser"><span className="ado-lights"><i/><i/><i/></span><span>Design Agents</span><Icon icon={faEllipsis} size={12}/></div>}
  </div>
 }

@@ -33,8 +33,11 @@
 .ado-task-footer{position:absolute;left:11px;right:11px;bottom:16px;margin:0;height:21px}
 .ado-progress{position:absolute;left:11px;right:11px;bottom:10px}
 .ado-grab{bottom:40px}
-/* A readable phone crop follows the same retained card and timeline. */
-.ado-mini-browser{position:absolute;z-index:21;top:12px;left:12px;right:12px;height:27px;display:flex;align-items:center;justify-content:space-between;padding:0 9px;border:1px solid #dce1e7;border-radius:7px 7px 0 0;background:#fbfcfd;color:#657182;font-size:10px}
+/* Keep the compact toolbar anchored above its own clipped camera viewport. */
+.ado-scene-viewport{position:absolute;inset:0;overflow:hidden}
+.ado-compact{--ado-toolbar-height:39px}
+.ado-compact .ado-scene-viewport{top:var(--ado-toolbar-height)}
+.ado-mini-browser{position:absolute;z-index:21;top:0;left:0;right:0;height:var(--ado-toolbar-height);display:flex;align-items:center;justify-content:space-between;padding:0 15px;border:0;border-bottom:1px solid #dce1e7;background:#fbfcfd;color:#657182;font-size:10px}
 .ado-mini-browser .ado-lights{gap:4px;margin:0}.ado-mini-browser .ado-lights i{width:5px;height:5px}
 .ado-compact .ado-modal{width:326px;height:340px;padding:18px}
 .ado-compact .ado-modal-top{height:20px;margin-bottom:12px}.ado-compact .ado-modal-top>img{width:75px;height:18px}
