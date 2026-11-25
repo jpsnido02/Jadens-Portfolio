@@ -27,8 +27,7 @@ html[data-page="home"] #root { overflow:hidden; }
 .motion-control span { font-size:10px; color:var(--gallery-muted); font-weight:500; }
 .project-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:42px 26px; }
 .project-tile { min-width:0; display:block; position:relative; border-radius:18px; animation:tile-arrive .8s cubic-bezier(.16,1,.3,1) both; animation-delay:calc(var(--tile-index)*75ms); }
-.tile-visual { position:relative; aspect-ratio:1.4; overflow:hidden; border-radius:18px; background:#f3f3f3; border:1px solid var(--gallery-line); isolation:isolate; transition:border-color .3s; }
-.project-tile:hover .tile-visual { border-color:#b5b5b5; }
+.tile-visual { position:relative; aspect-ratio:1.4; overflow:hidden; border-radius:18px; background:#f3f3f3; border:0; isolation:isolate; }
 .project-cover { position:absolute; inset:0; width:100%; height:100%; overflow:hidden; background:#f5f5f5; }
 .site-icon { display:inline-block; flex:none; vertical-align:-.125em; fill:currentColor; stroke:none; overflow:visible; }
 .project-close .site-icon { fill:currentColor; stroke:none; }
@@ -295,7 +294,7 @@ html[data-page="home"] #root { overflow:hidden; }
 
 /* Scrims are deeper shades of each card, including the rotating brand palette. */
 @property --caption-tone { syntax:"<color>"; inherits:true; initial-value:#292929; }
-.tile-visual { --caption-tone:#292929; transition:border-color .3s,--caption-tone .7s; }
+.tile-visual { --caption-tone:#292929; transition:--caption-tone .7s; }
 .tile-visual:has(.focus-uber-loop,.cover-0) { --caption-tone:#3c345b; }
 .tile-visual:has(.focus-macys-bag,.cover-1) { --caption-tone:#693b40; }
 .tile-visual:has(.focus-partner-agent,.cover-2) { --caption-tone:#1f405a; }
