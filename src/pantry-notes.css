@@ -4,7 +4,8 @@
     position:absolute; inset:0; overflow:hidden; background:#eeeeec; font-family:var(--pn-sans); color:#fff; }
 .pnt-device { position:absolute; top:50%; left:50%; transform-origin:center; filter:drop-shadow(0 14px 15px #0002); }
 /* The screen runs 6 px under the bezel on every side: the frame's opening has continuous (squircle) corners. */
-.pnt-screen { position:absolute; overflow:hidden; background:#000; }
+/* Keep the camera, status bar, and recipe layers below the bezel as one stack. */
+.pnt-screen { position:absolute; isolation:isolate; overflow:hidden; background:#000; }
 .pnt-content { position:absolute; left:6px; top:6px; width:393px; height:852px; }
 .pnt-content * { box-sizing:border-box; }
 .pnt-content svg { display:block; flex:none; }
