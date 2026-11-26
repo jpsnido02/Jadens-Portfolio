@@ -31,9 +31,7 @@ export default function BrandedEditorial({ study, playing, demo, onExpand }: { s
             <div className="branded-stage-ground" aria-hidden="true" />
             {offers.map((offer, index) => <div className={`branded-stage-piece branded-stage-piece--${offer.id}`} style={{ "--piece-delay": `${index * 110}ms` } as CSSProperties} key={offer.id}>
                 <button type="button" className="branded-stage-paper" onClick={() => onExpand(offer.id)} aria-label={`Expand ${offer.name} offer design`} aria-haspopup="dialog"><DesignWindow {...offer} alt={offer.description} /></button>
-                <span className="branded-partner-name">{offer.name}</span>
             </div>)}
-            <figcaption>One offer structure, expressed through three different brands. Select a design to explore.</figcaption>
         </figure>
 
         <header id="branded-overview" className="branded-introduction">

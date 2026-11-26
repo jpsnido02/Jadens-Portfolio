@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react"
+import { useEffect, useRef, useState } from "react"
 
 export type StudyChapter = { id: string; label: string }
 
@@ -35,8 +35,9 @@ export default function StudyNavigation({ chapters }: { chapters: StudyChapter[]
         measure()
         return () => { target.removeEventListener("scroll", schedule); window.removeEventListener("resize", schedule); observer.disconnect(); cancelAnimationFrame(frame) }
     }, [chapters])
-    return <aside className="study-navigation"><nav ref={nav} className="study-ticker" style={{"--reading-progress":position.progress} as CSSProperties} aria-label="Case study sections">
-        <div className="study-ticker-scale" aria-hidden="true">{Array.from({length:45},(_,i) => <span key={i} className={i / 44 <= position.progress ? "is-read" : ""}/>)}<i style={{top:`${position.progress * 100}%`}}/></div>
+    const activeTick = Math.round(position.progress * 44)
+    return <aside className="study-navigation"><nav ref={nav} className="study-ticker" aria-label="Case study sections">
+        <div className="study-ticker-scale" aria-hidden="true">{Array.from({length:45},(_,i) => <span key={i} className={i === activeTick ? "is-current" : i < activeTick ? "is-read" : ""}/>)}</div>
         <div className="study-ticker-links">{chapters.map(chapter => <a key={chapter.id} href={`#${chapter.id}`} aria-current={position.active === chapter.id ? "location" : undefined} onClick={event => {
             if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
             event.preventDefault()
