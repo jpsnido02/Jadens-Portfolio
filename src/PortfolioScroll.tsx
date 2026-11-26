@@ -52,6 +52,7 @@ export interface ProjectData {
         | "thought-atlas"
         | "build-view"
         | "kalshi-live"
+        | "ebay-dpa"
     /** Fills the card's thumbnail square. Left empty it stays a plain plate. */
     thumb?: { src: string; alt: string }
     /**

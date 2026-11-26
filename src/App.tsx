@@ -44,7 +44,7 @@ export default function App() {
     const opener = useRef<HTMLAnchorElement | null>(null)
     const galleryPosition = useRef(0)
     const previousSelected = useRef<string | null>(selected)
-    const projectTiles = useRef(new Map<string, HTMLAnchorElement>())
+    const projectTiles = useRef(new Map<string, HTMLElement>())
     const selectedIndex = selected ? slugs.indexOf(selected) : -1
     const select = (slug: string | null, push = true) => {
         if (slug === selectedRef.current) return
@@ -172,7 +172,9 @@ export default function App() {
             </section>
             <div className="work-heading"><span>WORK PROJECTS <span className="project-count">{String(workCount).padStart(2, "0")}</span></span><button className="motion-control" aria-pressed={motion} onClick={() => setMotion(!motion)}><SiteIcon name={motion ? "pause" : "play"} size={12} /> <span>{motion ? "Motion on" : "Motion paused"}</span></button></div>
             <div className="project-grid">
-                {projects.map((project, index) => <Fragment key={project.title}>{index === workCount && <h2 className="project-group-heading">PERSONAL PROJECTS <span>{String(projects.length - workCount).padStart(2, "0")}</span></h2>}<a ref={element => { if (element) projectTiles.current.set(slugs[index], element); else projectTiles.current.delete(slugs[index]) }} data-project={slugs[index]} href={`?project=${slugs[index]}`} className={`project-tile ${selected === slugs[index] ? "is-selected" : ""}`} onClick={event => open(event, slugs[index])} onPointerEnter={project.component === "macys-bag" ? () => setMacysReplay(value => value + 1) : undefined} onFocus={project.component === "macys-bag" ? () => setMacysReplay(value => value + 1) : undefined} aria-current={selected === slugs[index] ? "page" : undefined} aria-label={`${project.title}${project.comingSoon ? ", case study in progress" : ""}`} style={{ "--tile-index": index } as CSSProperties}>
+                {projects.map((project, index) => {
+                    const external = project.link?.startsWith("https://")
+                    return <Fragment key={project.title}>{index === workCount && <h2 className="project-group-heading">PERSONAL PROJECTS <span>{String(projects.length - workCount).padStart(2, "0")}</span></h2>}<a ref={(element: HTMLElement | null) => { if (element) projectTiles.current.set(slugs[index], element); else projectTiles.current.delete(slugs[index]) }} data-project={slugs[index]} href={external ? project.link : `?project=${slugs[index]}`} target={external ? "_blank" : undefined} rel={external ? "noopener noreferrer" : undefined} className={`project-tile ${selected === slugs[index] ? "is-selected" : ""}`} onClick={external ? undefined : event => open(event as MouseEvent<HTMLAnchorElement>, slugs[index])} onPointerEnter={project.component === "macys-bag" ? () => setMacysReplay(value => value + 1) : undefined} onFocus={project.component === "macys-bag" ? () => setMacysReplay(value => value + 1) : undefined} aria-current={selected === slugs[index] ? "page" : undefined} aria-label={`${project.title}${project.link?.startsWith("https://") ? ", explore Rokt Catalog (opens in a new tab)" : ""}${project.comingSoon ? ", case study in progress" : ""}`} style={{ "--tile-index": index } as CSSProperties}>
                     <div className="project-tile-snapshot" style={{ viewTransitionName: `project-${index}`, viewTransitionClass: "project-card" } as CSSProperties}>
                     <div className="tile-visual gallery-preview" hidden={Boolean(selected)}><ProjectCover project={project} index={Math.max(0, workProjects.indexOf(project))} live={motion && !selected && !navigationBusy} focused replayKey={project.component === "macys-bag" ? macysReplay : 0} /><div className="project-badges"><span className="project-badge">{projectBadges[slugs[index]]?.brand ?? project.title}</span><span className="project-badge">{projectBadges[slugs[index]]?.description ?? project.category}</span></div></div>
                     {selected && <div className="tile-visual rail-mark" title={project.title}>
@@ -182,7 +184,7 @@ export default function App() {
                         </span>}
                     </div>}
                     </div>
-                </a></Fragment>)}
+                </a></Fragment>})}
             </div>
             <footer className="gallery-footer"><div className="footer-links">{intro.links.map(link => <a key={link.label} href={link.url} target={link.url.startsWith("mailto:") ? undefined : "_blank"} rel="noreferrer">{link.label}</a>)}<button onClick={toggle}>{theme === "dark" ? "Light" : "Dark"} mode <SiteIcon name={theme === "dark" ? "sun" : "moon"} size={13} /></button></div><p>© Jaden Snyder 2026</p></footer>
         </div>

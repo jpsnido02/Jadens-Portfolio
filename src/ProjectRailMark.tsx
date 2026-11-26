@@ -8,6 +8,7 @@ export const railProjectTitle: Record<string, string> = {
 
 const images: Record<string, string> = {
     "uber-ads": "icon-ubereats.svg",
+    "rokt-catalog": "agent-logos/ebay.svg",
     "agent-design-operations": "icon-rokt-logo.svg",
     "kalshi-dynamic-ads": "icon-kalshi.svg",
     "macys-bag-page": "icon-macys.svg",

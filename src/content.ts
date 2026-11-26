@@ -51,6 +51,17 @@ export const intro = {
 }
 
 export const projects: ProjectData[] = [
+    {
+        title: "eBay Direct Product Ads",
+        image: { src: "/projects/ebay-dpa/lip-liner.jpg", alt: "Smooche products in an eBay post-purchase offer" },
+        thumb: { src: "/projects/agent-logos/ebay.svg", alt: "eBay" },
+        mediaType: "component",
+        component: "ebay-dpa",
+        category: "Product discovery",
+        year: "2026",
+        description: "Relevant product discovery after checkout",
+        link: "https://www.rokt.com/products/rokt-catalog",
+    },
     // Order matters twice over: it indexes the card palette, and it is the
     // reading order of the case studies.
     {
