@@ -26,3 +26,34 @@
 }
 /* Keep the original inherited typography within the product demonstrations. */
 .project-cover { font-family: "Plus Jakarta Sans", Arial, sans-serif; }
+
+/* A lighter editorial hierarchy, scoped outside the product demonstrations. */
+.portfolio .gallery-intro h1,
+.portfolio .about-card h2,
+.study-page .study-masthead h1 {
+    font-weight: 550;
+}
+.study-page .study-section h2,
+.study-page .study-reflection h2,
+.study-page .study-next strong,
+.portfolio .rail-selected-name {
+    font-weight: 500;
+}
+.portfolio .gallery-header nav,
+.portfolio .work-heading,
+.portfolio .project-group-heading,
+.portfolio .footer-links,
+.portfolio .reader-toolbar,
+.study-page .study-section h3 {
+    font-weight: 450;
+}
+.portfolio .intro-details .intro-description,
+.portfolio .intro-details .building-status,
+.portfolio .motion-control span,
+.portfolio .project-badge,
+.study-page .study-facts dd {
+    font-weight: 400;
+}
+.visitor-gate .visitor-gate-card h1 { font-weight: 500; }
+.visitor-gate .visitor-gate-card > p { font-weight: 450; }
+.visitor-gate .visitor-gate-card :is(label, button) { font-weight: 400; }
