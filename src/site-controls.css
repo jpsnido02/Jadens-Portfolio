@@ -55,11 +55,11 @@
     .study-page .study-hero.reader-hero { border-radius: 20px; }
 }
 
-/* The live anchor always owns its rounded clip. Capture its square inner
+/* The live media frame always owns its rounded clip. Capture its square inner
    surface instead: ancestor clipping is not baked into the transition bitmap,
    so the shared snapshot mask can round it without a pre-capture flash. */
 @supports (view-transition-class: project-card) {
-    .portfolio .project-tile { overflow: hidden; }
+    .portfolio .project-media { overflow: hidden; }
     .portfolio .project-tile .tile-visual { border-radius: 0; }
 }
 ::view-transition-image-pair(*.project-card) {

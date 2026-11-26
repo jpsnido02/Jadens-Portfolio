@@ -1,8 +1,7 @@
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react"
 import { flushSync } from "react-dom"
 import { intro, projects as workProjects } from "./content"
-import { personalMeta } from "./personalProjects"
-import { visibleProjects, projectLabels } from "./portfolioCatalog"
+import { visibleProjects, homepageProjectDetails } from "./portfolioCatalog"
 import { bySlug } from "./caseStudies"
 import CaseStudyPage from "./CaseStudyPage"
 import ProjectCover from "./ProjectCover"
@@ -11,6 +10,7 @@ import ClickWord from "./ClickWord"
 import { IntroIcon, SiteIcon, resolveIntroIcon } from "./icons"
 import { useTheme } from "./useTheme"
 import "./gallery.css"
+import "./homepage.css"
 
 const projects = visibleProjects
 const workCount = projects.filter(project => workProjects.includes(project)).length
@@ -165,23 +165,31 @@ export default function App() {
         <div ref={gallery} className="gallery-scroll" inert={about} aria-label={selected ? "Choose another project" : "Portfolio"}>
             <header className="gallery-header">
                 <a className="wordmark" href="./" aria-label="Jaden Snyder home"><img src="/favicon.svg" alt="" width="42" height="42" /></a>
-                <nav aria-label="Main navigation"><button onClick={() => setAbout(true)}>About</button><a href={intro.links.find(l => l.label === "Resume")?.url} target="_blank" rel="noreferrer">Resume</a><a className="contact-link" href="mailto:jadenpsnyder02@gmail.com"><span>Let’s talk</span><SiteIcon name="external" size={13} /></a></nav>
+                <nav aria-label="Main navigation"><button onClick={() => setAbout(true)}>About</button><a href={intro.links.find(l => l.label === "Resume")?.url} target="_blank" rel="noreferrer">Resume</a><a className="contact-link" href="mailto:jadenpsnyder02@gmail.com"><span>Let’s talk</span></a></nav>
             </header>
             <section className="gallery-intro">
                 <div><h1>Hi, I’m Jaden<br /><span>I create designs that</span>{" "}<ClickWord /></h1></div>
-                <div className="intro-details"><p className="intro-description">A product designer comfortable working at every step of the product lifecycle. From ideation to prototype to code.</p><p className="building-status"><span className="current-work-dot" aria-hidden="true"/><span>Currently building AI systems for advertisements at Rokt</span></p></div>
+                <div className="intro-details"><p className="intro-description">I design commerce experiences and build the tools behind them—from customer-facing interactions to AI-powered design systems.</p><p className="building-status"><span className="current-work-dot" aria-hidden="true"/><span>Currently building design agents at Rokt</span></p></div>
             </section>
-            <div className="work-heading"><span>WORK PROJECTS <span className="project-count">{String(workCount).padStart(2, "0")}</span></span><button className="motion-control" aria-pressed={motion} onClick={() => setMotion(!motion)}><SiteIcon name={motion ? "pause" : "play"} size={12} /> <span>{motion ? "Motion on" : "Motion paused"}</span></button></div>
+            <div className="work-heading"><h2>Selected work <span className="project-count">{String(workCount).padStart(2, "0")}</span></h2><button className="motion-control" aria-pressed={motion} onClick={() => setMotion(!motion)}><SiteIcon name={motion ? "pause" : "play"} size={12} /> <span>{motion ? "Motion on" : "Motion paused"}</span></button></div>
             <div className="project-grid">
-                {projects.map((project, index) => <Fragment key={project.title}>{index === workCount && <h2 className="project-group-heading">PERSONAL PROJECTS <span>{String(projects.length - workCount).padStart(2, "0")}</span></h2>}<a ref={element => { if (element) projectTiles.current.set(slugs[index], element); else projectTiles.current.delete(slugs[index]) }} data-project={slugs[index]} href={`?project=${slugs[index]}`} className={`project-tile ${selected === slugs[index] ? "is-selected" : ""}`} onClick={event => open(event, slugs[index])} onPointerEnter={project.component === "macys-bag" ? () => setMacysReplay(value => value + 1) : undefined} onFocus={project.component === "macys-bag" ? () => setMacysReplay(value => value + 1) : undefined} aria-current={selected === slugs[index] ? "page" : undefined} aria-label={`${project.title}${project.comingSoon ? ", case study in progress" : ""}`} style={{ "--tile-index": index } as CSSProperties}>
+                {projects.map((project, index) => <Fragment key={project.title}>{index === workCount && <h2 className="project-group-heading">Personal projects <span>{String(projects.length - workCount).padStart(2, "0")}</span></h2>}<a ref={element => { if (element) projectTiles.current.set(slugs[index], element); else projectTiles.current.delete(slugs[index]) }} data-project={slugs[index]} href={`?project=${slugs[index]}`} className={`project-tile ${selected === slugs[index] ? "is-selected" : ""}`} onClick={event => open(event, slugs[index])} onPointerEnter={project.component === "macys-bag" ? () => setMacysReplay(value => value + 1) : undefined} onFocus={project.component === "macys-bag" ? () => setMacysReplay(value => value + 1) : undefined} aria-current={selected === slugs[index] ? "page" : undefined} aria-label={`${project.title}${project.comingSoon ? ", case study in progress" : ""}`} style={{ "--tile-index": index } as CSSProperties}>
+                    <div className="project-media">
                     <div className="project-tile-snapshot" style={{ viewTransitionName: `project-${index}`, viewTransitionClass: "project-card" } as CSSProperties}>
-                    <div className="tile-visual gallery-preview" hidden={Boolean(selected)}><ProjectCover project={project} index={Math.max(0, workProjects.indexOf(project))} live={motion && !selected && !navigationBusy} focused replayKey={project.component === "macys-bag" ? macysReplay : 0} /><div className="tile-caption"><div className="tile-caption-line"><strong>{projectLabels[slugs[index]] ?? personalMeta[slugs[index]]?.label ?? project.title}</strong><span className="tile-caption-separator">: </span><span>{personalMeta[slugs[index]]?.summary ?? project.description}</span></div>{project.comingSoon && <span className="tile-wip">Case study in progress</span>}</div></div>
+                    <div className="tile-visual gallery-preview" hidden={Boolean(selected)}><ProjectCover project={project} index={Math.max(0, workProjects.indexOf(project))} live={motion && !selected && !navigationBusy} focused replayKey={project.component === "macys-bag" ? macysReplay : 0} /></div>
                     {selected && <div className="tile-visual rail-mark" title={project.title}>
                         <ProjectRailMark slug={slugs[index]} title={project.title} />
                         {selected === slugs[index] && <span className="rail-selected-name" aria-hidden="true">
                             {railProjectTitle[slugs[index]] ?? project.title}
                         </span>}
                     </div>}
+                    </div>
+                    </div>
+                    <div className="project-summary" hidden={Boolean(selected)}>
+                        <h3>{homepageProjectDetails[slugs[index]]?.title ?? project.title}</h3>
+                        <p>{homepageProjectDetails[slugs[index]]?.description ?? project.description}</p>
+                        <span className="project-context">{homepageProjectDetails[slugs[index]]?.context ?? project.category}</span>
+                        {project.comingSoon && <span className="tile-wip">Case study in progress</span>}
                     </div>
                 </a></Fragment>)}
             </div>
