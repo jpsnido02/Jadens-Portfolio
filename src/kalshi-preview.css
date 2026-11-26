@@ -1,4 +1,5 @@
 @import "./portfolio-type.css";
+@import "./tap-ripple.css";
 
 .kalshi-preview {
     position:absolute; inset:0; overflow:hidden; background:#e5e5e5;
@@ -13,28 +14,25 @@
     color:inherit; text-align:left; font:inherit; border:1px solid #365146;
     border-radius:22px; background:#1e2f28;
     transform-origin:top left;
-    transition:transform 250ms cubic-bezier(.23,1,.32,1), scale 120ms cubic-bezier(.23,1,.32,1);
+    transition:transform 300ms ease-out, scale 180ms ease-out;
 }
 button.kalshi-game { cursor:pointer; }
 button.kalshi-game:active, .kalshi-game[data-clicking="true"] { scale:.97; }
-.kalshi-claim[data-pressed="true"]::after {
-    content:""; position:absolute; z-index:2; left:50%; top:50%;
-    width:32px; height:32px; border-radius:50%; background:#c4c4c4e6;
-    border:1px solid #f5f5f5; box-shadow:0 1px 4px #0005;
-    transform:translate(-50%,-50%); pointer-events:none;
-}
+.kalshi-tap-target { position:absolute; z-index:4; pointer-events:none; }
 .kalshi-tap-indicator {
-    position:absolute; z-index:4; width:32px; height:32px; border-radius:50%;
+    position:absolute; width:32px; height:32px; border-radius:50%;
     background:#c4c4c4e6; border:1px solid #f5f5f5; box-shadow:0 1px 4px #0005;
-    transform:translate(-50%,-50%); pointer-events:none;
+    animation:kalshi-tap-approach 120ms cubic-bezier(.23,1,.32,1) both;
 }
-.kalshi-tap-indicator[data-step="approach"] { animation:kalshi-tap-approach cubic-bezier(.23,1,.32,1) both; }
-.kalshi-tap-indicator[data-step="release"] { animation:kalshi-tap-release 150ms cubic-bezier(.23,1,.32,1) both; }
+.kalshi-tap-target .uber-tap, .kalshi-claim .uber-tap {
+    width:44px; height:44px; margin:-22px 0 0 -22px;
+}
+.kalshi-tap-target .uber-tap { background:#e5e5e5; }
+.kalshi-claim .uber-tap { left:50%; top:50%; }
 @keyframes kalshi-tap-approach {
     from { opacity:0; transform:translate(calc(-50% + 18px),calc(-50% + 24px)); }
     to { opacity:1; transform:translate(-50%,-50%); }
 }
-@keyframes kalshi-tap-release { from { opacity:1; } to { opacity:0; } }
 .kalshi-game:is([aria-pressed="true"],[data-selected="true"]) {
     transform:scale(1.06); z-index:1; border-color:#5edcb6; background:#173c30;
 }
