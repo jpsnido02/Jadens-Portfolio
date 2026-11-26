@@ -312,6 +312,7 @@ export default function KalshiPreview({ playing, interactive = false }: { playin
                                 onClick={claimOffer}>{confirmed ? "Offer claimed" : "Claim offer"}</button>
                             : <span className="kalshi-claim" data-disabled={!offer} data-pressed={phase === "claim-press"}>
                                 {confirmed ? "Offer claimed" : "Claim offer"}
+                                {!reduced && (phase === "claim-press" || phase === "claimed") && <span className="uber-tap" aria-hidden="true" />}
                             </span>}
                     </div>
                     <div className="kalshi-offer-art">
@@ -323,9 +324,11 @@ export default function KalshiPreview({ playing, interactive = false }: { playin
                     ? `${offer.team} offer selected in this demo. No bet was placed.`
                     : null}</p>
             </section>
-            {tap && <span key={tap.approach} ref={tapIndicator} className="kalshi-tap-indicator"
-                data-step={tapStep} style={{ animationDuration: tapStep === "approach" ? `${tapApproach}ms` : undefined }}
-                aria-hidden="true" />}
+            {tap && <span key={tap.approach} ref={tapIndicator} className="kalshi-tap-target" aria-hidden="true">
+                {tapStep === "approach"
+                    ? <span className="kalshi-tap-indicator" style={{ animationDuration: `${tapApproach}ms` }} />
+                    : <span className="uber-tap" />}
+            </span>}
         </div>
     </div>
 }
