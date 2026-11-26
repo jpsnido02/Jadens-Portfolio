@@ -668,6 +668,15 @@ html[data-page="home"] #root { overflow:hidden; }
     font-weight: 500;
     line-height: 1.35;
 }
+.project-tile:is(
+    [data-project="agent-design-operations"],
+    [data-project="macys-bag-page"],
+    [data-project="branded-layouts"],
+    [data-project="expedia-1p-3p"],
+    [data-project="pantry-notes"]
+) .project-badge {
+    box-shadow: 0 3px 12px rgb(0 0 0 / 12%), 0 1px 3px rgb(0 0 0 / 5%);
+}
 .portfolio:not(.is-reading) .project-tile { transition: scale 280ms cubic-bezier(.2,.8,.2,1); }
 .portfolio:not(.is-reading) .project-tile:focus-visible .project-badges { opacity: 1; }
 @media (hover: hover) and (pointer: fine) {
