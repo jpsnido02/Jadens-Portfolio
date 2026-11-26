@@ -1,66 +1,135 @@
-@font-face { font-family:"Kalshi Sans"; src:url("/fonts/kalshi/KalshiSans-Regular.otf") format("opentype"); font-style:normal; font-weight:400; font-display:swap; }
-@font-face { font-family:"Kalshi Sans"; src:url("/fonts/kalshi/KalshiSans-Medium.otf") format("opentype"); font-style:normal; font-weight:500; font-display:swap; }
-@font-face { font-family:"Kalshi Sans"; src:url("/fonts/kalshi/KalshiSans-Semibold.otf") format("opentype"); font-style:normal; font-weight:600; font-display:swap; }
-@font-face { font-family:"Kalshi Sans"; src:url("/fonts/kalshi/KalshiSans-Bold.otf") format("opentype"); font-style:normal; font-weight:700; font-display:swap; }
-.kalshi-preview { position:absolute; inset:0; background:radial-gradient(ellipse at 50% 38%,#27322d 0%,#1b211e 56%,#151917 100%); font-family:"Kalshi Sans",sans-serif; color:#fff; overflow:hidden; }
-.kalshi-stage { position:absolute; left:50%; top:50%; width:1200px; height:870px; transform-origin:center; }
-.kalshi-ad { width:1200px; height:628px; position:relative; overflow:hidden; border-radius:28px; background:linear-gradient(145deg,#102b22,#081b15); border:1px solid #b3e4ca33; box-shadow:0 24px 52px -12px #0009,0 6px 16px #0005,inset 0 1px 0 #ffffff12; }
-.kalshi-sport { position:absolute; left:64px; top:60px; font-size:24px; line-height:1.2; letter-spacing:.12em; font-weight:600; color:#a8beb3; }
-.kalshi-wordmark { position:absolute; right:64px; top:36px; font-size:66px; line-height:1; letter-spacing:-.075em; font-weight:700; color:#00d49b; }
-.kalshi-event { position:absolute; left:64px; top:142px; font-size:25px; line-height:1.2; letter-spacing:.055em; font-weight:500; color:#a8beb3; }
-.kalshi-chance-label { position:absolute; right:64px; top:142px; font-size:21px; line-height:1.2; letter-spacing:.08em; font-weight:500; color:#a8beb3; }
-.kalshi-prediction { position:absolute; left:64px; right:64px; top:185px; display:flex; align-items:baseline; justify-content:space-between; gap:24px; font-size:68px; line-height:1.1; font-weight:700; letter-spacing:-.025em; }
-.kalshi-odds { display:inline-flex; align-items:baseline; font-size:88px; }
-.kalshi-odds>span:last-child { font-size:52px; margin-left:4px; }
-.kalshi-comparison { position:absolute; right:64px; visibility:hidden; color:#a8beb3; font-size:28px; line-height:1; font-variant-numeric:tabular-nums; }
-.kalshi-previous-odds { top:279px; }
-.kalshi-previous-payout { top:513px; }
-.kalshi-preview:is([data-play-phase="3"],[data-play-phase="4"]) .kalshi-comparison { visibility:visible; }
-.kalshi-rule { position:absolute; left:64px; right:64px; top:316px; border-top:1px dashed #c7e9d626; }
-.kalshi-pay-label,.kalshi-payout-label { position:absolute; top:342px; font-size:23px; line-height:1.15; font-weight:500; letter-spacing:.08em; color:#a8beb3; }
-.kalshi-pay-label { left:64px; }.kalshi-payout-label { right:64px; }
-.kalshi-pay,.kalshi-payout { position:absolute; top:382px; line-height:1; letter-spacing:-.02em; font-weight:700; font-variant-numeric:tabular-nums; }
-.kalshi-pay { left:64px; font-size:66px; }.kalshi-payout { right:64px; top:376px; display:flex; align-items:baseline; font-size:96px; color:#00d49b; }
-.kalshi-code { position:absolute; left:64px; top:474px; padding:12px 18px; border-radius:10px; background:#00d49b; color:#04251b; font-size:21px; line-height:1.15; font-weight:700; letter-spacing:.055em; }
-.kalshi-condition { position:absolute; top:478px; right:64px; font-size:25px; line-height:1.2; color:#c3d4ca; }
-.kalshi-terms { position:absolute; left:64px; right:64px; top:554px; margin:0; color:#9aaca1; font-size:20px; line-height:1.45; }
-.kalshi-number { display:inline-flex; font-variant-numeric:tabular-nums; }
-.kalshi-digit { display:inline-block; position:relative; width:.62em; height:1em; line-height:1em; overflow:hidden; text-align:center; }
-.kalshi-digit.is-point { width:.25em; }
-.kalshi-number-track { display:block; animation:kalshi-quote-up 520ms cubic-bezier(.22,.75,.25,1) both; will-change:transform; }
+@import "./portfolio-type.css";
+
+.kalshi-preview {
+    position:absolute; inset:0; overflow:hidden; background:#e5e5e5;
+    font-family:"Portfolio Inter",Arial,sans-serif; color:#f5faf7;
+}
+.kalshi-stage { position:absolute; left:50%; top:50%; width:1200px; height:610px; display:grid; align-items:center; }
+.kalshi-games { padding:20px; }
+.kalshi-games, .kalshi-games * { box-sizing:border-box; }
+.kalshi-game-list { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:24px; padding-right:2%; }
+.kalshi-game {
+    position:relative; display:grid; gap:18px; padding:23px 22px 18px;
+    color:inherit; text-align:left; font:inherit; border:1px solid #365146;
+    border-radius:22px; background:#1e2f28;
+    transform-origin:top left;
+    transition:transform 250ms cubic-bezier(.23,1,.32,1), scale 120ms cubic-bezier(.23,1,.32,1);
+}
+button.kalshi-game { cursor:pointer; }
+button.kalshi-game:active, .kalshi-game[data-clicking="true"] { scale:.97; }
+.kalshi-claim[data-pressed="true"]::after {
+    content:""; position:absolute; z-index:2; left:50%; top:50%;
+    width:32px; height:32px; border-radius:50%; background:#c4c4c4e6;
+    border:1px solid #f5f5f5; box-shadow:0 1px 4px #0005;
+    transform:translate(-50%,-50%); pointer-events:none;
+}
+.kalshi-tap-indicator {
+    position:absolute; z-index:4; width:32px; height:32px; border-radius:50%;
+    background:#c4c4c4e6; border:1px solid #f5f5f5; box-shadow:0 1px 4px #0005;
+    transform:translate(-50%,-50%); pointer-events:none;
+}
+.kalshi-tap-indicator[data-step="approach"] { animation:kalshi-tap-approach cubic-bezier(.23,1,.32,1) both; }
+.kalshi-tap-indicator[data-step="release"] { animation:kalshi-tap-release 150ms cubic-bezier(.23,1,.32,1) both; }
+@keyframes kalshi-tap-approach {
+    from { opacity:0; transform:translate(calc(-50% + 18px),calc(-50% + 24px)); }
+    to { opacity:1; transform:translate(-50%,-50%); }
+}
+@keyframes kalshi-tap-release { from { opacity:1; } to { opacity:0; } }
+.kalshi-game:is([aria-pressed="true"],[data-selected="true"]) {
+    transform:scale(1.06); z-index:1; border-color:#5edcb6; background:#173c30;
+}
+.kalshi-game:is([aria-pressed="true"],[data-selected="true"]) ~ .kalshi-game { transform:translateX(6%); }
+.kalshi-game:focus-visible,.kalshi-claim:focus-visible { outline:3px solid #ffda66; outline-offset:5px; }
+.kalshi-game-status { display:flex; align-items:center; justify-content:space-between; gap:6px; min-height:28px; font-size:17px; font-weight:500; color:#bfd1c8; }
+.kalshi-score-event { font-weight:700; color:#ffda66; font-size:13px; animation:kalshi-event-reveal 850ms cubic-bezier(.35,0,.3,1) both; }
+@keyframes kalshi-event-reveal { from { clip-path:circle(0% at center); } to { clip-path:circle(72% at center); } }
+.kalshi-game-lines { display:grid; gap:10px; padding-block:12px; border-block:1px dashed #365146; }
+.kalshi-game-line { display:grid; grid-template-columns:42px 1fr 48px 76px; align-items:center; gap:10px; font-size:23px; line-height:1; }
+.kalshi-game-line img { width:42px; height:36px; object-fit:contain; }
+.kalshi-game-line > strong { font-weight:700; font-size:24px; }
+.kalshi-game-line > span { font-weight:500; text-align:right; font-variant-numeric:tabular-nums; }
+.kalshi-game-line > .kalshi-game-chance { font-weight:400; color:#bfd1c8; font-size:19px; white-space:nowrap; }
+.kalshi-game-meter { position:relative; display:block; height:12px; }
+.kalshi-game-meter svg { display:block; width:100%; height:100%; fill:none; stroke:#597167; }
+.kalshi-game-meter svg path { vector-effect:non-scaling-stroke; stroke-width:1; }
+.kalshi-field-position {
+    position:absolute; top:50%; width:8px; height:8px; border-radius:50%;
+    background:#bfd1c8; transform:translate(-50%,-50%);
+}
+.kalshi-game-meter > span {
+    position:absolute; inset-inline:0; top:50%; height:2px; margin-top:-1px; border-radius:2px;
+    background:#ffda66; transform-origin:left; transform:scaleX(.3);
+}
+.kalshi-game-meter > span[data-phase="run"] { animation:kalshi-meter-run 2400ms cubic-bezier(.35,0,.3,1) both; }
+.kalshi-game-meter > span:not([data-phase="lineup"],[data-phase="run"]) { transform:scaleX(1); }
+@keyframes kalshi-meter-run { to { transform:scaleX(1); } }
+.kalshi-creative {
+    display:grid; grid-template-columns:minmax(0,1fr) 228px; align-items:center; gap:30px;
+    width:min(100%,740px); margin-top:32px; padding:24px;
+    border-radius:18px; background:#fff; color:#000; box-shadow:0 8px 24px rgba(20,29,25,.10);
+}
+.kalshi-offer-copy h3 { margin:0 0 16px; color:#000; font-size:24px; line-height:1.13; font-weight:500; }
+.kalshi-payout-label { margin:0 0 5px; color:#b1b1b1; font-size:14px; font-weight:500; line-height:1.2; text-transform:uppercase; }
+.kalshi-payout {
+    overflow:hidden; min-height:54px; font-size:48px; font-variant-numeric:tabular-nums;
+    line-height:1.08; color:#00d49b;
+}
+.kalshi-payout strong { display:block; font-weight:700; }
+.kalshi-a11y-payout { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+.kalshi-preview[data-instant-selection="true"] .kalshi-game { transition:none; }
+.kalshi-offer-art {
+    position:relative; display:grid; place-items:start; width:100%; aspect-ratio:1; overflow:hidden;
+    border-radius:10px; background:#173c30; color:#00d49b;
+}
+.kalshi-offer-art span { margin:14px; font-size:36px; font-weight:700; line-height:1; }
+.kalshi-offer-art img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.kalshi-claim {
+    position:relative;
+    display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:10px 22px;
+    border:0; border-radius:100px; background:#00d49b; color:#062118; font:700 16px "Portfolio Inter",Arial,sans-serif;
+    margin-top:9px;
+}
+button.kalshi-claim:not(:disabled) { cursor:pointer; }
+button.kalshi-claim:active, .kalshi-claim[data-pressed="true"] { transform:scale(.97); }
+.kalshi-claim:is(:disabled,[data-disabled="true"]) { background:#00d49b; color:#062118; }
+.kalshi-terms { margin:18px 0 0; min-height:28px; color:#b1b1b1; font-size:18px; font-weight:500; line-height:1.25; }
+.kalshi-preview[data-compact="true"] .kalshi-stage { width:600px; height:650px; }
+.kalshi-preview[data-compact="true"] .kalshi-game-list { grid-template-columns:1fr; gap:12px; padding-right:6%; }
+.kalshi-preview[data-compact="true"] .kalshi-game:is([aria-pressed="true"],[data-selected="true"]) ~ .kalshi-game {
+    transform:translateY(6%);
+}
+.kalshi-preview[data-compact="true"] .kalshi-game {
+    grid-template-columns:118px 1fr; align-items:center; gap:0 12px; padding:10px 14px; border-radius:14px;
+}
+.kalshi-preview[data-compact="true"] .kalshi-game-status { display:grid; justify-content:start; font-size:19px; }
+.kalshi-preview[data-compact="true"] .kalshi-score-event { font-size:15px; }
+.kalshi-preview[data-compact="true"] .kalshi-game-lines { padding:0; border:0; gap:4px; }
+.kalshi-preview[data-compact="true"] .kalshi-game-line { font-size:24px; }
+.kalshi-preview[data-compact="true"] .kalshi-game-line img { height:30px; }
+.kalshi-preview[data-compact="true"] .kalshi-game-chance { font-size:22px; }
+.kalshi-preview[data-compact="true"] .kalshi-game-meter { grid-column:1 / -1; margin-top:7px; height:10px; }
+.kalshi-preview[data-compact="true"] .kalshi-creative { grid-template-columns:minmax(0,1fr) 162px; gap:12px; margin-top:24px; padding:18px; }
+.kalshi-preview[data-compact="true"] .kalshi-offer-copy h3 { margin-bottom:9px; font-size:26px; }
+.kalshi-preview[data-compact="true"] .kalshi-payout { font-size:44px; min-height:48px; }
+.kalshi-preview[data-compact="true"] .kalshi-payout-label { font-size:19px; }
+.kalshi-preview[data-compact="true"] .kalshi-claim { font-size:23px; min-height:62px; padding-inline:16px; }
+.kalshi-preview[data-compact="true"] .kalshi-terms { font-size:19px; margin-top:12px; }
+@media (prefers-reduced-motion:reduce) {
+    .kalshi-game { transition:none; }
+    button.kalshi-game:active { scale:1; }
+    .kalshi-score-event { animation:none; }
+}
+.kalshi-number {
+    display:inline-flex;
+    overflow:hidden;
+    height:1em;
+    line-height:1em;
+    vertical-align:baseline;
+    font-variant-numeric:tabular-nums;
+}
+.kalshi-digit { display:block; height:1em; overflow:clip; }
+.kalshi-number-track { display:block; animation:kalshi-ticker both; }
 .kalshi-number-track>span { display:block; height:1em; line-height:1em; }
-.kalshi-number-track[data-direction="down"] { animation-name:kalshi-quote-down; }
-@keyframes kalshi-quote-up { from { transform:translateY(0); } to { transform:translateY(-1em); } }
-@keyframes kalshi-quote-down { from { transform:translateY(-1em); } to { transform:translateY(0); } }
+@keyframes kalshi-ticker { from { transform:translateY(0); } to { transform:translateY(calc(-100% + 1em)); } }
 .kalshi-preview[data-playing="false"] * { animation-play-state:paused!important; }
 .tile-visual:has(.kalshi-preview) { --caption-tone:#0a3430; }
-@media(prefers-reduced-motion:reduce) { .kalshi-number-track { animation:none!important; }.kalshi-number-track[data-direction="up"] { transform:translateY(-1em); } }
-
-/* One readable cause before the ad response: a five-yard loss, then 18% → 16%. */
-.kalshi-football { width:1200px; height:218px; margin-bottom:24px; }
-.kalshi-football svg { display:block; width:100%; height:174px; }
-.kalshi-yard-number { fill:#ffffff70; font-size:24px; font-weight:600; font-family:"Kalshi Sans",sans-serif; }
-.kalshi-scrimmage { stroke:#ffffffa0; stroke-width:3; }
-.kalshi-first-down { stroke:#d7bf69; stroke-width:3; opacity:.85; }
-.kalshi-yard-progress { fill:none; stroke:#00d49b; stroke-width:34; stroke-opacity:.24; stroke-dasharray:1; stroke-dashoffset:1; }
-.kalshi-ball-marker { transform:translate(420px,104px); }
-.kalshi-football[data-play-phase="1"] .kalshi-ball-marker { animation:kalshi-five-yard-loss 2400ms cubic-bezier(.35,0,.3,1) both; }
-.kalshi-football[data-play-phase="1"] .kalshi-yard-progress { animation:kalshi-yard-progress 2400ms cubic-bezier(.35,0,.3,1) both; }
-.kalshi-football[data-play-phase="4"] .kalshi-ball-marker { animation:kalshi-five-yard-loss 1800ms cubic-bezier(.35,0,.3,1) reverse both; }
-.kalshi-football[data-play-phase="4"] .kalshi-yard-progress { animation:kalshi-yard-progress 1800ms cubic-bezier(.35,0,.3,1) reverse both; }
-.kalshi-football.is-finished .kalshi-ball-marker { transform:translate(260px,104px); }
-.kalshi-football.is-finished .kalshi-yard-progress { stroke-dashoffset:0; }
-.kalshi-run-gain { fill:#00d49b; font-family:"Kalshi Sans",sans-serif; font-size:25px; font-weight:600; letter-spacing:.03em; opacity:0; transition:opacity 200ms; }
-.kalshi-football.is-finished .kalshi-run-gain { opacity:1; }
-@keyframes kalshi-five-yard-loss { from { transform:translate(420px,104px); } to { transform:translate(260px,104px); } }
-@keyframes kalshi-yard-progress { from { stroke-dashoffset:1; } to { stroke-dashoffset:0; } }
-@media(prefers-reduced-motion:reduce) { .kalshi-run-gain { transition:none!important; } }
-
-.kalshi-game-context { position:relative; display:flex; align-items:center; justify-content:space-between; height:44px; color:#d3e4da; font-size:22px; font-weight:500; }
-
-@media(max-width:600px) {
-    /* In a phone tile, fit the previous quote alongside the large figure. */
-    .kalshi-comparison { font-size:46px; }
-    .kalshi-previous-odds { right:265px; top:215px; }
-    .kalshi-previous-payout { right:478px; top:411px; }
-}
