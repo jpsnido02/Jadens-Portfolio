@@ -675,7 +675,7 @@ html[data-page="home"] #root { overflow:hidden; }
     [data-project="expedia-1p-3p"],
     [data-project="pantry-notes"]
 ) .project-badge {
-    box-shadow: 0 3px 12px rgb(0 0 0 / 12%), 0 1px 3px rgb(0 0 0 / 5%);
+    box-shadow: 0 3px 12px rgb(0 0 0 / 9%), 0 1px 3px rgb(0 0 0 / 4%);
 }
 .portfolio:not(.is-reading) .project-tile { transition: scale 280ms cubic-bezier(.2,.8,.2,1); }
 .portfolio:not(.is-reading) .project-tile:focus-visible .project-badges { opacity: 1; }
