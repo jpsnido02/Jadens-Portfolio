@@ -7,6 +7,7 @@ import { UberPreview, BrandedPreview } from "./GalleryPreviews"
 import KalshiPreview from "./KalshiPreview"
 import ConceptStudy from "./ConceptStudies"
 import ExpediaComposition from "./ExpediaComposition"
+import EbayProductAds from "./EbayProductAds"
 import type { ProjectData } from "./PortfolioScroll"
 
 /** Fit the complete prototype stage inside its frame without cropping. */
@@ -47,6 +48,7 @@ function ProjectCover({ project, index, live = true, focused = false, replayKey 
     // alive so returning from a case study does not reconstruct the whole gallery.
     if (!activated) return <div ref={ref} className="project-cover" aria-hidden="true" inert />
     const kind = project.component
+    if (kind === "ebay-dpa") return <div ref={ref} className="project-cover" aria-hidden="true" inert><EbayProductAds /></div>
     if (project.link?.includes("expedia-1p-3p")) return <div ref={ref} className="project-cover project-cover--expedia" aria-hidden="true" inert><ExpediaComposition /></div>
     if (kind === "kalshi-live") return <div ref={ref} className={`project-cover ${!playing ? "is-paused" : ""}`} aria-hidden="true" inert><KalshiPreview playing={playing} /></div>
     if (kind === "pantry-notes" || kind === "thought-atlas" || kind === "build-view") return <div ref={ref} className={`project-cover personal-cover ${!playing ? "is-paused" : ""}`} aria-hidden="true" inert><ConceptStudy kind={kind} playing={playing}/></div>

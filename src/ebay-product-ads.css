@@ -1,0 +1,53 @@
+@font-face { font-family:"DPA Market Sans"; src:url("/fonts/market-sans/MarketSans-Regular.woff2") format("woff2"); font-style:normal; font-weight:400; font-display:swap; }
+@font-face { font-family:"DPA Market Sans"; src:url("/fonts/market-sans/MarketSans-Bold.woff2") format("woff2"); font-style:normal; font-weight:700; font-display:swap; }
+.ebay-dpa { position:absolute; inset:0; overflow:hidden; background:#c4dcf3; color:#191919; font-family:"DPA Market Sans",Arial,sans-serif; }
+.ebay-dpa * { box-sizing:border-box; }
+.ebay-dpa-scene { position:absolute; left:50%; top:50%; width:960px; height:808px; transform-origin:center; overflow:visible; pointer-events:none; }
+.ebay-dpa-panel { position:absolute; left:48px; top:40px; width:590px; height:708px; overflow:visible; border-radius:24px; background:#fff; box-shadow:0 16px 36px #233d5c14; }
+.ebay-dpa-header { display:flex; align-items:center; gap:20px; padding:24px; border-bottom:1px solid #dedee0; }
+.ebay-dpa-logo { width:76px; height:32px; object-fit:contain; flex:none; }
+.ebay-dpa-header>span { font-size:19px; line-height:1.4; color:#6a6a6a; }
+.ebay-dpa-close { display:grid; place-items:center; margin-left:auto; width:28px; height:28px; }
+.ebay-dpa-close svg { width:24px; height:24px; color:#191919; }
+.ebay-dpa-offer { padding:24px; }
+.ebay-dpa-offer h3 { margin:0; color:#182230; font:700 27px/1.25 "DPA Market Sans",Arial,sans-serif; letter-spacing:-.015em; }
+.ebay-dpa-brand-row { display:flex; align-items:center; gap:14px; margin-top:22px; }
+.ebay-dpa-advertiser { display:flex; align-items:center; gap:12px; padding:3px 14px 3px 3px; height:54px; border:1.5px solid #dedee0; border-radius:28px; background:#f6f6f6; }
+.ebay-dpa-advertiser img { display:block; width:44px; height:44px; flex:none; object-fit:contain; }
+.ebay-dpa-advertiser>span { font-size:25px; line-height:1; font-weight:400; color:#686868; }
+.ebay-dpa-discount { display:flex; align-items:center; height:38px; padding:0 14px; border-radius:12px; color:#fff; background:#f42439; font-size:20px; font-weight:700; }
+/* Sibling cards paint beyond the modal without a carousel clipping viewport. */
+.ebay-dpa-products { position:absolute; top:302px; left:72px; width:816px; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; padding-block:8px; overflow:visible; }
+.ebay-dpa-product { min-width:0; margin:0; background:#fff; border:1px solid #d9dce1; border-radius:16px; box-shadow:0 10px 16px #233d5c1a; }
+.ebay-dpa-product-image { display:block; width:100%; aspect-ratio:1; object-fit:cover; border-radius:16px 16px 0 0; }
+.ebay-dpa-product-copy { padding:17px 14px 19px; }
+.ebay-dpa-product h4 { margin:0; min-height:66px; overflow-wrap:break-word; font:700 18px/22px "DPA Market Sans",Arial,sans-serif; letter-spacing:-.015em; }
+.ebay-dpa-product-price { display:block; margin-top:8px; color:#626870; font-size:16px; line-height:20px; font-variant-numeric:tabular-nums; }
+.ebay-dpa-actions { position:absolute; left:24px; right:24px; bottom:26px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.portfolio .ebay-dpa-shop,.portfolio .ebay-dpa-decline { display:flex; align-items:center; justify-content:center; min-height:58px; padding:12px 20px; border-radius:32px; font-size:24px; font-weight:700; line-height:1.2; }
+.portfolio .ebay-dpa-shop { background:#094ce2; color:#fff; }
+.portfolio .ebay-dpa-decline { border:1.5px solid #094ce2; color:#094ce2; }
+.ebay-dpa ::selection { background:#c4dcff; color:#191919; }
+.ebay-dpa--compact .ebay-dpa-scene { width:440px; height:740px; }
+.ebay-dpa--compact .ebay-dpa-panel { top:40px; left:24px; width:340px; height:642px; border-radius:20px; }
+.ebay-dpa--compact .ebay-dpa-header { padding:18px; gap:12px; }
+.ebay-dpa--compact .ebay-dpa-logo { width:60px; height:26px; }
+.ebay-dpa--compact .ebay-dpa-header>span { font-size:13px; }
+.ebay-dpa--compact .ebay-dpa-close { width:18px; height:20px; }
+.ebay-dpa--compact .ebay-dpa-close svg { width:18px; height:18px; }
+.ebay-dpa--compact .ebay-dpa-offer { padding:22px 18px; }
+.ebay-dpa--compact .ebay-dpa-offer h3 { font-size:24px; line-height:1.25; }
+.ebay-dpa--compact .ebay-dpa-brand-row { gap:12px; margin-top:20px; }
+.ebay-dpa--compact .ebay-dpa-advertiser { gap:9px; padding:3px 12px 3px 3px; height:46px; }
+.ebay-dpa--compact .ebay-dpa-advertiser img { width:36px; height:36px; }
+.ebay-dpa--compact .ebay-dpa-advertiser>span { font-size:21px; }
+.ebay-dpa--compact .ebay-dpa-discount { height:34px; padding:0 10px; border-radius:10px; font-size:17px; }
+.ebay-dpa--compact .ebay-dpa-products { top:306px; left:42px; width:356px; gap:8px; }
+.ebay-dpa--compact .ebay-dpa-product { border-radius:12px; box-shadow:0 8px 14px #233d5c1a; }
+.ebay-dpa--compact .ebay-dpa-product-image { border-radius:12px 12px 0 0; }
+.ebay-dpa--compact .ebay-dpa-product-copy { padding:12px 8px 14px; }
+.ebay-dpa--compact .ebay-dpa-product h4 { min-height:96px; font-size:12px; line-height:16px; }
+.ebay-dpa--compact .ebay-dpa-product-price { font-size:12px; line-height:18px; }
+.ebay-dpa--compact .ebay-dpa-actions { left:18px; right:18px; bottom:26px; gap:10px; }
+.ebay-dpa--compact .ebay-dpa-shop,.ebay-dpa--compact .ebay-dpa-decline { min-height:48px; font-size:19px; }
+@media(max-width:600px) { .portfolio:not(.is-reading) [data-project="rokt-catalog"] .tile-visual { aspect-ratio:.59; } }
