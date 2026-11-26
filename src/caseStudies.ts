@@ -337,19 +337,19 @@ export const caseStudies: CaseStudy[] = [
         "blocks": [
             {
                 "kind": "abstract",
-                "text": "The ad keeps the selected team and $25 amount anchored while the market chance and potential payout update. A short football sequence gives the change a visible context."
+                "text": "Three game cards share a Kalshi offer. Each card keeps its teams, score, and win chances in view, and choosing a matchup reveals its potential payout below."
             },
             {
                 "kind": "section",
                 "label": "The interaction",
                 "thesis": "One event. Two connected values.",
-                "body": "San Francisco loses five yards. The displayed win chance falls from 18% to 16%, while the potential payout rises from $131.16 to $147.56. Both values change in place so their relationship is easy to follow."
+                "body": "San Francisco scores a touchdown and the win chances update. Selecting the matchup brings its card forward and reveals a scripted $37.41 payout if San Francisco wins. Philadelphia’s chance then rises from 43% to 45%, with a $55.56 payout available for comparison before returning to claim the San Francisco offer in the demo."
             },
             {
                 "kind": "section",
                 "label": "The hierarchy",
                 "thesis": "Keep the decision in the foreground.",
-                "body": "The selected team, market chance, entry amount, and potential payout carry the most weight. The field sequence supports the change; it does not compete with the offer."
+                "body": "The selected matchup lifts slightly above the other cards. The larger payout below makes it easy to see what changed when a play happens or a viewer switches games."
             },
             {
                 "kind": "takeaway",

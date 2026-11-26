@@ -27,7 +27,7 @@ function Stage({ children, kind }: { children: ReactNode; kind: string }) {
     </div>
 }
 
-function ProjectCover({ project, index, live = true, focused = false, replayKey = 0 }: { project: ProjectData; index: number; live?: boolean; focused?: boolean; replayKey?: number; interactive?: boolean }) {
+function ProjectCover({ project, index, live = true, focused = false, replayKey = 0, interactive = false }: { project: ProjectData; index: number; live?: boolean; focused?: boolean; replayKey?: number; interactive?: boolean }) {
     const ref = useRef<HTMLDivElement>(null)
     const [visible, setVisible] = useState(false)
     const [activated, setActivated] = useState(!focused)
@@ -50,7 +50,7 @@ function ProjectCover({ project, index, live = true, focused = false, replayKey 
     const kind = project.component
     if (kind === "ebay-dpa") return <div ref={ref} className="project-cover" aria-hidden="true" inert><EbayProductAds /></div>
     if (project.link?.includes("expedia-1p-3p")) return <div ref={ref} className="project-cover project-cover--expedia" aria-hidden="true" inert><ExpediaComposition /></div>
-    if (kind === "kalshi-live") return <div ref={ref} className={`project-cover ${!playing ? "is-paused" : ""}`} aria-hidden="true" inert><KalshiPreview playing={playing} /></div>
+    if (kind === "kalshi-live") return <div ref={ref} className={`project-cover ${!playing ? "is-paused" : ""}`} aria-hidden={interactive ? undefined : true} inert={!interactive}><KalshiPreview playing={playing} interactive={interactive} /></div>
     if (kind === "pantry-notes" || kind === "thought-atlas" || kind === "build-view") return <div ref={ref} className={`project-cover personal-cover ${!playing ? "is-paused" : ""}`} aria-hidden="true" inert><ConceptStudy kind={kind} playing={playing}/></div>
     if (kind === "partner-agent" || kind === "shoppable-config") return <div ref={ref} className={`project-cover ${!playing ? "is-paused" : ""}`} aria-hidden="true" inert>{kind === "partner-agent" ? <AgentDashboard playing={playing} /> : <ShoppableDashboard playing={playing} /> }</div>
     if (focused && kind) return <div ref={ref} className={`project-cover focused-cover focus-${kind} ${!playing ? "is-paused" : ""}`} aria-hidden="true" inert>

@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-26T15:54:42.350Z",
+  "title": "Design System: Kalshi Scoreboard",
+  "extensions": {
+    "colorMeta": {
+      "kalshi-green": {
+        "role": "primary",
+        "displayName": "Kalshi Green"
+      },
+      "touchdown-yellow": {
+        "role": "secondary",
+        "displayName": "Touchdown Yellow"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Payout",
+        "purpose": "Potential payout for the selected team."
+      },
+      "title": {
+        "displayName": "Team Name",
+        "purpose": "Team label beside its mark."
+      },
+      "label": {
+        "displayName": "Column Label",
+        "purpose": "Score and win-chance headings."
+      }
+    },
+    "motion": [
+      {
+        "name": "touchdown-easing",
+        "value": "cubic-bezier(.35,0,.3,1)",
+        "purpose": "Field run, progress fill, and touchdown reveal."
+      },
+      {
+        "name": "run-duration",
+        "value": "2400ms",
+        "purpose": "Run from scrimmage to end zone."
+      },
+      {
+        "name": "touchdown-reveal-duration",
+        "value": "850ms",
+        "purpose": "Radial reveal of the touchdown banner."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact-preview",
+        "value": "600px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Selected Team Row",
+      "kind": "button",
+      "refersTo": "team-row-selected",
+      "description": "A selected team with right-aligned score and win chance.",
+      "html": "<button class=\"ds-team-row\" type=\"button\" aria-pressed=\"true\"><span>Seahawks</span><strong>24</strong><strong>66%</strong></button>",
+      "css": ".ds-team-row { display:grid; grid-template-columns:minmax(0,1fr) auto auto; align-items:center; gap:24px; width:100%; min-height:100px; padding:10px 24px; border:1px solid #00d49b; border-radius:12px; background:#15382c; color:#f5faf7; font:600 31px \"Kalshi Sans\",sans-serif; text-align:left; cursor:pointer; } .ds-team-row strong { text-align:right; font-variant-numeric:tabular-nums; } .ds-team-row:focus-visible { outline:4px solid #ffda66; outline-offset:3px; }"
+    }
+  ],
+  "narrative": {
+    "overview": "A single broadcast scoreboard ties a football play to two win chances and one illustrative payout.",
+    "keyCharacteristics": [
+      "Thin football field",
+      "Two aligned score rows",
+      "One selected-team payout"
+    ]
+  }
+}
