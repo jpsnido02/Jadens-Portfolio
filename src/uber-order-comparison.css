@@ -1,5 +1,5 @@
 .meal-comparison{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;justify-items:center;container-type:inline-size;--stage-inset:24px;--divider-width:2px;padding:var(--stage-inset) 0;background:var(--study-surface,#f6f6f5);color:var(--study-ink,#191919);border-radius:16px;scroll-margin:16px}
-.meal-window{position:relative;width:clamp(240px,50cqw,350px);aspect-ratio:473/932;cursor:ew-resize;touch-action:pan-y pinch-zoom;user-select:none;-webkit-user-select:none}
+.meal-window{position:relative;width:clamp(240px,50cqw,350px);cursor:ew-resize;touch-action:pan-y pinch-zoom;user-select:none;-webkit-user-select:none}
 .meal-screen{position:absolute;inset:0;pointer-events:none}
 .meal-screen .uber-demo{width:100%}
 .meal-breakfast{clip-path:inset(0 calc(100% - var(--split)) 0 0)}

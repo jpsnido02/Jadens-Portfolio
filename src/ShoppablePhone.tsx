@@ -7,13 +7,8 @@
  * coordinates read from the file rather than estimated.
  */
 
-export const FRAME_W = 473
-export const FRAME_H = 932
-export const SCREEN_X = 40
-export const SCREEN_Y = 40
-export const SCREEN_W = 393
-export const SCREEN_H = 852
-export const SCREEN_R = 56
+import IPhoneBezel, { FRAME_W, FRAME_H, SCREEN_X, SCREEN_Y, SCREEN_W, SCREEN_H, SCREEN_R } from "./IPhoneFrame"
+export { FRAME_W, FRAME_H, SCREEN_X, SCREEN_Y, SCREEN_W, SCREEN_H, SCREEN_R } from "./IPhoneFrame"
 
 /**
  * How far the screen is carried past the frame's cut-out, in design pixels.
@@ -38,7 +33,6 @@ const SHEET_H = SCREEN_H - SHEET_Y
 const SHEET_R = 24
 
 const BASE = "../../projects/shoppable"
-const FRAME_SRC = "../../projects/iphone-frame.png"
 
 export type Stage =
     /** The retailer's own confirmation page, behind everything else. */
@@ -316,7 +310,7 @@ function ConfirmationPage({ px }: { px: (v: number) => number }) {
  * lives here alone.
  *
  * `children` is a render prop receiving `px`, which converts the design's own
- * 473x932 units into real pixels at the rendered width. Geometry is laid out at
+ * normalized frame units into real pixels at the rendered width. Geometry is laid out at
  * real scaled pixels rather than inside a `transform: scale()`: a fractional
  * ancestor scale rasterises its subtree and resamples it, which showed up as
  * blurring on every transition.
@@ -339,21 +333,16 @@ export function PhoneShell({
                 flexShrink: 0,
             }}
         >
-            {/* The shadow follows the phone's body, measured off the frame
-                asset's own alpha. Inset 24 rather than 23: the silhouette is
-                only alpha 185 at 23, so a box there left a hairline of
-                unshadowed box showing the page through it. */}
-            <div
-                style={{
-                    position: "absolute",
-                    left: px(24),
-                    top: px(24),
-                    width: px(425),
-                    height: px(884),
-                    borderRadius: px(65.5),
-                    boxShadow: `0 ${px(12)}px ${px(34)}px rgba(16,24,40,0.15), 0 ${px(2)}px ${px(8)}px rgba(16,24,40,0.07)`,
-                }}
-            />
+            {/* Shadow remains inside the new asset's physical silhouette. */}
+            <div style={{
+                position: "absolute",
+                left: px(FRAME_W * 10 / 450),
+                top: px(FRAME_H * 10 / 920),
+                width: px(FRAME_W * 430 / 450),
+                height: px(FRAME_H * 900 / 920),
+                borderRadius: px(FRAME_W * 80 / 450),
+                boxShadow: `0 ${px(12)}px ${px(34)}px rgba(16,24,40,0.15), 0 ${px(2)}px ${px(8)}px rgba(16,24,40,0.07)`,
+            }} />
 
             {/* The seam filler. See SEAM. */}
             <div
@@ -389,19 +378,7 @@ export function PhoneShell({
                 </div>
             </div>
 
-            <img
-                src={FRAME_SRC}
-                alt=""
-                style={{
-                    position: "absolute",
-                    left: 0,
-                    top: 0,
-                    width: "100%",
-                    height: "100%",
-                    display: "block",
-                    pointerEvents: "none",
-                }}
-            />
+            <IPhoneBezel />
         </div>
     )
 }

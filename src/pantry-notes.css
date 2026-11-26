@@ -2,13 +2,12 @@
 /* Pantry Notes, v2: true black pages, white cards, a newspaper serif, and yellow Post-its. */
 .pantry-phone-study { --pn-serif:"Newsreader",Georgia,"Times New Roman",serif; --pn-sans:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif; --pn-hand:"Kalam",cursive; --pn-ease:cubic-bezier(.22,1,.36,1);
     position:absolute; inset:0; overflow:hidden; background:#eeeeec; font-family:var(--pn-sans); color:#fff; }
-.pnt-device { position:absolute; top:50%; left:50%; width:473px; height:932px; transform-origin:center; filter:drop-shadow(0 14px 15px #0002); }
+.pnt-device { position:absolute; top:50%; left:50%; transform-origin:center; filter:drop-shadow(0 14px 15px #0002); }
 /* The screen runs 6 px under the bezel on every side: the frame's opening has continuous (squircle) corners. */
-.pnt-screen { position:absolute; left:34px; top:34px; width:405px; height:864px; border-radius:50px; overflow:hidden; background:#000; }
+.pnt-screen { position:absolute; overflow:hidden; background:#000; }
 .pnt-content { position:absolute; left:6px; top:6px; width:393px; height:852px; }
 .pnt-content * { box-sizing:border-box; }
 .pnt-content svg { display:block; flex:none; }
-.pnt-phone-frame { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
 
 /* Chrome */
 .pnt-status { position:absolute; left:0; top:0; width:393px; height:54px; z-index:20; pointer-events:none; }

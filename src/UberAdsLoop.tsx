@@ -1,3 +1,4 @@
+import IPhoneBezel, { FRAME_W, FRAME_H, SCREEN_X, SCREEN_Y, SCREEN_W, SCREEN_H, SCREEN_R } from "./IPhoneFrame"
 import UberOfferCard, { DINNER_OFFER, OFFERS, UBER_DISPLAY, UBER_TEXT, swapDurations, type SwapPhase } from "./UberOfferCard"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import usePausablePlaybackTimer, { usePausableSubtreeAnimations } from "./usePausablePlaybackTimer"
@@ -11,20 +12,13 @@ import { cycleMs, type LoopReporter } from "./LoopProgress"
  * offer cards are live text, so their animations stay sharp at each zoom level.
  *
  * Geometry below is measured from the Figma file, not estimated:
- *   - the frame artwork is 473x932, with its screen cut-out at (40, 40) 393x852
- *   - the screen's corner radius is 56, which is the real iPhone 15/16 Pro value
+ *   - Natural Titanium frame geometry is shared through IPhoneFrame
+ *   - the source is scaled uniformly to the existing 393-point screen width
  *   - the offer card sits at (16, 494) in screen space, 358 wide
  *   - the card's own frame adds 16 below it, so the lower chrome starts at
  *     510 + cardHeight and shifts as the offers change height
  */
 
-const FRAME_W = 473
-const FRAME_H = 932
-const SCREEN_X = 40
-const SCREEN_Y = 40
-const SCREEN_W = 393
-const SCREEN_H = 852
-const SCREEN_R = 56
 /**
  * How far the screen is carried past the frame's cut-out, in design pixels.
  *
@@ -307,7 +301,7 @@ export default function UberAdsLoop({
     const [reduced, setReduced] = useState(() => matchMedia("(prefers-reduced-motion: reduce)").matches)
 
     const [step, setStep] = useState(0)
-    // Scale the whole thing from its true 473x932 size. Doing it with one
+    // Scale the whole thing from the shared frame size. Doing it with one
     // transform keeps every measured offset in exact Figma units rather than
     // forcing each one through a percentage conversion.
     useLayoutEffect(() => {
@@ -713,19 +707,7 @@ export default function UberAdsLoop({
 
                     {/* The frame last, so it sits over the screen. This is the
                         Figma asset, not a recreation. */}
-                    <img
-                        src="../../projects/iphone-frame.png"
-                        alt=""
-                        style={{
-                            position: "absolute",
-                            left: 0,
-                            top: 0,
-                            width: "100%",
-                            height: "100%",
-                            display: "block",
-                            pointerEvents: "none",
-                        }}
-                    />
+                    <IPhoneBezel />
                 </div>
             }
         </div>

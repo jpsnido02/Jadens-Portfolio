@@ -1,4 +1,5 @@
 import { useRef, useState, type CSSProperties, type PointerEvent } from "react"
+import { FRAME_W, FRAME_H } from "./IPhoneFrame"
 import UberAdsLoop from "./UberAdsLoop"
 import "./uber-order-comparison.css"
 
@@ -23,7 +24,7 @@ export default function UberOrderComparison() {
 
     return <div className="meal-comparison" id="order-comparison" style={{ "--split": breakfast + "%" } as CSSProperties}>
         <span className="meal-tag meal-tag-left">Breakfast</span>
-        <div className="meal-window" onPointerDown={beginDrag}
+        <div className="meal-window" style={{aspectRatio:`${FRAME_W} / ${FRAME_H}`}} onPointerDown={beginDrag}
             onPointerMove={event => {
                 if (event.isPrimary && event.currentTarget.hasPointerCapture(event.pointerId)) updateSplit(event)
             }}>

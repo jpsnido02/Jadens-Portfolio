@@ -1,3 +1,4 @@
+import IPhoneBezel, { FRAME_W, FRAME_H, SCREEN_X, SCREEN_Y, SCREEN_W, SCREEN_H, SCREEN_R } from "./IPhoneFrame"
 import { useEffect, useRef, useState, type CSSProperties } from "react"
 import useStudySequence from "./useStudySequence"
 import "./pantry-notes.css"
@@ -41,7 +42,7 @@ export default function PantryNotes({playing}:{playing:boolean}) {
     const [scale,setScale]=useState(0)
     const [stepOneOffset,setStepOneOffset]=useState(0)
     useEffect(()=>{
-        const observer=new ResizeObserver(([entry])=>setScale(Math.max(0,Math.min((entry.contentRect.width-28)/473,(entry.contentRect.height-22)/932))))
+        const observer=new ResizeObserver(([entry])=>setScale(Math.max(0,Math.min((entry.contentRect.width-28)/FRAME_W,(entry.contentRect.height-22)/FRAME_H))))
         observer.observe(ref.current!)
         return()=>observer.disconnect()
     },[])
@@ -73,9 +74,9 @@ export default function PantryNotes({playing}:{playing:boolean}) {
     }
     const className = Object.entries(flags).filter(([,on])=>on).map(([name])=>name).join(" ")
     return <div ref={ref} className={`pantry-phone-study ${className}`} data-pantry-phase={phase}>
-        <div className="pnt-device" style={{transform:`translate(-50%,-50%) scale(${scale})`}}>
+        <div className="pnt-device" style={{width:FRAME_W,height:FRAME_H,transform:`translate(-50%,-50%) scale(${scale})`}}>
             {/* The screen bleeds 6 px under the bezel so its corners never show past the frame's curve. */}
-            <div className="pnt-screen"><div className="pnt-content">
+            <div className="pnt-screen" style={{left:SCREEN_X-6,top:SCREEN_Y-6,width:SCREEN_W+12,height:SCREEN_H+12,borderRadius:SCREEN_R+6}}><div className="pnt-content">
                 {/* 00–01 · Home */}
                 <section className="pnt-home-screen">
                     <strong className="pnt-wordmark">pantry notes</strong>
@@ -123,7 +124,7 @@ export default function PantryNotes({playing}:{playing:boolean}) {
                 <div className="pnt-home-indicator"/>
                 <div className="pnt-loop-curtain"/>
             </div></div>
-            <img className="pnt-phone-frame" src="/projects/iphone-frame.png" alt=""/>
+            <IPhoneBezel/>
         </div>
     </div>
 }
