@@ -1,0 +1,28 @@
+/* Inter 4.1: text and display optical designs share one self-hosted variable file.
+   A separate text-family alias preserves existing demo-specific Inter faces. */
+@font-face {
+    font-family: "Portfolio Inter";
+    src: url("/fonts/inter/InterVariable.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+}
+@font-face {
+    font-family: "Inter Display";
+    src: url("/fonts/inter/InterVariable.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+}
+.gallery-intro h1,
+.about-card h2,
+.study-masthead h1,
+.study-section h2,
+.study-section h3,
+.study-reflection h2,
+.study-next strong {
+    font-family: "Inter Display", "Portfolio Inter", Arial, sans-serif;
+    font-variation-settings: "opsz" 32;
+}
+/* Keep the original inherited typography within the product demonstrations. */
+.project-cover { font-family: "Plus Jakarta Sans", Arial, sans-serif; }
