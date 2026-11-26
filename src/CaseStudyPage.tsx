@@ -1,8 +1,11 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react"
-import { bySlug, type Block } from "./caseStudies"
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
+import { bySlug } from "./caseStudies"
 import { visibleProjects, projectLabels, nextProjectSlug, projectSlug } from "./portfolioCatalog"
 import ProjectCover from "./ProjectCover"
 import ProjectEvidence from "./ProjectEvidence"
+import StudyNavigation from "./StudyNavigation"
+import StudyCredits from "./StudyCredits"
+import PantryEditorial from "./PantryEditorial"
 import { SiteIcon } from "./icons"
 import { useTheme } from "./useTheme"
 import type { Palette, ThemeName } from "./theme"
@@ -21,36 +24,39 @@ export default function CaseStudyPage({ slug, embedded = false, appearance, play
     useEffect(() => { if (expanded && dialog.current && !dialog.current.open) dialog.current.showModal() }, [expanded])
     useEffect(() => { setExpanded(null); dialog.current?.close() }, [slug])
     const style = {"--study-bg":palette.background,"--study-ink":palette.text,"--study-muted":palette.textMuted,"--study-line":theme === "dark" ? "#383838" : "#e3e3e3","--study-surface":theme === "dark" ? "#1c1c1c" : "#f6f6f5"} as CSSProperties
+    const chapters = useMemo(() => {
+        const labels: Record<string,string> = {"Design decision":"Design","The design decision":"Design","Finding a recipe":"Recipes","Reading the map":"Structure","Motion design":"Motion"}
+        return [{id:`${slug}-opening`,label:slug === "pantry-notes" ? "Designs" : "Preview"},{id:`${slug}-overview`,label:"Overview"},
+            ...(study?.blocks.flatMap((block,index) => block.kind === "section" ? [{id:`${slug}-section-${index}`,label:labels[block.label] ?? block.label.replace(/^The /i, "").split(" ")[0].replace(/^./, letter => letter.toUpperCase())}] : []) ?? []),
+            ...(study?.blocks.some(block => block.kind === "takeaway") ? [{id:`${slug}-reflection`,label:"Reflection"}] : [])]
+    }, [slug, study])
     if (!study || !project) return <main className="study-page" style={style}><a href="../../">Back to all work</a><h1>This project is not currently featured.</h1></main>
-    const sections = study.blocks.flatMap((block,index) => block.kind === "section" ? [{label:block.label,index}] : [])
     const type = study.shape === "Iteration" ? "experiment" : study.shape === "System" ? "system" : "showcase"
     const abstract = study.blocks.find(block => block.kind === "abstract")
     const reflection = study.blocks.find(block => block.kind === "takeaway")
     const nextSlug = nextProjectSlug(slug)
     const next = bySlug(nextSlug)
-    return <main className={`study-page study-page--${type}`} style={style}>
+    const isPantry = slug === "pantry-notes"
+    const preview = <figure id={`${slug}-${isPantry ? "demo" : "opening"}`} className="study-opening" aria-label={project.description}><div className="study-hero reader-hero"><ProjectCover project={project} index={visibleProjects.indexOf(project)} live={active} interactive={slug === "kalshi-dynamic-ads"}/><button type="button" className="study-expand" aria-label="Expand preview" aria-haspopup="dialog" onClick={() => setExpanded("project")}><SiteIcon name="expand" size={18}/></button></div></figure>
+    return <main className={`study-page study-page--${type}${isPantry ? " study-page--pantry" : ""}`} data-appearance={theme} style={style}>
+        <StudyNavigation chapters={chapters}/>
         <div className="study-column">
             {!embedded && <div className="study-topbar"><a href="../../"><SiteIcon name="back" size={12}/> All work</a><div><button onClick={() => setMotion(value => !value)} aria-label={motion ? "Pause animations" : "Play animations"}><SiteIcon name={motion ? "pause" : "play"}/></button><button onClick={ownTheme.toggle} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}><SiteIcon name={theme === "dark" ? "sun" : "moon"}/></button></div></div>}
-            <figure className="study-opening" aria-label={project.description}><div className="study-hero reader-hero"><ProjectCover project={project} index={visibleProjects.indexOf(project)} live={active} interactive/>
-                <button type="button" className="study-expand" aria-label="Expand preview" aria-haspopup="dialog" onClick={() => setExpanded("project")}>
-                    <SiteIcon name="expand" size={18}/>
-                </button>
-            </div></figure>
-            <header className="study-masthead"><h1>{study.title}</h1><p className="study-summary">{study.preview}</p><dl className="study-facts"><div><dt>My role</dt><dd>{study.role}</dd></div>{study.result && <div><dt>Result</dt><dd>{study.result}</dd></div>}</dl><p className="study-scope">{study.status ?? study.client}{study.year && ` · ${study.year}`}</p></header>
+            {isPantry ? <PantryEditorial playing={active}/> : preview}
+            <header id={`${slug}-overview`} className="study-masthead"><h1>{study.title}</h1><p className="study-summary">{study.result ?? study.preview}</p><StudyCredits study={study}/></header>
             {abstract?.kind === "abstract" && <p className="study-abstract">{abstract.text}</p>}
-            {sections.length > 1 && <nav className="study-chapters" aria-label="Case study chapters">{sections.map(section => <a href={`#${slug}-section-${section.index}`} key={section.index}>{section.label}</a>)}</nav>}
             <div className="study-story">{study.blocks.map((block,index) => {
                 if (block.kind === "abstract") return null
-                if (block.kind === "section") return <section key={index} id={`${slug}-section-${index}`} className="study-section"><div className="study-section-heading"><h2>{block.thesis ?? block.label}</h2></div>{block.body && <p>{block.body}</p>}</section>
+                if (block.kind === "section") return <div key={index}><section id={`${slug}-section-${index}`} className="study-section"><div className="study-section-heading"><h2>{block.thesis ?? block.label}</h2></div>{block.body && <p>{block.body}</p>}</section>{isPantry && index === 1 && preview}</div>
                 if (block.kind === "evidence") return <figure className="study-evidence" key={index} aria-label={block.caption}><ProjectEvidence name={block.name} playing={active}/></figure>
                 if (block.kind === "takeaway") return null
                 if (block.kind === "confidential") return <p key={index} className="study-disclosure">{block.text}</p>
                 if (block.kind === "figure" && block.src) return <figure className="study-evidence" key={index} aria-label={block.caption}><button className="study-image-button" type="button" onClick={() => setExpanded(block.src!)} aria-label={`Expand ${block.alt ?? "project image"}`}><img src={block.src} alt={block.alt ?? ""} loading="lazy"/></button></figure>
                 return null
             })}</div>
-            {reflection?.kind === "takeaway" && <section className="study-reflection"><h2>{reflection.title.replace(/^Takeaway:\s*/i, "")}</h2><p>{reflection.body}</p></section>}
+            {reflection?.kind === "takeaway" && <section id={`${slug}-reflection`} className="study-reflection"><h2>{reflection.title.replace(/^Takeaway:\s*/i, "")}</h2><p>{reflection.body}</p></section>}
             {next && <a className="study-next" href={embedded ? `../${nextSlug}/` : `../${nextSlug}/`}><div><span>Next project</span><strong>{projectLabels[nextSlug] ?? next.title}</strong><p>{next.preview}</p></div><SiteIcon name="next" size={20}/></a>}
         </div>
-        <dialog ref={dialog} className="study-lightbox" onClose={() => setExpanded(null)} aria-label="Expanded project preview"><div className="study-lightbox-toolbar"><button type="button" className="study-lightbox-pause" onClick={() => setEnlargedMotion(value => !value)}><SiteIcon name={enlargedMotion ? "pause" : "play"} size={12}/>{enlargedMotion ? "Pause preview" : "Play preview"}</button><button className="study-lightbox-close" type="button" onClick={() => dialog.current?.close()} autoFocus><SiteIcon name="close" size={18}/> Close preview</button></div>{expanded === "project" ? <div className="study-lightbox-stage"><ProjectCover project={project} index={visibleProjects.indexOf(project)} live={active && enlargedMotion} interactive/></div> : expanded && <img src={expanded} alt="Expanded project evidence"/>}</dialog>
+        <dialog ref={dialog} className="study-lightbox" onClose={() => setExpanded(null)} aria-label="Expanded project preview"><div className="study-lightbox-toolbar">{expanded === "project" && <button type="button" className="study-lightbox-pause" onClick={() => setEnlargedMotion(value => !value)}><SiteIcon name={enlargedMotion ? "pause" : "play"} size={12}/>{enlargedMotion ? "Pause preview" : "Play preview"}</button>}<button className="study-lightbox-close" type="button" onClick={() => dialog.current?.close()} autoFocus><SiteIcon name="close" size={18}/> Close preview</button></div>{expanded === "project" ? <div className="study-lightbox-stage"><ProjectCover project={project} index={visibleProjects.indexOf(project)} live={active && enlargedMotion} interactive={slug === "kalshi-dynamic-ads"}/></div> : expanded && <img src={expanded} alt="Expanded project evidence"/>}</dialog>
     </main>
 }
