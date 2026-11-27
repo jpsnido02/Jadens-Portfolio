@@ -320,9 +320,6 @@ export default function KalshiPreview({ playing, interactive = false }: { playin
                         <img src="/projects/kalshi/sf-offer.png" alt="" onError={event => { event.currentTarget.hidden = true }} />
                     </div>
                 </div>
-                <p className="kalshi-terms" role="status">{confirmed && offer
-                    ? `${offer.team} offer selected in this demo. No bet was placed.`
-                    : null}</p>
             </section>
             {tap && <span key={tap.approach} ref={tapIndicator} className="kalshi-tap-target" aria-hidden="true">
                 {tapStep === "approach"

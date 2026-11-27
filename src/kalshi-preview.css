@@ -37,7 +37,7 @@ button.kalshi-game:active, .kalshi-game[data-clicking="true"] { scale:.97; }
     transform:scale(1.06); z-index:1; border-color:#5edcb6; background:#173c30;
 }
 .kalshi-game:is([aria-pressed="true"],[data-selected="true"]) ~ .kalshi-game { transform:translateX(6%); }
-.kalshi-game:focus-visible,.kalshi-claim:focus-visible { outline:3px solid #ffda66; outline-offset:5px; }
+.kalshi-game:focus-visible { outline:3px solid #ffda66; outline-offset:5px; }
 .kalshi-game-status { display:flex; align-items:center; justify-content:space-between; gap:6px; min-height:28px; font-size:17px; font-weight:500; color:#bfd1c8; }
 .kalshi-score-event { font-weight:700; color:#ffda66; font-size:13px; animation:kalshi-event-reveal 850ms cubic-bezier(.35,0,.3,1) both; }
 @keyframes kalshi-event-reveal { from { clip-path:circle(0% at center); } to { clip-path:circle(72% at center); } }
@@ -66,11 +66,11 @@ button.kalshi-game:active, .kalshi-game[data-clicking="true"] { scale:.97; }
     width:min(100%,740px); margin-top:32px; padding:24px;
     border-radius:18px; background:#fff; color:#000; box-shadow:0 8px 24px rgba(20,29,25,.10);
 }
-.kalshi-offer-copy h3 { margin:0 0 16px; color:#000; font-size:24px; line-height:1.13; font-weight:500; }
-.kalshi-payout-label { margin:0 0 5px; color:#b1b1b1; font-size:14px; font-weight:500; line-height:1.2; text-transform:uppercase; }
+.kalshi-offer-copy h3 { margin:0 0 16px; color:#000; font-size:27px; line-height:1.13; font-weight:700; letter-spacing:-.025em; }
+.kalshi-payout-label { margin:0 0 5px; color:#53645d; font-size:14px; font-weight:600; line-height:1.35; letter-spacing:.035em; text-transform:uppercase; }
 .kalshi-payout {
     overflow:hidden; min-height:54px; font-size:48px; font-variant-numeric:tabular-nums;
-    line-height:1.08; color:#00d49b;
+    line-height:1.08; color:#007455;
 }
 .kalshi-payout strong { display:block; font-weight:700; }
 .kalshi-a11y-payout { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
@@ -84,13 +84,13 @@ button.kalshi-game:active, .kalshi-game[data-clicking="true"] { scale:.97; }
 .kalshi-claim {
     position:relative;
     display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:10px 22px;
-    border:0; border-radius:100px; background:#00d49b; color:#062118; font:700 16px "Portfolio Inter",Arial,sans-serif;
+    border:0; border-radius:100px; background:#007455; color:#fff; font:700 16px "Portfolio Inter",Arial,sans-serif;
     margin-top:9px;
 }
 button.kalshi-claim:not(:disabled) { cursor:pointer; }
 button.kalshi-claim:active, .kalshi-claim[data-pressed="true"] { transform:scale(.97); }
-.kalshi-claim:is(:disabled,[data-disabled="true"]) { background:#00d49b; color:#062118; }
-.kalshi-terms { margin:18px 0 0; min-height:28px; color:#b1b1b1; font-size:18px; font-weight:500; line-height:1.25; }
+.kalshi-claim:focus-visible { outline:3px solid #007455; outline-offset:4px; }
+.kalshi-claim:is(:disabled,[data-disabled="true"]) { background:#e6f2ed; color:#53645d; }
 .kalshi-preview[data-compact="true"] .kalshi-stage { width:600px; height:650px; }
 .kalshi-preview[data-compact="true"] .kalshi-game-list { grid-template-columns:1fr; gap:12px; padding-right:6%; }
 .kalshi-preview[data-compact="true"] .kalshi-game:is([aria-pressed="true"],[data-selected="true"]) ~ .kalshi-game {
@@ -106,12 +106,11 @@ button.kalshi-claim:active, .kalshi-claim[data-pressed="true"] { transform:scale
 .kalshi-preview[data-compact="true"] .kalshi-game-line img { height:30px; }
 .kalshi-preview[data-compact="true"] .kalshi-game-chance { font-size:22px; }
 .kalshi-preview[data-compact="true"] .kalshi-game-meter { grid-column:1 / -1; margin-top:7px; height:10px; }
-.kalshi-preview[data-compact="true"] .kalshi-creative { grid-template-columns:minmax(0,1fr) 162px; gap:12px; margin-top:24px; padding:18px; }
-.kalshi-preview[data-compact="true"] .kalshi-offer-copy h3 { margin-bottom:9px; font-size:26px; }
+.kalshi-preview[data-compact="true"] .kalshi-creative { grid-template-columns:minmax(0,1fr) 132px; gap:22px; margin-top:24px; padding:24px; }
+.kalshi-preview[data-compact="true"] .kalshi-offer-copy h3 { margin-bottom:12px; font-size:28px; }
 .kalshi-preview[data-compact="true"] .kalshi-payout { font-size:44px; min-height:48px; }
-.kalshi-preview[data-compact="true"] .kalshi-payout-label { font-size:19px; }
-.kalshi-preview[data-compact="true"] .kalshi-claim { font-size:23px; min-height:62px; padding-inline:16px; }
-.kalshi-preview[data-compact="true"] .kalshi-terms { font-size:19px; margin-top:12px; }
+.kalshi-preview[data-compact="true"] .kalshi-payout-label { font-size:17px; }
+.kalshi-preview[data-compact="true"] .kalshi-claim { font-size:21px; min-height:72px; padding-inline:24px; }
 @media (prefers-reduced-motion:reduce) {
     .kalshi-game { transition:none; }
     button.kalshi-game:active { scale:1; }
