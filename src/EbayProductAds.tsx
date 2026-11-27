@@ -14,19 +14,19 @@ const products = [
 /** Static offer artwork: the gallery card is the only interactive target. */
 export default function EbayProductAds() {
     const root = useRef<HTMLDivElement>(null)
-    const [layout, setLayout] = useState({ scale: 0, compact: false })
+    const [scale, setScale] = useState(0)
     useEffect(() => {
         const observer = new ResizeObserver(([entry]) => {
             const { width, height } = entry.contentRect
-            const compact = width < 480
-            setLayout({ compact, scale: Math.min(width / (compact ? 440 : 960), height / (compact ? 740 : 808)) })
+            // Scale the complete desktop composition uniformly at every viewport size.
+            setScale(Math.min(width / 960, height / 808))
         })
         observer.observe(root.current!)
         return () => observer.disconnect()
     }, [])
 
-    return <div ref={root} className={`ebay-dpa ${layout.compact ? "ebay-dpa--compact" : ""}`}>
-        <div className="ebay-dpa-scene" style={{ transform: `translate(-50%, -50%) scale(${layout.scale})`, visibility: layout.scale ? "visible" : "hidden" }}>
+    return <div ref={root} className="ebay-dpa">
+        <div className="ebay-dpa-scene" style={{ transform: `translate(-50%, -50%) scale(${scale})`, visibility: scale ? "visible" : "hidden" }}>
             <section className="ebay-dpa-panel">
                 <header className="ebay-dpa-header">
                     <img src="/projects/agent-logos/ebay.svg" alt="eBay" className="ebay-dpa-logo" />

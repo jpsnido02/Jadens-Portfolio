@@ -28,26 +28,5 @@
 .portfolio .ebay-dpa-shop { background:#094ce2; color:#fff; }
 .portfolio .ebay-dpa-decline { border:1.5px solid #094ce2; color:#094ce2; }
 .ebay-dpa ::selection { background:#c4dcff; color:#191919; }
-.ebay-dpa--compact .ebay-dpa-scene { width:440px; height:740px; }
-.ebay-dpa--compact .ebay-dpa-panel { top:40px; left:24px; width:340px; height:642px; border-radius:20px; }
-.ebay-dpa--compact .ebay-dpa-header { padding:18px; gap:12px; }
-.ebay-dpa--compact .ebay-dpa-logo { width:60px; height:26px; }
-.ebay-dpa--compact .ebay-dpa-header>span { font-size:13px; }
-.ebay-dpa--compact .ebay-dpa-close { width:18px; height:20px; }
-.ebay-dpa--compact .ebay-dpa-close svg { width:18px; height:18px; }
-.ebay-dpa--compact .ebay-dpa-offer { padding:22px 18px; }
-.ebay-dpa--compact .ebay-dpa-offer h3 { font-size:24px; line-height:1.25; }
-.ebay-dpa--compact .ebay-dpa-brand-row { gap:12px; margin-top:20px; }
-.ebay-dpa--compact .ebay-dpa-advertiser { gap:9px; padding:3px 12px 3px 3px; height:46px; }
-.ebay-dpa--compact .ebay-dpa-advertiser img { width:36px; height:36px; }
-.ebay-dpa--compact .ebay-dpa-advertiser>span { font-size:21px; }
-.ebay-dpa--compact .ebay-dpa-discount { height:34px; padding:0 10px; border-radius:10px; font-size:17px; }
-.ebay-dpa--compact .ebay-dpa-products { top:306px; left:42px; width:356px; gap:8px; }
-.ebay-dpa--compact .ebay-dpa-product { border-radius:12px; box-shadow:0 8px 14px #233d5c1a; }
-.ebay-dpa--compact .ebay-dpa-product-image { border-radius:12px 12px 0 0; }
-.ebay-dpa--compact .ebay-dpa-product-copy { padding:12px 8px 14px; }
-.ebay-dpa--compact .ebay-dpa-product h4 { min-height:96px; font-size:12px; line-height:16px; }
-.ebay-dpa--compact .ebay-dpa-product-price { font-size:12px; line-height:18px; }
-.ebay-dpa--compact .ebay-dpa-actions { left:18px; right:18px; bottom:26px; gap:10px; }
-.ebay-dpa--compact .ebay-dpa-shop,.ebay-dpa--compact .ebay-dpa-decline { min-height:48px; font-size:19px; }
-@media(max-width:600px) { .portfolio:not(.is-reading) [data-project="rokt-catalog"] .tile-visual { aspect-ratio:.59; } }
+/* Keep the same landscape canvas on phones; only the complete scene scales. */
+.portfolio:not(.is-reading) [data-project="rokt-catalog"] .tile-visual { aspect-ratio:1.4; }
